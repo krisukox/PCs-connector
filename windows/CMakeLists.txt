@@ -1,11 +1,28 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.14.5)
 
 project(pcs_connector)
 
-set(BOOST_INCLUDEDIR "D:/pcs-connector/boost_1_62_0/")
-set(Boost_USE_STATIC_LIBS ON)
+#find_package(Qt5Core)
+#find_package(Qt5Core CONFIG REQUIRED)
+set(Boost_ARCHITECTURE "-x64")
+set(Boost_COMPILER "-vc141")
+set (Boost_DETAILED_FAILURE_MSG ON)
+set(BOOST_ROOT "D:/pcs-connector/boost_1_70_0/")
+set(BOOST_INCLUDEDIR     "D:/pcs-connector/boost_1_70_0/")
+set(BOOST_LIBRARYDIR "D:/pcs-connector/boost_1_70_0/stage/lib/")
+SET (BOOST_MIN_VERSION "1.70.0")
+set (Boost_NO_BOOST_CMAKE ON)
+#set(Boost_ADDITIONAL_VERSIONS "1.70" "1.70.0")
+set(Boost_DEBUG ON)
+set(Boost_USE_STATIC_LIBS        ON)
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
 
-find_package(Boost 1.62.0 COMPONENTS regex system date_time)
+find_package(Boost 1.70.0 COMPONENTS system date_time regex)
+if(Boost_FOUND)
+    MESSAGE( STATUS ">>>>>>>>>>>>" )
+endif(Boost_FOUND)
+
 
 add_executable(${PROJECT_NAME} main.cpp
                                src/Client.cpp
@@ -13,11 +30,22 @@ add_executable(${PROJECT_NAME} main.cpp
                                src/Keyboard.cpp
                                include/Client.hpp
                                include/Console.hpp
-                               include/Keyboard.hpp)
+                               include/Keyboard.hpp
+                               include/chat_message.hpp)
 
 add_library(include-path INTERFACE)
 
 target_include_directories(include-path INTERFACE include/)
-include_directories(boost-path ../../boost_1_62_0/)
+include_directories(boost-path ../../boost_1_70_0/)
 
 target_link_libraries(${PROJECT_NAME} include-path ${Boost_LIBRARIES})
+
+#target_link_libraries(
+#    ${PROJECT_NAME}
+#    LINK_PUBLIC
+#    ${Boost_LIBRARIES} )
+
+#target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui)
+
+#get_target_property(QtCore_location Qt5::Core LOCATION)
+

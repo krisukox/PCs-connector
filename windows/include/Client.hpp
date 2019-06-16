@@ -1,8 +1,8 @@
 #pragma once
 
+#include <WinSock2.h>
 #include <memory>
 #include <string>
-#include <WinSock2.h>
 #include <ws2tcpip.h>
 
 #include "Console.hpp"
@@ -10,11 +10,11 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-
 class Client
 {
 public:
     Client();
+
 private:
     void initializeWinSock();
     void createSocket();
