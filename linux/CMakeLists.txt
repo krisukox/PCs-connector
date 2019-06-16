@@ -26,13 +26,16 @@ add_executable(${PROJECT_NAME} src/FakeKey.cpp
                                include/FakeKey.hpp
                                src/Server.cpp
                                include/Server.hpp
+                               include/chat_message.hpp
                                main.cpp)
 
 
 target_link_libraries (${PROJECT_NAME} X11)
 target_link_libraries (${PROJECT_NAME} Xtst)
 target_link_libraries (${PROJECT_NAME} boost_system)
+target_link_libraries (${PROJECT_NAME} pthread)
 
+INCLUDE_DIRECTORIES(boost-path ../../boost_1_70_0/)
 
 
 add_custom_target(build_run

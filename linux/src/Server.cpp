@@ -6,11 +6,14 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
-#include <string.h>
-#include <string>
+//#include <string.h>
+//#include <string>
+#include <cstring>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <X11/extensions/XTest.h>
+#include <boost/asio.hpp>
+#include <boost/asio/ip/impl/address_v4.hpp>
 
 
 Server::Server()
@@ -38,15 +41,17 @@ Server::Server()
     socklen_t clientSize = sizeof(client);
 
     int clientSocket = accept(listening, (sockaddr*)&client, &clientSize);
-
+    std::cout<<"CUKIAJWD"<<std::endl;
     char host[NI_MAXHOST];      // Client's remote name
     char service[NI_MAXSERV];   // Service (i.e. port) the client is connect on
 
-    memset(host, 0, NI_MAXHOST); // same as memset(host, 0, NI_MAXHOST);
+    std::memset(host, 0, NI_MAXHOST); // same as memset(host, 0, NI_MAXHOST);
     memset(service, 0, NI_MAXSERV);
 
     if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
     {
+        std::cout<<client.sin_port<<std::endl;
+        std::cout<<boost::asio::ip::address_v4(client.sin_addr.s_addr)<<std::endl;
         std::cout << host << " connected on port " << service << std::endl;
     }
     else

@@ -1,126 +1,234 @@
+//#include "include/FakeKey.hpp"
+//#include "include/Server.hpp"
+//#include <cstring>
+//#include <boost/asio.hpp>
 //#include <iostream>
-//#include <stdio.h>
-//#include <sys/types.h>
-//#include <sys/socket.h>
-//#include <netinet/in.h>
-//#include <netdb.h>
+#include <cstdlib>
+#include <deque>
+#include <iostream>
+#include <list>
+#include <memory>
+#include <set>
+#include <utility>
+#include <boost/asio.hpp>
+#include <boost/asio/io_context.hpp>
+#include "include/chat_message.hpp"
 
-//using namespace std;
 
-//int main(int argc, char *argv[])
+//int main()
 //{
-//    socket()
+//    boost::asio::ip::address_v4 add{128};
+//    std::cout<<add<<std::endl;
+
+//    Server server;
+
 //}
 
 
-#include <iostream>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <string.h>
-#include <string>
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
-#include <X11/extensions/XTest.h>
-#include "include/FakeKey.hpp"
-#include "include/Server.hpp"
+using boost::asio::ip::tcp;
 
-using namespace std;
+//----------------------------------------------------------------------
 
-int main()
+typedef std::deque<chat_message> chat_message_queue;
+
+//----------------------------------------------------------------------
+
+class chat_participant
 {
-    Server server;
-//    FakeKey fakeKey;
+public:
+  virtual ~chat_participant() {}
+  virtual void deliver(const chat_message& msg) = 0;
+};
 
-//    fakeKey.pressKey(XK_KP_Enter);
+typedef std::shared_ptr<chat_participant> chat_participant_ptr;
 
+//----------------------------------------------------------------------
 
+class chat_room
+{
+public:
+  void join(chat_participant_ptr participant)
+  {
+    participants_.insert(participant);
+    for (auto msg: recent_msgs_)
+      participant->deliver(msg);
+  }
 
-////     Create a socket
-//    int listening = socket(AF_INET, SOCK_STREAM, 0);
-//    if (listening == -1)
-//    {
-//        cerr << "Can't create a socket! Quitting" << endl;
-//        return -1;
-//    }
+  void leave(chat_participant_ptr participant)
+  {
+    participants_.erase(participant);
+  }
 
-//    // Bind the ip address and port to a socket
-//    sockaddr_in hint;
-//    hint.sin_family = AF_INET;
-//    hint.sin_port = htons(54000);
-//    inet_pton(AF_INET, "0.0.0.0", &hint.sin_addr);
+  void deliver(const chat_message& msg)
+  {
+    recent_msgs_.push_back(msg);
+    while (recent_msgs_.size() > max_recent_msgs)
+      recent_msgs_.pop_front();
 
-//    bind(listening, (sockaddr*)&hint, sizeof(hint));
+    for (auto participant: participants_)
+      participant->deliver(msg);
+  }
 
-//    // Tell Winsock the socket is for listening
-//    listen(listening, SOMAXCONN);
+private:
+  std::set<chat_participant_ptr> participants_;
+  enum { max_recent_msgs = 100 };
+  chat_message_queue recent_msgs_;
+};
 
-//    // Wait for a connection
-//    sockaddr_in client;
-//    socklen_t clientSize = sizeof(client);
+//----------------------------------------------------------------------
 
-//    int clientSocket = accept(listening, (sockaddr*)&client, &clientSize);
+class chat_session
+  : public chat_participant,
+    public std::enable_shared_from_this<chat_session>
+{
+public:
+  chat_session(tcp::socket socket, chat_room& room)
+    : socket_(std::move(socket)),
+      room_(room)
+  {
+  }
 
-//    char host[NI_MAXHOST];      // Client's remote name
-//    char service[NI_MAXSERV];   // Service (i.e. port) the client is connect on
+  void start()
+  {
+    room_.join(shared_from_this());
+    do_read_header();
+  }
 
-//    memset(host, 0, NI_MAXHOST); // same as memset(host, 0, NI_MAXHOST);
-//    memset(service, 0, NI_MAXSERV);
+  void deliver(const chat_message& msg)
+  {
+    bool write_in_progress = !write_msgs_.empty();
+    write_msgs_.push_back(msg);
+    if (!write_in_progress)
+    {
+      do_write();
+    }
+  }
 
-//    if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
-//    {
-//        cout << host << " connected on port " << service << endl;
-//    }
-//    else
-//    {
-//        inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST);
-//        cout << host << " connected on port " << ntohs(client.sin_port) << endl;
-//    }
+private:
+  void do_read_header()
+  {
+    auto self(shared_from_this());
+    boost::asio::async_read(socket_,
+        boost::asio::buffer(read_msg_.data(), chat_message::header_length),
+        [this, self](boost::system::error_code ec, std::size_t /*length*/)
+        {
+          if (!ec && read_msg_.decode_header())
+          {
+            do_read_body();
+          }
+          else
+          {
+            room_.leave(shared_from_this());
+          }
+        });
+  }
 
-//    // Close listening socket
-//    close(listening);
+  void do_read_body()
+  {
+    auto self(shared_from_this());
+    boost::asio::async_read(socket_,
+        boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
+        [this, self](boost::system::error_code ec, std::size_t /*length*/)
+        {
+          if (!ec)
+          {
+            room_.deliver(read_msg_);
+            do_read_header();
+          }
+          else
+          {
+            room_.leave(shared_from_this());
+          }
+        });
+  }
 
-//    // While loop: accept and echo message back to client
-//    char buf[4096];
+  void do_write()
+  {
+    auto self(shared_from_this());
+    boost::asio::async_write(socket_,
+        boost::asio::buffer(write_msgs_.front().data(),
+          write_msgs_.front().length()),
+        [this, self](boost::system::error_code ec, std::size_t /*length*/)
+        {
+          if (!ec)
+          {
+            write_msgs_.pop_front();
+            if (!write_msgs_.empty())
+            {
+              do_write();
+            }
+          }
+          else
+          {
+            room_.leave(shared_from_this());
+          }
+        });
+  }
 
-//    while (true)
-//    {
-//        memset(buf, 0, 4096);
+  tcp::socket socket_;
+  chat_room& room_;
+  chat_message read_msg_;
+  chat_message_queue write_msgs_;
+};
 
-//        // Wait for client to send data
-//        int bytesReceived = recv(clientSocket, buf, 4096, 0);
-//        if (bytesReceived == -1)
-//        {
-//            cerr << "Error in recv(). Quitting" << endl;
-//            break;
-//        }
+//----------------------------------------------------------------------
 
-//        if (bytesReceived == 0)
-//        {
-//            cout << "Client disconnected " << endl;
-//            break;
-//        }
+class chat_server
+{
+public:
+  chat_server(boost::asio::io_context& io_context,
+      const tcp::endpoint& endpoint)
+    : acceptor_(io_context, endpoint)
+  {
+    do_accept();
+  }
 
-//        string received = string(buf, 0, bytesReceived);
+private:
+  void do_accept()
+  {
+    acceptor_.async_accept(
+        [this](boost::system::error_code ec, tcp::socket socket)
+        {
+          if (!ec)
+          {
+            std::make_shared<chat_session>(std::move(socket), room_)->start();
+          }
 
-////        cout << received << endl;
-//        if(received.at(0) == 'A')
-//        {
-//            fakeKey.pressKey(XK_A);
-//        }
-//        else if(received.at(0) == 'B')
-//        {
-//            fakeKey.pressKey(XK_B);
-//        }
+          do_accept();
+        });
+  }
 
-//        // Echo message back to client
-//        send(clientSocket, buf, bytesReceived + 1, 0);
-//    }
+  tcp::acceptor acceptor_;
+  chat_room room_;
+};
 
-//    // Close the socket
-//    close(clientSocket);
+//----------------------------------------------------------------------
 
-    return 0;
+int main(int argc, char* argv[])
+{
+  try
+  {
+    if (argc < 2)
+    {
+      std::cerr << "Usage: chat_server <port> [<port> ...]\n";
+      return 1;
+    }
+
+    boost::asio::io_context io_context;
+
+    std::list<chat_server> servers;
+    for (int i = 1; i < argc; ++i)
+    {
+      tcp::endpoint endpoint(tcp::v4(), std::atoi(argv[i]));
+      servers.emplace_back(io_context, endpoint);
+    }
+
+    io_context.run();
+  }
+  catch (std::exception& e)
+  {
+    std::cerr << "Exception: " << e.what() << "\n";
+  }
+
+  return 0;
 }
