@@ -6,6 +6,7 @@ public:
     FakeKey();
     ~FakeKey();
     void pressKey(u_int16_t keyId);
+
 private:
-    Display *display;
+    Display* display;
 };

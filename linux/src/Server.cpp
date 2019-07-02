@@ -1,20 +1,19 @@
 #include "../include/Server.hpp"
-#include "../include/FakeKey.hpp"
-#include <iostream>
-#include <sys/types.h>
-#include <unistd.h>
 #include <sys/socket.h>
-#include <netdb.h>
+#include <sys/types.h>
 #include <arpa/inet.h>
+#include <iostream>
+#include <netdb.h>
+#include <unistd.h>
+#include "../include/FakeKey.hpp"
 //#include <string.h>
 //#include <string>
-#include <cstring>
 #include <X11/Xlib.h>
-#include <X11/keysym.h>
 #include <X11/extensions/XTest.h>
+#include <X11/keysym.h>
 #include <boost/asio.hpp>
 #include <boost/asio/ip/impl/address_v4.hpp>
-
+#include <cstring>
 
 Server::Server()
 {
@@ -41,17 +40,17 @@ Server::Server()
     socklen_t clientSize = sizeof(client);
 
     int clientSocket = accept(listening, (sockaddr*)&client, &clientSize);
-    std::cout<<"CUKIAJWD"<<std::endl;
-    char host[NI_MAXHOST];      // Client's remote name
-    char service[NI_MAXSERV];   // Service (i.e. port) the client is connect on
+    std::cout << "CUKIAJWD" << std::endl;
+    char host[NI_MAXHOST]; // Client's remote name
+    char service[NI_MAXSERV]; // Service (i.e. port) the client is connect on
 
     std::memset(host, 0, NI_MAXHOST); // same as memset(host, 0, NI_MAXHOST);
     memset(service, 0, NI_MAXSERV);
 
     if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
     {
-        std::cout<<client.sin_port<<std::endl;
-        std::cout<<boost::asio::ip::address_v4(client.sin_addr.s_addr)<<std::endl;
+        std::cout << client.sin_port << std::endl;
+        std::cout << boost::asio::ip::address_v4(client.sin_addr.s_addr) << std::endl;
         std::cout << host << " connected on port " << service << std::endl;
     }
     else
@@ -87,19 +86,19 @@ Server::Server()
 
         unsigned asciiCode = static_cast<unsigned>(received.at(0));
 
-        if(65 <= asciiCode && 90 >= asciiCode )
+        if (65 <= asciiCode && 90 >= asciiCode)
         {
             fakeKey.pressKey(asciiCode);
         }
 
-//        if(received.at(0) == 'A')
-//        {
-//            fakeKey.pressKey(XK_A);
-//        }
-//        else if(received.at(0) == 'B')
-//        {
-//            fakeKey.pressKey(XK_B);
-//        }
+        //        if(received.at(0) == 'A')
+        //        {
+        //            fakeKey.pressKey(XK_A);
+        //        }
+        //        else if(received.at(0) == 'B')
+        //        {
+        //            fakeKey.pressKey(XK_B);
+        //        }
 
         // Echo message back to client
         send(clientSocket, buf, bytesReceived + 1, 0);
