@@ -23,10 +23,11 @@ find_library(XTEST_LIBRARY NAMES Xtst
 )
 
 add_executable(${PROJECT_NAME} src/FakeKey.cpp
-                               include/FakeKey.hpp
                                src/Server.cpp
+                               src/ServerSession.cpp
+                               include/FakeKey.hpp
                                include/Server.hpp
-                               include/chat_message.hpp
+                               include/ServerSession.hpp
                                main.cpp)
 
 
