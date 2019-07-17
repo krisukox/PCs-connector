@@ -87,6 +87,7 @@ public:
 
     void start()
     {
+        std::cout << "start" << std::endl;
         room_.join(shared_from_this());
         do_read_header();
     }
@@ -102,13 +103,21 @@ public:
     }
 
 private:
+    //    char* charPtr = new char[3];
+    std::string strr{3};
     void do_read_header()
     {
+        std::cout << strr.length() << std::endl;
+        std::cout << strr << std::endl;
+        //        char* charPtr = new char[3];
+        std::cout << "READ HEADER" << std::endl;
         auto self(shared_from_this());
         boost::asio::async_read(
             socket_,
-            boost::asio::buffer(read_msg_.data(), chat_message::header_length),
+            boost::asio::buffer(charPtr, 3),
             [this, self](boost::system::error_code ec, std::size_t /*length*/) {
+                std::cout << "header >>" << charPtr[0] << charPtr[1] << charPtr[2] << std::endl;
+                std::cout << "header >>" << read_msg_.body()[0] << read_msg_.body()[1] << std::endl;
                 if (!ec && read_msg_.decode_header())
                 {
                     do_read_body();
@@ -122,17 +131,22 @@ private:
 
     void do_read_body()
     {
+        std::cout << "READ BODY" << std::endl;
+        std::cout << "LENGTH: " << read_msg_.body_length() << std::endl;
+        std::cout << "LENGTH: " << read_msg_.length() << std::endl;
         auto self(shared_from_this());
         boost::asio::async_read(
             socket_,
-            boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
+            boost::asio::buffer(read_msg_.body(), 0),
             [this, self](boost::system::error_code ec, std::size_t /*length*/) {
+                std::cout << "cos" << std::endl;
+                //                std::cout << charPtr << std::endl;
                 if (!ec)
                 {
-                    std::cout.write(read_msg_.body(), read_msg_.body_length());
+                    //                    std::cout.write(read_msg_.body(), read_msg_.body_length());
                     fakeKey.pressKey(static_cast<u_int16_t>(read_msg_.body()[0]));
                     std::cout << "DOSTALO" << std::endl;
-                    room_.deliver(read_msg_);
+                    //                                        room_.deliver(read_msg_);
                     do_read_header();
                 }
                 else
@@ -169,6 +183,7 @@ private:
     chat_message read_msg_;
     chat_message_queue write_msgs_;
     FakeKey& fakeKey;
+    char* charPtr = new char[1];
 };
 
 //----------------------------------------------------------------------

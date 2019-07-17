@@ -19,7 +19,7 @@ class chat_message
 public:
     enum
     {
-        header_length = 4
+        header_length = 2
     };
     enum
     {
