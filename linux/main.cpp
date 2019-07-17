@@ -120,33 +120,7 @@ private:
                 std::cout << "header >>" << read_msg_.body()[0] << read_msg_.body()[1] << std::endl;
                 if (!ec && read_msg_.decode_header())
                 {
-                    do_read_body();
-                }
-                else
-                {
-                    room_.leave(shared_from_this());
-                }
-            });
-    }
-
-    void do_read_body()
-    {
-        std::cout << "READ BODY" << std::endl;
-        std::cout << "LENGTH: " << read_msg_.body_length() << std::endl;
-        std::cout << "LENGTH: " << read_msg_.length() << std::endl;
-        auto self(shared_from_this());
-        boost::asio::async_read(
-            socket_,
-            boost::asio::buffer(read_msg_.body(), 0),
-            [this, self](boost::system::error_code ec, std::size_t /*length*/) {
-                std::cout << "cos" << std::endl;
-                //                std::cout << charPtr << std::endl;
-                if (!ec)
-                {
-                    //                    std::cout.write(read_msg_.body(), read_msg_.body_length());
-                    fakeKey.pressKey(static_cast<u_int16_t>(read_msg_.body()[0]));
-                    std::cout << "DOSTALO" << std::endl;
-                    //                                        room_.deliver(read_msg_);
+                    std::cout << "JEST W DO_READ_BODY\n";
                     do_read_header();
                 }
                 else
@@ -155,6 +129,33 @@ private:
                 }
             });
     }
+
+    //    void do_read_body()
+    //    {
+    //        std::cout << "READ BODY" << std::endl;
+    //        std::cout << "LENGTH: " << read_msg_.body_length() << std::endl;
+    //        std::cout << "LENGTH: " << read_msg_.length() << std::endl;
+    //        auto self(shared_from_this());
+    //        boost::asio::async_read(
+    //            socket_,
+    //            boost::asio::buffer(read_msg_.body(), 0),
+    //            [this, self](boost::system::error_code ec, std::size_t /*length*/) {
+    //                std::cout << "cos" << std::endl;
+    //                //                std::cout << charPtr << std::endl;
+    //                if (!ec)
+    //                {
+    //                    //                    std::cout.write(read_msg_.body(), read_msg_.body_length());
+    //                    fakeKey.pressKey(static_cast<u_int16_t>(read_msg_.body()[0]));
+    //                    std::cout << "DOSTALO" << std::endl;
+    //                    //                                        room_.deliver(read_msg_);
+    //                    do_read_header();
+    //                }
+    //                else
+    //                {
+    //                    room_.leave(shared_from_this());
+    //                }
+    //            });
+    //    }
 
     void do_write()
     {
