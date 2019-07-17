@@ -18,12 +18,12 @@ public:
     chat_client(boost::asio::io_context&, const tcp::resolver::results_type&);
     void write(const chat_message& msg);
     void close();
+    void do_write();
 
 private:
     void do_connect(const tcp::resolver::results_type&);
     void do_read_header();
     void do_read_body();
-    void do_write();
     //    std::unique_ptr<Keyboard> keyboard;
     //    WSAData winSockData;
     //    std::string ipAddress = "192.168.0.22";
@@ -35,4 +35,5 @@ private:
     tcp::socket socket_;
     chat_message read_msg_;
     chat_message_queue write_msgs_;
+    chat_message chatMsg;
 };

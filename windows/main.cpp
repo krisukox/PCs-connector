@@ -56,8 +56,10 @@ int main(int, char*[])
             msg.body_length(1);
             msg.body()[0] = static_cast<char>(key);
             //            std::memcpy(msg.body(), line, msg.body_length());
+            std::cout << "HEADER0" << std::endl;
             msg.encode_header();
-            c.write(msg);
+            std::cout << "HEADER3" << std::endl;
+            c.do_write();
         });
         while (true)
             ;
