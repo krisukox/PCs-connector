@@ -89,7 +89,7 @@ public:
     {
         std::cout << "start" << std::endl;
         room_.join(shared_from_this());
-        do_read_header();
+        readBody();
     }
 
     void deliver(const chat_message& msg)
@@ -103,25 +103,19 @@ public:
     }
 
 private:
-    //    char* charPtr = new char[3];
-    std::string strr{3};
-    void do_read_header()
+    void readBody()
     {
-        std::cout << strr.length() << std::endl;
-        std::cout << strr << std::endl;
-        //        char* charPtr = new char[3];
         std::cout << "READ HEADER" << std::endl;
         auto self(shared_from_this());
         boost::asio::async_read(
             socket_,
-            boost::asio::buffer(charPtr, 3),
+            boost::asio::buffer(charPtr, 2),
             [this, self](boost::system::error_code ec, std::size_t /*length*/) {
-                std::cout << "header >>" << charPtr[0] << charPtr[1] << charPtr[2] << std::endl;
-                std::cout << "header >>" << read_msg_.body()[0] << read_msg_.body()[1] << std::endl;
+                std::cout << "header >>" << charPtr[0] << charPtr[1] << std::endl;
                 if (!ec && read_msg_.decode_header())
                 {
                     std::cout << "JEST W DO_READ_BODY\n";
-                    do_read_header();
+                    readBody();
                 }
                 else
                 {
