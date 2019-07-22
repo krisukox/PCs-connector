@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.14.5)
+set (CMAKE_CXX_STANDARD 17)
 
 project(pcs_connector)
+
 
 #find_package(Qt5Core)
 #find_package(Qt5Core CONFIG REQUIRED)
@@ -30,22 +32,13 @@ add_executable(${PROJECT_NAME} main.cpp
                                src/Keyboard.cpp
                                include/Client.hpp
                                include/Console.hpp
-                               include/Keyboard.hpp
-                               include/chat_message.hpp)
+                               include/Keyboard.hpp)
 
-add_library(include-path INTERFACE)
+target_include_directories(${PROJECT_NAME} PRIVATE include/)
 
-target_include_directories(include-path INTERFACE include/)
 include_directories(boost-path ../../boost_1_70_0/)
 
-target_link_libraries(${PROJECT_NAME} include-path ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 
-#target_link_libraries(
-#    ${PROJECT_NAME}
-#    LINK_PUBLIC
-#    ${Boost_LIBRARIES} )
 
-#target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui)
-
-#get_target_property(QtCore_location Qt5::Core LOCATION)
 
