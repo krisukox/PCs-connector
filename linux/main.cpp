@@ -14,7 +14,7 @@ int main(int, char* [])
         std::list<Server> servers;
 
         FakeKey fakeKey;
-        tcp::endpoint endpoint(tcp::v4(), std::atoi("54000"));
+        tcp::endpoint endpoint(tcp::v4(), static_cast<unsigned short>(std::atoi("54000")));
         servers.emplace_back(io_context, endpoint, fakeKey);
 
         io_context.run();
