@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 set (CMAKE_CXX_STANDARD 17)
+enable_testing()
 
 project(pcs_connector)
 
 find_package(X11 REQUIRED)
+find_package(Python3 COMPONENTS Interpreter)
 
 set(BOOST_ROOT "/home/krisukox/project-cpp/boost_1_70_0/")
 set(BOOST_LIBRARYDIR "/home/krisukox/project-cpp/boost_1_70_0/stage/lib/")
@@ -26,9 +28,12 @@ find_library(XTEST_LIBRARY NAMES Xtst
 add_executable(${PROJECT_NAME} src/FakeKey.cpp
                                src/Server.cpp
                                src/ServerSession.cpp
+                               src/TestKey.cpp
                                include/FakeKey.hpp
+                               include/IKey.hpp
                                include/Server.hpp
                                include/ServerSession.hpp
+                               include/TestKey.hpp
                                main.cpp)
 
 
@@ -39,6 +44,7 @@ target_link_libraries (${PROJECT_NAME} pthread)
 
 INCLUDE_DIRECTORIES(boost-path ../../boost_1_70_0/)
 
+add_subdirectory(tests)
 
 add_custom_target(build_run
                   COMMAND make

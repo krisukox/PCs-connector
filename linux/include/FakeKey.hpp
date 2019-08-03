@@ -1,13 +1,15 @@
 #pragma once
 
 #include <X11/Xlib.h>
+#include <cstdint>
+#include "../include/IKey.hpp"
 
-class FakeKey
+class FakeKey : public IKey
 {
 public:
     FakeKey();
-    ~FakeKey();
-    void pressKey(u_int16_t keyId);
+    ~FakeKey() override;
+    void handleEvent(std::uint16_t keyId) override;
 
 private:
     Display* display;
