@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 set (CMAKE_CXX_STANDARD 17)
 enable_testing()
 
@@ -9,6 +9,7 @@ find_package(Python3 COMPONENTS Interpreter)
 
 set(BOOST_ROOT "/home/krisukox/project-cpp/boost_1_70_0/")
 set(BOOST_LIBRARYDIR "/home/krisukox/project-cpp/boost_1_70_0/stage/lib/")
+#set(Gtest_DIR "/home/krisukox/project-cpp/google-test/googletest/build/lib/")
 
 set(Boost_USE_STATIC_LIBS ON)
 
@@ -43,6 +44,7 @@ target_link_libraries (${PROJECT_NAME} boost_system)
 target_link_libraries (${PROJECT_NAME} pthread)
 
 INCLUDE_DIRECTORIES(boost-path ../../boost_1_70_0/)
+TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PRIVATE ../../google-test/googletest/googletest/include/)
 
 add_subdirectory(tests)
 
