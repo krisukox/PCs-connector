@@ -4,25 +4,26 @@
 #include <exception>
 #include <iostream>
 #include <list>
-//#include "gtest/gtest.h"
-#include "include/FakeKey.hpp"
 #include "include/Server.hpp"
-#include "include/TestKey.hpp"
+#include "key_management/FakeKey.hpp"
+#include "key_management/TestKey.hpp"
+
+using boost::asio::ip::tcp;
 
 int main(int argc, char* argv[])
 {
     try
     {
-        std::shared_ptr<IKey> keyHandler;
+        std::shared_ptr<key_management::IKey> keyHandler;
         if (argc == 2 && !strcmp(argv[1], "test"))
         {
             std::clog << "test mode started" << std::endl;
-            keyHandler = std::make_shared<TestKey>();
+            keyHandler = std::make_shared<key_management::TestKey>();
         }
         else if (argc == 1)
         {
             std::clog << "release mode started" << std::endl;
-            keyHandler = std::make_shared<FakeKey>();
+            keyHandler = std::make_shared<key_management::FakeKey>();
         }
         else
         {
@@ -30,7 +31,7 @@ int main(int argc, char* argv[])
         }
 
         boost::asio::io_context io_context;
-        std::list<Server> servers;
+        std::list<server_app::Server> servers;
 
         tcp::endpoint endpoint(tcp::v4(), static_cast<unsigned short>(std::atoi("54000")));
         servers.emplace_back(io_context, endpoint, std::move(keyHandler));

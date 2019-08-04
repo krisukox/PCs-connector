@@ -26,16 +26,18 @@ find_library(XTEST_LIBRARY NAMES Xtst
              DOC "The XTest library"
 )
 
-add_executable(${PROJECT_NAME} src/FakeKey.cpp
+add_executable(${PROJECT_NAME}
+#                               src/FakeKey.cpp
                                src/Server.cpp
                                src/ServerSession.cpp
-                               src/TestKey.cpp
-                               include/FakeKey.hpp
-                               include/IKey.hpp
+#                               src/TestKey.cpp
+#                               include/FakeKey.hpp
+#                               include/IKey.hpp
                                include/Server.hpp
                                include/ServerSession.hpp
-                               include/TestKey.hpp
+#                               include/TestKey.hpp
                                main.cpp)
+
 
 
 target_link_libraries (${PROJECT_NAME} X11)
@@ -46,7 +48,9 @@ target_link_libraries (${PROJECT_NAME} pthread)
 INCLUDE_DIRECTORIES(boost-path ../../boost_1_70_0/)
 TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PRIVATE ../../google-test/googletest/googletest/include/)
 
+add_subdirectory(key_management)
 add_subdirectory(tests)
+target_link_libraries (${PROJECT_NAME} key_management)
 
 add_custom_target(build_run
                   COMMAND make

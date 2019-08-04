@@ -2,8 +2,12 @@
 #include <X11/extensions/XTest.h>
 #include <X11/keysym.h>
 #include <iostream>
+#include "key_management/FakeKey.hpp"
+#include "key_management/TestKey.hpp"
 
-ServerSession::ServerSession(tcp::socket _socket, std::shared_ptr<IKey> _keyHandler)
+namespace server_app
+{
+ServerSession::ServerSession(tcp::socket _socket, std::shared_ptr<key_management::IKey> _keyHandler)
     : socket(std::move(_socket)), keyHandler{std::move(_keyHandler)}
 {
 }
@@ -32,3 +36,4 @@ void ServerSession::readBody()
             }
         });
 }
+} // namespace server_app

@@ -4,5 +4,6 @@ set(INTEGR_TEST_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 add_custom_target(integr-tests
     COMMAND Python3::Interpreter -m pytest
+    DEPENDS key_management pcs_connector
     WORKING_DIRECTORY ${INTEGR_TEST_DIRECTORY}
 )

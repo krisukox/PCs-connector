@@ -1,7 +1,9 @@
 #pragma once
 #include <cstdint>
-#include "../include/IKey.hpp"
+#include "key_management/IKey.hpp"
 
+namespace key_management
+{
 class TestKey : public IKey
 {
 public:
@@ -9,3 +11,4 @@ public:
     ~TestKey() override;
     void handleEvent(std::uint16_t) override;
 };
+} // namespace key_management

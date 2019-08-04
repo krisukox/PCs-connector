@@ -1,18 +1,25 @@
 #include <boost/asio.hpp>
 #include <boost/asio/io_context.hpp>
 #include <memory>
-#include "IKey.hpp"
 #include "ServerSession.hpp"
 
+namespace key_management
+{
+class IKey;
+}
+
+namespace server_app
+{
 using boost::asio::ip::tcp;
 
 class Server
 {
 public:
-    Server(boost::asio::io_context&, const tcp::endpoint&, std::shared_ptr<IKey>);
+    Server(boost::asio::io_context&, const tcp::endpoint&, std::shared_ptr<key_management::IKey>);
 
 private:
-    void do_accept(std::shared_ptr<IKey>);
+    void do_accept(std::shared_ptr<key_management::IKey>);
 
     tcp::acceptor socketAcceptor;
 };
+} // namespace server_app
