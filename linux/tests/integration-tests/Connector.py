@@ -2,7 +2,7 @@ from socket import socket, AF_INET, SOCK_STREAM
 from subprocess import Popen, PIPE
 from time import sleep
 from fcntl import fcntl, F_GETFL, F_SETFL
-from os import O_NONBLOCK
+from os import O_NONBLOCK, path
 
 class Connector:
     def __init__(self, tcp_ip='127.0.0.1', tcp_port=54000):
@@ -10,7 +10,9 @@ class Connector:
         self.__sender = self.__connect(tcp_ip, tcp_port)
 
     def __run_process(self):
-        process = Popen(['/home/krisukox/project-cpp/PCs-connector/linux/build/pcs_connector', 'test'],
+        dirname = path.dirname(__file__)
+        filename = path.join(dirname, '../../build/main_app/pcs_connector')
+        process = Popen([filename, 'test'],
                         stdin=PIPE,
                         stdout=PIPE)
         flags = fcntl(process.stdout, F_GETFL)
