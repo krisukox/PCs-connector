@@ -1,4 +1,4 @@
-#include "../include/Server.hpp"
+#include "server_app/Server.hpp"
 #include <iostream>
 #include "key_management/FakeKey.hpp"
 #include "key_management/TestKey.hpp"

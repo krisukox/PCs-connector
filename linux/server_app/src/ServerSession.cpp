@@ -1,4 +1,4 @@
-#include "../include/ServerSession.hpp"
+#include "server_app/ServerSession.hpp"
 #include <X11/extensions/XTest.h>
 #include <X11/keysym.h>
 #include <iostream>
