@@ -5,13 +5,12 @@ project(pcs_connector)
 enable_testing()
 
 set(BOOST_ROOT "/home/krisukox/project-cpp/boost_1_70_0/")
-set(BOOST_LIBRARYDIR "/home/krisukox/project-cpp/boost_1_70_0/stage/lib/")
-set(Boost_USE_STATIC_LIBS ON)
 
 find_package(Boost 1.70.0 COMPONENTS system REQUIRED)
 find_package(Python3 COMPONENTS Interpreter)
 find_package(X11 REQUIRED)
 
+add_subdirectory(app_management)
 add_subdirectory(main_app)
 add_subdirectory(key_management)
 add_subdirectory(server_app)
