@@ -14,4 +14,5 @@ add_library(server_app ${HEADERS} ${SOURCE_FILES})
 target_include_directories(server_app PUBLIC include PRIVATE src)
 
 target_link_libraries(server_app key_management
+                                 pthread
                                  boost_system)
