@@ -13,7 +13,7 @@ TestKey::~TestKey()
     std::cout.clear();
 }
 
-void TestKey::handleEvent(std::uint16_t keyId)
+void TestKey::handleEvent(std::uint16_t keyId) const
 {
     std::cout.clear();
     std::cout << keyId << std::endl;

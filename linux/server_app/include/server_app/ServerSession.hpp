@@ -15,6 +15,7 @@ class ServerSession : public std::enable_shared_from_this<ServerSession>
 public:
     ServerSession(tcp::socket, std::shared_ptr<key_management::IKey>);
     void start();
+    void onMessage(boost::system::error_code, std::size_t);
 
 private:
     void readBody();

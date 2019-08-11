@@ -18,7 +18,7 @@ FakeKey::~FakeKey()
     XCloseDisplay(display);
 }
 
-void FakeKey::handleEvent(std::uint16_t keyId)
+void FakeKey::handleEvent(std::uint16_t keyId) const
 {
     //        XK_KP_Enter
     KeyCode keycode = XKeysymToKeycode(display, keyId);
