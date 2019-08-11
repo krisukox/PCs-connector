@@ -12,4 +12,5 @@ target_include_directories(key_management_mocks
     PUBLIC
         include
     PRIVATE
-        /home/krisukox/project-cpp/google-test/googletest/googlemock/include/)
+        ${PREFIX_DIR}/google-test/googletest/googlemock/include/
+)

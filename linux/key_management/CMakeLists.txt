@@ -14,7 +14,9 @@ set(SOURCE_FILES src/FakeKey.cpp
 add_library(key_management ${HEADERS} ${SOURCE_FILES})
 target_include_directories(key_management PUBLIC include PRIVATE src)
 
-target_link_libraries(key_management X11
-                                     Xtst)
+target_link_libraries(key_management
+    X11
+    Xtst
+)
 
 add_subdirectory(tests)
