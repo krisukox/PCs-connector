@@ -16,3 +16,5 @@ target_include_directories(key_management PUBLIC include PRIVATE src)
 
 target_link_libraries(key_management X11
                                      Xtst)
+
+add_subdirectory(tests)

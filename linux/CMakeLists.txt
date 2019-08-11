@@ -4,6 +4,8 @@ project(pcs_connector)
 
 enable_testing()
 
+link_directories(/home/krisukox/project-cpp/google-test/googletest/build/lib)
+
 set(BOOST_ROOT "/home/krisukox/project-cpp/boost_1_70_0/")
 
 find_package(Boost 1.70.0 COMPONENTS system REQUIRED)
@@ -17,7 +19,7 @@ add_subdirectory(server_app)
 add_subdirectory(tests)
 
 add_custom_target(build_run
-                  COMMAND make
+                  COMMAND $(MAKE)
                   COMMAND pcs_connector
                   DEPENDS build
                   WORKING_DIRECTORY ${CMAKE_PROJECT_DIR})

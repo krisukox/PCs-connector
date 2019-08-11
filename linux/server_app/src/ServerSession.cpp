@@ -12,6 +12,22 @@ ServerSession::ServerSession(tcp::socket _socket, std::shared_ptr<key_management
 {
 }
 
+void ServerSession::onMessage(boost::system::error_code ec, std::size_t size)
+{
+    if (size > 0 && !ec)
+    {
+        keyHandler->handleEvent(static_cast<std::uint16_t>(charPtr[0]));
+    }
+    if (!ec)
+    {
+        readBody();
+    }
+    else
+    {
+        // LEAVE
+    }
+}
+
 void ServerSession::start()
 {
     readBody();
@@ -22,18 +38,7 @@ void ServerSession::readBody()
     auto self(shared_from_this());
     boost::asio::async_read(
         socket, boost::asio::buffer(charPtr, 2), [self](boost::system::error_code ec, std::size_t size) {
-            if (size > 0 && !ec)
-            {
-                self->keyHandler->handleEvent(static_cast<std::uint16_t>(self->charPtr[0]));
-            }
-            if (!ec)
-            {
-                self->readBody();
-            }
-            else
-            {
-                // LEAVE
-            }
+            self->onMessage(ec, size);
         });
 }
 } // namespace server_app

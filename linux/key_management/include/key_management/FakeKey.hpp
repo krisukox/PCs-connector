@@ -12,7 +12,7 @@ public:
     FakeKey();
     ~FakeKey() override;
 
-    void handleEvent(std::uint16_t keyId) override;
+    void handleEvent(std::uint16_t keyId) const override;
 
 private:
     Display* display;
