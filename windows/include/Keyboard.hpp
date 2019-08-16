@@ -1,16 +1,15 @@
 #pragma once
 
-#include <unordered_map>
 #include <functional>
+#include <unordered_map>
 
-
-using keyId = unsigned;
+using keyId = unsigned long long;
 using asciiCode = unsigned;
 
 class Keyboard
 {
 public:
-    Keyboard(std::function<void(unsigned)>);
+    Keyboard(std::function<void(unsigned)>&&, std::function<void()>&&);
     Keyboard() = delete;
 
 private:
@@ -20,5 +19,6 @@ private:
 
     const std::unordered_map<keyId, asciiCode> keys = prepareKeys();
     bool registeredKeys = false;
-    std::function<void(unsigned)> callback;
+    std::function<void(unsigned)> pressedKeyCallback;
+    std::function<void()> stopAppCallback;
 };

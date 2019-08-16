@@ -1,30 +1,26 @@
 #pragma once
 
-#include <memory>
-#include <string>
-#include <WinSock2.h>
-#include <ws2tcpip.h>
-
+#include <boost/asio.hpp>
+#include <cstdlib>
+#include <deque>
+#include <iostream>
+#include <thread>
 #include "Console.hpp"
 #include "Keyboard.hpp"
 
-#pragma comment(lib, "ws2_32.lib")
-
+using boost::asio::ip::tcp;
 
 class Client
 {
 public:
-    Client();
+    Client(boost::asio::io_context&, const tcp::resolver::results_type&);
+    void close();
+    void send(const unsigned);
+
 private:
-    void initializeWinSock();
-    void createSocket();
-    void connctToServer();
+    void connect(const tcp::resolver::results_type&);
 
-    std::unique_ptr<Keyboard> keyboard;
-    WSAData winSockData;
-    std::string ipAddress = "192.168.0.22";
-    u_short port = 54000;
-
-    Console console{};
-    SOCKET sock;
+    boost::asio::io_context& ioContext;
+    tcp::socket sessionSocket;
+    Console _;
 };

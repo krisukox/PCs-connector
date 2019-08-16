@@ -1,6 +1,5 @@
 #include "Console.hpp"
 
-
 Console::Console()
 {
     consoleHandle = GetStdHandle(STD_INPUT_HANDLE);

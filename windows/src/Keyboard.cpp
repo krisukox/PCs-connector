@@ -1,9 +1,8 @@
 #include "Keyboard.hpp"
-
 #include <Windows.h>
 
-
-Keyboard::Keyboard(std::function<void(unsigned)> _callback):callback(_callback)
+Keyboard::Keyboard(std::function<void(unsigned)>&& _pressedKeyCallback, std::function<void()>&& _stopAppCallback)
+    : pressedKeyCallback{std::move(_pressedKeyCallback)}, stopAppCallback{std::move(_stopAppCallback)}
 {
     RegisterHotKey(nullptr, 100, MOD_CONTROL | MOD_SHIFT, 'A');
     RegisterHotKey(nullptr, 200, MOD_CONTROL | MOD_SHIFT, 'Q');
@@ -11,26 +10,27 @@ Keyboard::Keyboard(std::function<void(unsigned)> _callback):callback(_callback)
     registerKeys();
 
     MSG msg;
-    while(GetMessage(&msg, nullptr, 0, 0))
+    while (GetMessage(&msg, nullptr, 0, 0))
     {
         PeekMessage(&msg, nullptr, 0, 0, 0x0001);
 
-        if(msg.message == WM_HOTKEY)
+        if (msg.message == WM_HOTKEY)
         {
             auto it = keys.find(msg.wParam);
-            if(it != keys.end())
+            if (it != keys.end())
             {
-                callback(it->second);
+                pressedKeyCallback(it->second);
             }
-            else if(msg.wParam == 100)
+            else if (msg.wParam == 100)
             {
-                if(registeredKeys)
+                if (registeredKeys)
                     unregiserKeys();
                 else
                     registerKeys();
             }
-            else if(msg.wParam == 200)
+            else if (msg.wParam == 200)
             {
+                stopAppCallback();
                 return;
             }
         }
@@ -39,7 +39,7 @@ Keyboard::Keyboard(std::function<void(unsigned)> _callback):callback(_callback)
 
 void Keyboard::registerKeys()
 {
-    for(auto key : keys)
+    for (auto key : keys)
     {
         RegisterHotKey(nullptr, static_cast<int>(key.first), MOD_NOREPEAT, key.second);
     }
@@ -48,7 +48,7 @@ void Keyboard::registerKeys()
 
 void Keyboard::unregiserKeys()
 {
-    for(auto key : keys)
+    for (auto key : keys)
     {
         UnregisterHotKey(nullptr, static_cast<int>(key.first));
     }
@@ -58,9 +58,9 @@ void Keyboard::unregiserKeys()
 std::unordered_map<keyId, asciiCode> Keyboard::prepareKeys()
 {
     std::unordered_map<keyId, asciiCode> keys;
-    for(unsigned i = 0;i < 26;i++)
+    for (unsigned i = 0; i < 26; i++)
     {
-        keys.insert(std::make_pair(i, i+65));
+        keys.insert(std::make_pair(i, i + 65));
     }
     return keys;
 }

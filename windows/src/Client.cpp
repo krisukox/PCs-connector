@@ -1,57 +1,45 @@
 #include "Client.hpp"
+#include <boost/asio.hpp>
+#include <cstdlib>
+#include <deque>
+#include <iostream>
+#include <thread>
 
-#include <stdexcept>
-#include <string>
+using boost::asio::ip::tcp;
 
-
-Client::Client()
+Client::Client(boost::asio::io_context& io_context, const tcp::resolver::results_type& endpoints)
+    : ioContext{io_context}, sessionSocket{ioContext}
 {
-    initializeWinSock();
-
-    createSocket();
-
-    connctToServer();
-
-    auto callback = [this](unsigned asciiCode){
-        char sendBuf[] = {static_cast<char>(asciiCode)};
-        send(sock, sendBuf, 1, 0);
-    };
-
-    keyboard = std::make_unique<Keyboard>(callback);
+    connect(endpoints);
 }
 
-void Client::initializeWinSock()
+void Client::close()
 {
-    WORD version = MAKEWORD(2, 2);
-    int wsResult = WSAStartup(version, &winSockData);
-    if (wsResult != 0)
-    {
-        throw std::runtime_error("Can't start Winsock, Err #" + std::to_string(wsResult));
-    }
+    boost::asio::post(ioContext, [this]() { sessionSocket.close(); });
 }
 
-void Client::createSocket()
+void Client::connect(const tcp::resolver::results_type& endpoints)
 {
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == INVALID_SOCKET)
-    {
-        WSACleanup();
-        throw std::runtime_error("Can't create socket, Err #" + std::to_string(WSAGetLastError()));
-    }
+    boost::asio::async_connect(sessionSocket, endpoints, [](boost::system::error_code ec, tcp::endpoint) {
+        if (!ec)
+        {
+            std::cout << "Connection works properly" << std::endl;
+        }
+    });
 }
 
-void Client::connctToServer()
+void Client::send(const unsigned key)
 {
-    sockaddr_in hint;
-    hint.sin_family = AF_INET;
-    hint.sin_port = htons(port);
-    InetPton(AF_INET, ipAddress.c_str(), &hint.sin_addr);
-
-    int connResult = connect(sock, reinterpret_cast<sockaddr*>(&hint), sizeof(hint));
-    if (connResult == SOCKET_ERROR)
-    {
-        closesocket(sock);
-        WSACleanup();
-        throw std::runtime_error("Can't connect to server, Err #" + std::to_string(WSAGetLastError()));
-    }
+    char sub[2] = {static_cast<char>(key), 0};
+    boost::asio::async_write(
+        sessionSocket, boost::asio::buffer(sub, 2), [this](boost::system::error_code ec, std::size_t /*length*/) {
+            if (!ec)
+            {
+                // LATER CHECK IF VECTOR OF MSGS HAS ANY MSGS LEFT
+            }
+            else
+            {
+                sessionSocket.close();
+            }
+        });
 }
