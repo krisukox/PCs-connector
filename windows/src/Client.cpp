@@ -1,5 +1,7 @@
 #include "Client.hpp"
+#include <array>
 #include <boost/asio.hpp>
+#include <cstddef>
 #include <cstdlib>
 #include <deque>
 #include <iostream>
@@ -28,11 +30,11 @@ void Client::connect(const tcp::resolver::results_type& endpoints)
     });
 }
 
-void Client::send(const unsigned key)
+void Client::send(std::array<std::byte, 2> key)
 {
-    char sub[2] = {static_cast<char>(key), 0};
+    //    std::cerr << static_cast<int>(key[0]) << " " << static_cast<int>(key[1]) << std::endl;
     boost::asio::async_write(
-        sessionSocket, boost::asio::buffer(sub, 2), [this](boost::system::error_code ec, std::size_t /*length*/) {
+        sessionSocket, boost::asio::buffer(key, 2), [this](boost::system::error_code ec, std::size_t /*length*/) {
             if (!ec)
             {
                 // LATER CHECK IF VECTOR OF MSGS HAS ANY MSGS LEFT

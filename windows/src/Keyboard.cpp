@@ -1,66 +1,48 @@
 #include "Keyboard.hpp"
-#include <Windows.h>
+//#include <Windows.h>
+#include <cassert>
+#include <iostream>
 
-Keyboard::Keyboard(std::function<void(unsigned)>&& _pressedKeyCallback, std::function<void()>&& _stopAppCallback)
+namespace
+{
+namespace keyboard_callback
+{
+std::function<void(asciiCode)> pressedKeyCallbackGlob = nullptr;
+} // namespace keyboard_callback
+} // namespace
+
+Keyboard::Keyboard(std::function<void(asciiCode)>&& _pressedKeyCallback, std::function<void()>&& _stopAppCallback)
     : pressedKeyCallback{std::move(_pressedKeyCallback)}, stopAppCallback{std::move(_stopAppCallback)}
 {
-    RegisterHotKey(nullptr, 100, MOD_CONTROL | MOD_SHIFT, 'A');
-    RegisterHotKey(nullptr, 200, MOD_CONTROL | MOD_SHIFT, 'Q');
-
-    registerKeys();
-
-    MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        PeekMessage(&msg, nullptr, 0, 0, 0x0001);
-
-        if (msg.message == WM_HOTKEY)
+    keyboard_callback::pressedKeyCallbackGlob = pressedKeyCallback;
+    auto callback = [](int nCode, WPARAM wParam, LPARAM lParam) -> LRESULT {
+        if (nCode == HC_ACTION)
         {
-            auto it = keys.find(msg.wParam);
-            if (it != keys.end())
+            DWORD keyCode = reinterpret_cast<PKBDLLHOOKSTRUCT>(lParam)->vkCode;
+
+            switch (wParam)
             {
-                pressedKeyCallback(it->second);
-            }
-            else if (msg.wParam == 100)
-            {
-                if (registeredKeys)
-                    unregiserKeys();
-                else
-                    registerKeys();
-            }
-            else if (msg.wParam == 200)
-            {
-                stopAppCallback();
-                return;
+                case WM_KEYDOWN:
+                case WM_SYSKEYDOWN:
+                {
+                    keyboard_callback::pressedKeyCallbackGlob(
+                        asciiCode{std::byte(std::uint8_t(keyCode)), std::byte(1)});
+                }
+                break;
+                case WM_KEYUP:
+                case WM_SYSKEYUP:
+                {
+                    keyboard_callback::pressedKeyCallbackGlob(
+                        asciiCode{std::byte(std::uint8_t(keyCode)), std::byte(0)});
+                }
             }
         }
-    }
-}
+        return 1;
+    };
 
-void Keyboard::registerKeys()
-{
-    for (auto key : keys)
-    {
-        RegisterHotKey(nullptr, static_cast<int>(key.first), MOD_NOREPEAT, key.second);
-    }
-    registeredKeys = true;
-}
+    assert(keyboard_callback::pressedKeyCallbackGlob);
+    keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, (HOOKPROC)callback, nullptr, NULL);
 
-void Keyboard::unregiserKeys()
-{
-    for (auto key : keys)
-    {
-        UnregisterHotKey(nullptr, static_cast<int>(key.first));
-    }
-    registeredKeys = false;
-}
-
-std::unordered_map<keyId, asciiCode> Keyboard::prepareKeys()
-{
-    std::unordered_map<keyId, asciiCode> keys;
-    for (unsigned i = 0; i < 26; i++)
-    {
-        keys.insert(std::make_pair(i, i + 65));
-    }
-    return keys;
+    MSG msg;
+    GetMessage(&msg, nullptr, 0, 0);
 }
