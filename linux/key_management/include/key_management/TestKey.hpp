@@ -9,6 +9,7 @@ class TestKey : public IKey
 public:
     TestKey();
     ~TestKey() override;
-    void handleEvent(std::uint16_t) const override;
+
+    void handleEvent(std::byte, bool) const override;
 };
 } // namespace key_management

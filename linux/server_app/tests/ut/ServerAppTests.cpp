@@ -33,7 +33,7 @@ TEST_F(ServerAppTests, successfulHandleEvent_validErrorCode_validReadMsgSize)
 {
     auto sut = std::make_shared<server_app::ServerSession>(std::move(socket), std::move(keyMockPtr));
 
-    EXPECT_CALL(*keyMockPtrRaw, handleEvent(std::uint16_t{0}));
+    EXPECT_CALL(*keyMockPtrRaw, handleEvent(std::byte{0}, false));
     sut->onMessage(validErrorCode, validMsgSize);
 }
 

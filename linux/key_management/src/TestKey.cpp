@@ -13,10 +13,10 @@ TestKey::~TestKey()
     std::cout.clear();
 }
 
-void TestKey::handleEvent(std::uint16_t keyId) const
+void TestKey::handleEvent(std::byte keyId, bool) const
 {
     std::cout.clear();
-    std::cout << keyId << std::endl;
+    std::cout << static_cast<uint8_t>(keyId) << std::endl;
     std::cout.setstate(std::ios_base::failbit);
 }
 } // namespace key_management
