@@ -32,7 +32,8 @@ add_executable(${PROJECT_NAME} main.cpp
                                src/Keyboard.cpp
                                include/Client.hpp
                                include/Console.hpp
-                               include/Keyboard.hpp)
+                               include/Keyboard.hpp
+)
 
 target_include_directories(${PROJECT_NAME} PRIVATE include/)
 
