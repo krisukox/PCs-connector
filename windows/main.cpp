@@ -17,32 +17,25 @@ int main(int argc, char* argv[])
         tcp::resolver::results_type endpoints;
         if (argc == 1)
         {
-            endpoints = resolver.resolve("192.168.0.22", "54000");
+            endpoints = resolver.resolve("192.168.0.22", "10000");
         }
         else
         {
-            std::cout << "111111111" << std::endl;
-            std::cout << argv[0] << std::endl;
             endpoints = resolver.resolve(argv[1], "54000");
-            std::cout << "222222222" << std::endl;
         }
         Client c(io_context, endpoints);
-
-        std::thread t([&io_context]() { io_context.run(); });
+        io_context.run();
 
         auto pressedKeyCallback = [&c](std::array<std::byte, 2> key) { c.send(key); };
 
-        auto stopAppCallback = [&c, &t]() {
-            c.close();
-            t.join();
-        };
-
-        auto keyboard = std::make_unique<Keyboard>(std::move(pressedKeyCallback), std::move(stopAppCallback));
+        auto stopAppCallback = [&c]() { c.close(); };
+        auto keyboard = Keyboard(std::move(pressedKeyCallback), std::move(stopAppCallback));
+        std::thread t(&Keyboard::start, &keyboard);
+        t.join();
     }
     catch (std::exception& e)
     {
         std::cerr << "Exception: " << e.what() << "\n";
     }
-
     return 0;
 }
