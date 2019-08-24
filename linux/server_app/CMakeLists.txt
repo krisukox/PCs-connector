@@ -1,11 +1,15 @@
 set(MODULE_NAME server_app)
 
 set(HEADERS
+        include/server_app/ConcreteReceiver.hpp
+        include/server_app/IReceiver.hpp
 	include/server_app/Server.hpp
+        include/server_app/ServerAppTypes.hpp
 	include/server_app/ServerSession.hpp
 )
 
 set(SOURCE_FILES
+        src/ConcreteReceiver.cpp
 	src/Server.cpp
 	src/ServerSession.cpp
 )

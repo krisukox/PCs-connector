@@ -2,6 +2,7 @@
 #include <iostream>
 #include "key_management/FakeKey.hpp"
 #include "key_management/TestKey.hpp"
+#include "server_app/ConcreteReceiver.hpp"
 
 namespace server_app
 {
@@ -16,11 +17,17 @@ Server::Server(
 
 void Server::do_accept(std::shared_ptr<key_management::IKey> keyHander)
 {
-    socketAcceptor.async_accept([keyHander = std::move(keyHander)](boost::system::error_code ec, tcp::socket socket) {
-        if (!ec)
-        {
-            std::make_shared<ServerSession>(std::move(socket), std::move(keyHander))->start();
-        }
-    });
+    socketAcceptor.async_accept(
+        [keyHander = std::move(keyHander), this](boost::system::error_code ec, tcp::socket socket) {
+            if (!ec)
+            {
+                serverSession =
+                    ServerSession{std::move(socket), std::move(keyHander), std::make_unique<ConcreteReceiver>()};
+                serverSession->start();
+                //            std::make_shared<ServerSession>(
+                //                std::move(socket), std::move(keyHander), std::make_unique<ConcreteReceiver>())
+                //                ->start();
+            }
+        });
 }
 } // namespace server_app
