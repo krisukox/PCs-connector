@@ -1,5 +1,7 @@
+#include <array>
 #include <boost/asio.hpp>
 #include <boost/asio/io_context.hpp>
+#include <cstddef>
 
 namespace key_management
 {
@@ -22,6 +24,6 @@ private:
 
     tcp::socket socket;
     std::shared_ptr<key_management::IKey> keyHandler;
-    char* charPtr = new char[2];
+    std::array<std::byte, 2> charPtr = {std::byte{0}, std::byte{0}};
 };
 } // namespace server_app

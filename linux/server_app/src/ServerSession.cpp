@@ -16,7 +16,14 @@ void ServerSession::onMessage(boost::system::error_code ec, std::size_t size)
 {
     if (size > 0 && !ec)
     {
-        keyHandler->handleEvent(static_cast<std::uint16_t>(charPtr[0]));
+        try
+        {
+            keyHandler->handleEvent(charPtr[0], static_cast<bool>(charPtr[1]));
+        }
+        catch (const std::exception& e)
+        {
+            std::cout << "Exception: " << e.what() << std::endl;
+        }
     }
     if (!ec)
     {

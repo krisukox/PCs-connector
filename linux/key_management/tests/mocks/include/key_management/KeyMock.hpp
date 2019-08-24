@@ -6,6 +6,6 @@ namespace mocks
 {
 struct KeyMock : public key_management::IKey
 {
-    MOCK_CONST_METHOD1(handleEvent, void(std::uint16_t));
+    MOCK_CONST_METHOD2(handleEvent, void(std::byte, bool));
 };
 } // namespace mocks

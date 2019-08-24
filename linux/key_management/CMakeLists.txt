@@ -1,14 +1,18 @@
 set(MODULE_NAME key_management)
 
-set(HEADERS include/key_management/FakeKey.hpp
-            include/key_management/IKey.hpp
-            include/key_management/KeyHandlerSelector.hpp
-            include/key_management/TestKey.hpp
+set(HEADERS
+    include/key_management/Deserializer.hpp
+    include/key_management/FakeKey.hpp
+    include/key_management/IKey.hpp
+    include/key_management/KeyHandlerSelector.hpp
+    include/key_management/TestKey.hpp
 )
 
-set(SOURCE_FILES src/FakeKey.cpp
-                 src/KeyHandlerSelector.cpp
-                 src/TestKey.cpp
+set(SOURCE_FILES
+    src/Deserializer.cpp
+    src/FakeKey.cpp
+    src/KeyHandlerSelector.cpp
+    src/TestKey.cpp
 )
 
 add_library(key_management ${HEADERS} ${SOURCE_FILES})

@@ -2,6 +2,7 @@
 
 #include <X11/Xlib.h>
 #include <cstdint>
+#include "Deserializer.hpp"
 #include "key_management/IKey.hpp"
 
 namespace key_management
@@ -12,9 +13,12 @@ public:
     FakeKey();
     ~FakeKey() override;
 
-    void handleEvent(std::uint16_t keyId) const override;
+    void handleEvent(std::byte keyId, bool isPressed) const override;
 
 private:
+    KeyCode decode(std::uint8_t);
+
     Display* display;
+    Deserializer deserializer;
 };
 } // namespace key_management
