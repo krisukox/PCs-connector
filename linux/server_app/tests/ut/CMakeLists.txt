@@ -10,7 +10,6 @@ target_include_directories(server_app_ut
 
 target_link_libraries(server_app_ut
     key_management_mocks
-#    server_app
     server_app_mocks
     gmock
     gtest

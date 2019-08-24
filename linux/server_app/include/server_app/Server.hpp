@@ -22,7 +22,7 @@ public:
 private:
     void do_accept(std::shared_ptr<key_management::IKey>);
 
-    std::optional<ServerSession> serverSession;
+    std::unique_ptr<ServerSession> serverSession;
     tcp::acceptor socketAcceptor;
 };
 } // namespace server_app

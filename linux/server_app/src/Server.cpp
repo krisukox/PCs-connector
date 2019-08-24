@@ -21,12 +21,9 @@ void Server::do_accept(std::shared_ptr<key_management::IKey> keyHander)
         [keyHander = std::move(keyHander), this](boost::system::error_code ec, tcp::socket socket) {
             if (!ec)
             {
-                serverSession =
-                    ServerSession{std::move(socket), std::move(keyHander), std::make_unique<ConcreteReceiver>()};
+                serverSession = std::make_unique<ServerSession>(
+                    std::move(socket), std::move(keyHander), std::make_unique<ConcreteReceiver>());
                 serverSession->start();
-                //            std::make_shared<ServerSession>(
-                //                std::move(socket), std::move(keyHander), std::make_unique<ConcreteReceiver>())
-                //                ->start();
             }
         });
 }
