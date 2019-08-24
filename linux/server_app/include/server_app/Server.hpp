@@ -1,3 +1,5 @@
+#pragma once
+
 #include <boost/asio.hpp>
 #include <boost/asio/io_context.hpp>
 #include <memory>
@@ -20,6 +22,7 @@ public:
 private:
     void do_accept(std::shared_ptr<key_management::IKey>);
 
+    std::unique_ptr<ServerSession> serverSession;
     tcp::acceptor socketAcceptor;
 };
 } // namespace server_app
