@@ -15,7 +15,7 @@ class Client
 public:
     Client(boost::asio::io_context&, const tcp::resolver::results_type&);
     void close();
-    void send(std::array<std::byte, 2>);
+    void send(std::array<std::byte, 5>);
 
 private:
     void connect(const tcp::resolver::results_type&);
