@@ -13,7 +13,7 @@ TestKey::~TestKey()
     std::cout.clear();
 }
 
-void TestKey::handleEvent(std::byte keyId, bool) const
+void TestKey::handleEvent(std::byte keyId, std::byte) const
 {
     std::cout.clear();
     std::cout << static_cast<uint8_t>(keyId) << std::endl;

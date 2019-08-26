@@ -2,7 +2,6 @@
 
 #include <X11/Xlib.h>
 #include <unordered_map>
-#include "internal_types/KeyEvent.hpp"
 
 namespace key_management
 {

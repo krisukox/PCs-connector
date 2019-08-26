@@ -17,13 +17,38 @@ FakeKey::~FakeKey()
     XCloseDisplay(display);
 }
 
-void FakeKey::handleEvent(std::byte keyId, bool isPressed) const
+void FakeKey::handleEvent(std::byte keyId, std::byte isPressed) const
 {
     try
     {
-        KeyCode keycode = deserializer.decode(keyId);
-        XTestFakeKeyEvent(display, keycode, isPressed, CurrentTime);
-        XFlush(display);
+        if (bool(isPressed & std::byte(0b01000000)))
+        {
+            std::cerr << "MOUSE" << std::endl;
+            if (bool(isPressed & std::byte(0b00001000)))
+            {
+                XTestFakeRelativeMotionEvent(display, 0, -1, CurrentTime);
+            }
+            else if (bool(isPressed & std::byte(0b00000100)))
+            {
+                XTestFakeRelativeMotionEvent(display, 0, 1, CurrentTime);
+            }
+            else if (bool(isPressed & std::byte(0b00000010)))
+            {
+                XTestFakeRelativeMotionEvent(display, -1, 0, CurrentTime);
+            }
+            else if (bool(isPressed & std::byte(0b00000001)))
+            {
+                XTestFakeRelativeMotionEvent(display, 1, 0, CurrentTime);
+            }
+            XFlush(display);
+        }
+        else
+        {
+            KeyCode keycode = deserializer.decode(keyId);
+            XTestFakeKeyEvent(display, keycode, bool(isPressed), CurrentTime);
+            //            XTestFakeRelativeMotionEvent(display, 1, 1, CurrentTime);
+            XFlush(display);
+        }
     }
     catch (const std::out_of_range&)
     {

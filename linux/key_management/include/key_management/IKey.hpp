@@ -8,6 +8,6 @@ class IKey
 public:
     virtual ~IKey() = default;
 
-    virtual void handleEvent(std::byte, bool) const = 0;
+    virtual void handleEvent(std::byte, std::byte) const = 0;
 };
 } // namespace key_management

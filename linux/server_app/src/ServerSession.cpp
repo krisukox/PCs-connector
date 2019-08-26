@@ -1,4 +1,6 @@
 #include "server_app/ServerSession.hpp"
+#include <X11/extensions/XTest.h>
+#include <X11/keysym.h>
 #include <iostream>
 #include "key_management/FakeKey.hpp"
 #include "key_management/TestKey.hpp"
@@ -20,7 +22,7 @@ void ServerSession::onMessage(boost::system::error_code ec, std::size_t size)
     {
         try
         {
-            keyHandler->handleEvent(charPtr[0], static_cast<bool>(charPtr[1]));
+            keyHandler->handleEvent(charPtr[0], charPtr[1]);
         }
         catch (const std::exception& e)
         {

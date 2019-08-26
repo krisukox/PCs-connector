@@ -19,7 +19,10 @@ add_subdirectory(app_management)
 add_subdirectory(main_app)
 add_subdirectory(key_management)
 add_subdirectory(server_app)
+add_subdirectory(internal_types)
 add_subdirectory(tests)
+
+#target_include_directories(pcs_connector PRIVATE internal_types/include)
 
 add_custom_target(
     build_run

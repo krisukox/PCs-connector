@@ -13,12 +13,13 @@ public:
     FakeKey();
     ~FakeKey() override;
 
-    void handleEvent(std::byte keyId, bool isPressed) const override;
+    void handleEvent(std::byte, std::byte) const override;
+
+    Display* display;
 
 private:
     KeyCode decode(std::uint8_t);
 
-    Display* display;
     Deserializer deserializer;
 };
 } // namespace key_management
