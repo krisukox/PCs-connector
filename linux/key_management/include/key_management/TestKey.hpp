@@ -10,6 +10,6 @@ public:
     TestKey();
     ~TestKey() override;
 
-    void handleEvent(std::byte, std::byte) const override;
+    void onEvent(internal_types::KeyEvent) const override;
 };
 } // namespace key_management

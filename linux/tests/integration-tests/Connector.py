@@ -38,6 +38,8 @@ class Connector:
     def perform_key_press(self, msg, key):
         self.__sender.send(msg)
         out = self.__receive_and_decode()
+        print(out)
+        print(key)
         assert out == key
 
     def end_connection(self):

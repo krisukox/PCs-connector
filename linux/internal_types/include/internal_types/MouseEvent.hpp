@@ -1,19 +1,31 @@
 #pragma once
 
-#include <X11/Xlib.h>
-#include <unordered_map>
+#include <optional>
+#include <variant>
 
-namespace key_management
+namespace internal_types
 {
-class Deserializer
+struct MouseMoveEvent
 {
-public:
-    Deserializer(Display*);
-
-    KeyCode decode(const std::byte keyId) const;
-
-private:
-    Display* display;
-    const std::unordered_map<std::byte, KeyCode> translationTabel;
+    short deltaX;
+    short deltaY;
 };
-} // namespace key_management
+
+struct MouseScrollEvent
+{
+    short deltaForward;
+    short deltaBackward;
+};
+
+enum class MouseKeyEvent
+{
+    LeftButtonPressed,
+    LeftButtonUnpressed,
+    RightButtonPressed,
+    RightButtonUnpressed,
+    MiddleButtonPressed,
+    MiddleButtonUnpressed
+};
+
+using MouseEvent = std::variant<MouseMoveEvent, MouseScrollEvent, MouseKeyEvent>;
+} // namespace internal_types

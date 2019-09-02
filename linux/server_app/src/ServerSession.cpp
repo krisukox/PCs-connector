@@ -11,8 +11,12 @@ namespace server_app
 ServerSession::ServerSession(
     tcp::socket _socket,
     std::shared_ptr<key_management::IKey> _keyHandler,
-    std::shared_ptr<IReceiver> _receiver)
-    : socket(std::move(_socket)), keyHandler{std::move(_keyHandler)}, receiver{std::move(_receiver)}
+    std::shared_ptr<IReceiver> _receiver,
+    std::unique_ptr<internal_types::IDeserializer> _deserializer)
+    : socket(std::move(_socket))
+    , keyHandler{std::move(_keyHandler)}
+    , receiver{std::move(_receiver)}
+    , deserilizer{std::move(_deserializer)}
 {
 }
 
@@ -22,11 +26,15 @@ void ServerSession::onMessage(boost::system::error_code ec, std::size_t size)
     {
         try
         {
-            keyHandler->handleEvent(charPtr[0], charPtr[1]);
+            keyHandler->onEvent(deserilizer->decode(buffer));
         }
-        catch (const std::exception& e)
+        catch (const std::out_of_range&)
         {
-            std::cerr << "Exception: " << e.what() << std::endl;
+            throw std::invalid_argument("Key not supported");
+        }
+        catch (...)
+        {
+            throw std::runtime_error("Unexpected exception");
         }
     }
     if (!ec)
@@ -47,6 +55,6 @@ void ServerSession::start()
 void ServerSession::readBody()
 {
     receiver->asyncRead(
-        socket, charPtr, [this](boost::system::error_code ec, std::size_t size) { onMessage(ec, size); });
+        socket, buffer, [this](boost::system::error_code ec, std::size_t size) { onMessage(ec, size); });
 }
 } // namespace server_app

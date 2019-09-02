@@ -5,6 +5,7 @@
 #include <boost/asio/io_context.hpp>
 #include <cstddef>
 #include "ServerAppTypes.hpp"
+#include "internal_types/Deserializer.hpp"
 
 namespace key_management
 {
@@ -20,7 +21,11 @@ using boost::asio::ip::tcp;
 class ServerSession
 {
 public:
-    ServerSession(tcp::socket, std::shared_ptr<key_management::IKey>, std::shared_ptr<IReceiver>);
+    ServerSession(
+        tcp::socket,
+        std::shared_ptr<key_management::IKey>,
+        std::shared_ptr<IReceiver>,
+        std::unique_ptr<internal_types::IDeserializer>);
     void start();
 
 private:
@@ -30,6 +35,7 @@ private:
     tcp::socket socket;
     std::shared_ptr<key_management::IKey> keyHandler;
     std::shared_ptr<IReceiver> receiver;
-    Buffer charPtr = {std::byte{0}, std::byte{0}};
+    std::unique_ptr<internal_types::IDeserializer> deserilizer;
+    Buffer buffer = {std::byte{0}, std::byte{0}};
 };
 } // namespace server_app

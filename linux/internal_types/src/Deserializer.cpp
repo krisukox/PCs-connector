@@ -1,4 +1,4 @@
-#include "key_management/Deserializer.hpp"
+#include "internal_types/Deserializer.hpp"
 #include <X11/keysym.h>
 #include <cstddef>
 
@@ -71,7 +71,7 @@ constexpr std::byte WIN_DIVIDE{0x6F};
 constexpr std::byte WIN_Num_Lock{0x90};
 } // namespace
 
-namespace key_management
+namespace internal_types
 {
 Deserializer::Deserializer(Display* display_)
     : display{display_}
@@ -112,7 +112,12 @@ Deserializer::Deserializer(Display* display_)
 {
 }
 
-KeyCode Deserializer::decode(const std::byte keyId) const
+KeyEvent Deserializer::decode(const server_app::Buffer& buffer) const
+{
+    return {decodeKeyCode(buffer[0]), decodeKeyState(buffer[1])};
+}
+
+KeyCode Deserializer::decodeKeyCode(const std::byte keyId) const
 {
     const auto convertedKeyId = std::to_integer<std::uint8_t>(keyId);
 
@@ -146,4 +151,9 @@ KeyCode Deserializer::decode(const std::byte keyId) const
     }
     return translationTabel.at(keyId);
 };
-} // namespace key_management
+
+bool Deserializer::decodeKeyState(const std::byte state) const
+{
+    return bool(state);
+}
+} // namespace internal_types
