@@ -20,8 +20,7 @@ void Server::do_accept(
     std::shared_ptr<key_management::IKey> keyHander,
     std::unique_ptr<internal_types::Deserializer> deserilizer)
 {
-    //    std::unique_ptr<internal_types::Deserializer> deserializer__{std::move(std::move(deserilizer))};
-    socketAcceptor.async_accept([keyHander, this, deserilizer = std::move(deserilizer)](
+    socketAcceptor.async_accept([keyHander, deserilizer = std::move(deserilizer), this](
                                     boost::system::error_code ec, tcp::socket socket) mutable {
         if (!ec)
         {
