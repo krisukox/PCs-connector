@@ -22,8 +22,6 @@ add_subdirectory(server_app)
 add_subdirectory(internal_types)
 add_subdirectory(tests)
 
-#target_include_directories(pcs_connector PRIVATE internal_types/include)
-
 add_custom_target(
     build_run
     COMMAND $(MAKE) pcs_connector

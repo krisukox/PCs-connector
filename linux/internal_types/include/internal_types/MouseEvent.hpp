@@ -1,6 +1,5 @@
 #pragma once
 
-#include <optional>
 #include <variant>
 
 namespace internal_types

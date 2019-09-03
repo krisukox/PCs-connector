@@ -37,5 +37,7 @@ private:
     std::shared_ptr<IReceiver> receiver;
     std::unique_ptr<internal_types::IDeserializer> deserilizer;
     Buffer buffer = {std::byte{0}, std::byte{0}};
+
+    unsigned count = 0;
 };
 } // namespace server_app

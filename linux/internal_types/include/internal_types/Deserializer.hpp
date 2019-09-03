@@ -1,6 +1,5 @@
 #pragma once
 
-#include <X11/Xlib.h>
 #include <unordered_map>
 #include "IDeserializer.hpp"
 #include "KeyEvent.hpp"

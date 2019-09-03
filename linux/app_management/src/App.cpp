@@ -6,10 +6,9 @@ namespace app_management
 {
 using boost::asio::ip::tcp;
 
-App::App(int argc, char* argv[]) : endpoint{tcp::v4(), static_cast<unsigned short>(std::atoi("10000"))}
+App::App(int argc, char* argv[])
+    : endpoint{tcp::v4(), static_cast<unsigned short>(std::atoi("10000"))}, display{XOpenDisplay(nullptr)}
 {
-    Display* display{XOpenDisplay(nullptr)};
-
     servers.emplace_back(
         io_context,
         endpoint,

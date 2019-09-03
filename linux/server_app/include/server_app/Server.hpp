@@ -1,6 +1,5 @@
 #pragma once
 
-#include <X11/Xlib.h>
 #include <boost/asio.hpp>
 #include <boost/asio/io_context.hpp>
 #include <memory>

@@ -12,7 +12,9 @@ class KeyHandlerSelector
 public:
     KeyHandlerSelector(Display* display);
 
-    Display* display;
     std::shared_ptr<IKey> select(int, char* []);
+
+private:
+    Display* display;
 };
 } // namespace key_management

@@ -1,5 +1,4 @@
 #pragma once
-#include <cstddef>
 #include "internal_types/KeyEvent.hpp"
 
 namespace key_management

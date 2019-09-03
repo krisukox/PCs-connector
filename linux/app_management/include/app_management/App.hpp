@@ -15,6 +15,7 @@ public:
 
 private:
     tcp::endpoint endpoint;
+    Display* display;
     boost::asio::io_context io_context;
     std::list<server_app::Server> servers;
 };
