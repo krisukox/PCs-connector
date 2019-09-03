@@ -1,7 +1,9 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include "internal_types/DeserializerMock.hpp"
 #include "key_management/KeyMock.hpp"
 #include "server_app/ReceiverMock.hpp"
+#include "server_app/ServerAppTypes.hpp"
 #include "server_app/ServerSession.hpp"
 
 namespace
@@ -12,10 +14,10 @@ const auto invalidErrorCode = boost::system::errc::make_error_code(boost::system
 constexpr std::size_t validMsgSize{2};
 constexpr std::size_t invalidMsgSize{0};
 
-constexpr std::byte testKeyId{34};
+constexpr std::byte keyId{34};
 
-constexpr std::byte dummyKeyId{0};
-constexpr std::byte dummyKeyState{0};
+constexpr internal_types::KeyEvent keyEvent{KeyCode{2}, false};
+constexpr server_app::Buffer buffer{keyId, std::byte{1}};
 } // namespace
 
 struct ServerAppTests : public testing::Test
@@ -26,6 +28,9 @@ struct ServerAppTests : public testing::Test
     std::shared_ptr<testing::StrictMock<mocks::ReceiverMock>> receiverMockPtr;
     testing::StrictMock<mocks::ReceiverMock>* receiverMockPtrRaw;
 
+    std::unique_ptr<testing::StrictMock<mocks::DeserilizerMock>> deserializerMockPtr;
+    testing::StrictMock<mocks::DeserilizerMock>* deserializerMockPtrRaw;
+
     boost::asio::io_context io_context;
     boost::asio::ip::tcp::socket socket;
 
@@ -34,6 +39,8 @@ struct ServerAppTests : public testing::Test
         , keyMockPtrRaw{keyMockPtr.get()}
         , receiverMockPtr{std::make_shared<testing::StrictMock<mocks::ReceiverMock>>()}
         , receiverMockPtrRaw{receiverMockPtr.get()}
+        , deserializerMockPtr{std::make_unique<testing::StrictMock<mocks::DeserilizerMock>>()}
+        , deserializerMockPtrRaw{deserializerMockPtr.get()}
         , io_context{}
         , socket{io_context}
     {
@@ -44,19 +51,20 @@ struct ServerAppTests : public testing::Test
     void createServerSessionAndStartAsyncRead()
     {
         sut = std::make_unique<server_app::ServerSession>(
-            std::move(socket), std::move(keyMockPtr), std::move(receiverMockPtr));
+            std::move(socket), std::move(keyMockPtr), std::move(receiverMockPtr), std::move(deserializerMockPtr));
 
         EXPECT_CALL(*receiverMockPtrRaw, startAsyncRead());
         sut->start();
     }
 
-    void expectValidHandleKeyEvent(std::byte keyId, bool isPressed)
+    void expectValidHandleKeyEvent()
     {
-        EXPECT_CALL(*keyMockPtrRaw, handleEvent(keyId, isPressed));
+        EXPECT_CALL(*deserializerMockPtrRaw, decode(buffer)).Times(1).WillOnce(testing::Return(keyEvent));
+        EXPECT_CALL(*keyMockPtrRaw, onEvent(keyEvent));
         EXPECT_CALL(*receiverMockPtrRaw, startAsyncRead());
     }
 
-    void callKeyEvent(const server_app::Buffer buffer, boost::system::error_code errorCode, std::size_t receivedMsgSize)
+    void callKeyEvent(boost::system::error_code errorCode, std::size_t receivedMsgSize)
     {
         receiverMockPtrRaw->setReturnBuffer(buffer);
         ASSERT_TRUE(receiverMockPtrRaw->callHandler);
@@ -68,28 +76,11 @@ TEST_F(ServerAppTests, successfulHandleEvent_keyUp)
 {
     testing::InSequence seq;
 
-    bool isPressed = false;
-    std::byte keyState = std::byte{0};
-
     createServerSessionAndStartAsyncRead();
 
-    expectValidHandleKeyEvent(testKeyId, isPressed);
+    expectValidHandleKeyEvent();
 
-    callKeyEvent({testKeyId, keyState}, validErrorCode, validMsgSize);
-}
-
-TEST_F(ServerAppTests, successfulHandleEvent_keyDown)
-{
-    testing::InSequence seq;
-
-    bool isPressed = true;
-    std::byte keyState = std::byte{1};
-
-    createServerSessionAndStartAsyncRead();
-
-    expectValidHandleKeyEvent(testKeyId, isPressed);
-
-    callKeyEvent({testKeyId, keyState}, validErrorCode, validMsgSize);
+    callKeyEvent(validErrorCode, validMsgSize);
 }
 
 TEST_F(ServerAppTests, unsuccessfulHandleEvent_invalidErrorCode_validReadMsgSize)
@@ -98,7 +89,7 @@ TEST_F(ServerAppTests, unsuccessfulHandleEvent_invalidErrorCode_validReadMsgSize
 
     createServerSessionAndStartAsyncRead();
 
-    callKeyEvent({dummyKeyId, dummyKeyState}, invalidErrorCode, validMsgSize);
+    callKeyEvent(invalidErrorCode, validMsgSize);
 }
 
 TEST_F(ServerAppTests, unsuccessfulHandleEvent_validErrorCode_invalidReadMsgSize)
@@ -109,7 +100,7 @@ TEST_F(ServerAppTests, unsuccessfulHandleEvent_validErrorCode_invalidReadMsgSize
 
     EXPECT_CALL(*receiverMockPtrRaw, startAsyncRead());
 
-    callKeyEvent({dummyKeyId, dummyKeyState}, validErrorCode, invalidMsgSize);
+    callKeyEvent(validErrorCode, invalidMsgSize);
 }
 
 TEST_F(ServerAppTests, unsuccessfulHandleEvent_invalidErrorCode_invalidReadMsgSize)
@@ -118,5 +109,5 @@ TEST_F(ServerAppTests, unsuccessfulHandleEvent_invalidErrorCode_invalidReadMsgSi
 
     createServerSessionAndStartAsyncRead();
 
-    callKeyEvent({dummyKeyId, dummyKeyState}, invalidErrorCode, invalidMsgSize);
+    callKeyEvent(invalidErrorCode, invalidMsgSize);
 }

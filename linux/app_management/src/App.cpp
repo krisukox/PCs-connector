@@ -1,16 +1,19 @@
 #include "app_management/App.hpp"
-#include <iostream>
-#include "key_management/FakeKey.hpp"
+#include "internal_types/Deserializer.hpp"
 #include "key_management/KeyHandlerSelector.hpp"
-#include "key_management/TestKey.hpp"
 
 namespace app_management
 {
 using boost::asio::ip::tcp;
 
-App::App(int argc, char* argv[]) : endpoint{tcp::v4(), static_cast<unsigned short>(std::atoi("10000"))}
+App::App(int argc, char* argv[])
+    : endpoint{tcp::v4(), static_cast<unsigned short>(std::atoi("10000"))}, display{XOpenDisplay(nullptr)}
 {
-    servers.emplace_back(io_context, endpoint, key_management::KeyHandlerSelector{}.select(argc, argv));
+    servers.emplace_back(
+        io_context,
+        endpoint,
+        key_management::KeyHandlerSelector{display}.select(argc, argv),
+        std::make_unique<internal_types::Deserializer>(display));
 
     io_context.run();
 }
