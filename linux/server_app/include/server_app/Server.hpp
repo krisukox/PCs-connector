@@ -5,6 +5,7 @@
 #include <memory>
 #include "ServerSession.hpp"
 #include "internal_types/Deserializer.hpp"
+#include "mouse_management/FakeMouse.hpp"
 
 namespace key_management
 {
@@ -22,10 +23,14 @@ public:
         boost::asio::io_context&,
         const tcp::endpoint&,
         std::shared_ptr<key_management::IKey>,
+        std::shared_ptr<mouse_management::FakeMouse>,
         std::unique_ptr<internal_types::Deserializer>);
 
 private:
-    void do_accept(std::shared_ptr<key_management::IKey>, std::unique_ptr<internal_types::Deserializer>);
+    void do_accept(
+        std::shared_ptr<key_management::IKey>,
+        std::shared_ptr<mouse_management::FakeMouse>,
+        std::unique_ptr<internal_types::Deserializer>);
 
     std::unique_ptr<ServerSession> serverSession;
     tcp::acceptor socketAcceptor;

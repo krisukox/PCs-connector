@@ -3,6 +3,8 @@ from fixtures import setup_connection
 COMMON_MSG_END1 = 'x'
 COMMON_MSG_END2 = 'y'
 
+DUMMY_BYTES = chr(0) + chr(0) + chr(0)
+
 """
 purpose: press two different keys in the row
 """
@@ -15,8 +17,8 @@ def test_two_different_keys(setup_connection):
     linux_key_code1 = chr(26)
     linux_key_code2 = chr(41)
 
-    msg1 = bytes((key1 + COMMON_MSG_END1).encode())
-    msg2 = bytes((key2 + COMMON_MSG_END2).encode())
+    msg1 = bytes((key1 + COMMON_MSG_END1 + DUMMY_BYTES).encode())
+    msg2 = bytes((key2 + COMMON_MSG_END2 + DUMMY_BYTES).encode())
 
     connector.perform_key_press(msg1, linux_key_code1)
     connector.perform_key_press(msg2, linux_key_code2)
@@ -37,9 +39,9 @@ def test_two_same_keys(setup_connection):
     linux_key_code2 = chr(44)
     linux_key_code3 = chr(45)
 
-    msg1 = bytes((key1 + COMMON_MSG_END1).encode())
-    msg2 = bytes((key2 + COMMON_MSG_END2).encode())
-    msg3 = bytes((key3 + COMMON_MSG_END1).encode())
+    msg1 = bytes((key1 + COMMON_MSG_END1 + DUMMY_BYTES).encode())
+    msg2 = bytes((key2 + COMMON_MSG_END2 + DUMMY_BYTES).encode())
+    msg3 = bytes((key3 + COMMON_MSG_END1 + DUMMY_BYTES).encode())
 
     connector.perform_key_press(msg1, linux_key_code1)
     connector.perform_key_press(msg2, linux_key_code2)

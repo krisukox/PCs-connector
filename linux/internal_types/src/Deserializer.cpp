@@ -1,6 +1,7 @@
 #include "internal_types/Deserializer.hpp"
 #include <X11/keysym.h>
 #include <cstddef>
+#include <iostream>
 
 namespace
 {
@@ -69,6 +70,16 @@ constexpr std::byte WIN_MULTIPLY{0x6A};
 constexpr std::byte WIN_DIVIDE{0x6F};
 
 constexpr std::byte WIN_Num_Lock{0x90};
+
+short aggregateDeltaX(const server_app::Buffer& buffer)
+{
+    return static_cast<short>((std::to_integer<uint8_t>(buffer[1]) << 8) + std::to_integer<uint8_t>(buffer[2]));
+}
+
+short aggregateDeltaY(const server_app::Buffer& buffer)
+{
+    return static_cast<short>((std::to_integer<uint8_t>(buffer[3]) << 8) + std::to_integer<uint8_t>(buffer[4]));
+}
 } // namespace
 
 namespace internal_types
@@ -112,9 +123,26 @@ Deserializer::Deserializer(Display* display_)
 {
 }
 
-KeyEvent Deserializer::decode(const server_app::Buffer& buffer) const
+std::variant<KeyEvent, MouseEvent> Deserializer::decode(const server_app::Buffer& buffer) const
 {
-    return {decodeKeyCode(buffer[0]), decodeKeyState(buffer[1])};
+    if (buffer[0] == std::byte(0b11111101)) // Mouse Move
+    {
+        return MouseEvent{decodeMouseMoveEvent(buffer)};
+    }
+    if (buffer[0] == std::byte(0b11111110)) // Mouse Scroll
+    {
+        // return
+    }
+    if (buffer[0] == std::byte(0b11111100)) // Mouse Click
+    {
+        // return
+    }
+    return KeyEvent{decodeKeyCode(buffer[0]), decodeKeyState(buffer[1])};
+}
+
+MouseMoveEvent Deserializer::decodeMouseMoveEvent(const server_app::Buffer& buffer) const
+{
+    return {aggregateDeltaX(buffer), aggregateDeltaY(buffer)};
 }
 
 KeyCode Deserializer::decodeKeyCode(const std::byte keyId) const

@@ -15,8 +15,6 @@ public:
     void onEvent(internal_types::KeyEvent keyEvent) const override;
 
 private:
-    KeyCode decode(std::uint8_t);
-
     Display* display;
 };
 } // namespace key_management

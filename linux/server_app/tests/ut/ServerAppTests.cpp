@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 #include "internal_types/DeserializerMock.hpp"
 #include "key_management/KeyMock.hpp"
+#include "mouse_management/FakeMouse.hpp"
 #include "server_app/ReceiverMock.hpp"
 #include "server_app/ServerAppTypes.hpp"
 #include "server_app/ServerSession.hpp"
@@ -51,7 +52,11 @@ struct ServerAppTests : public testing::Test
     void createServerSessionAndStartAsyncRead()
     {
         sut = std::make_unique<server_app::ServerSession>(
-            std::move(socket), std::move(keyMockPtr), std::move(receiverMockPtr), std::move(deserializerMockPtr));
+            std::move(socket),
+            std::move(keyMockPtr),
+            std::make_shared<mouse_management::FakeMouse>(XOpenDisplay(nullptr)),
+            std::move(receiverMockPtr),
+            std::move(deserializerMockPtr));
 
         EXPECT_CALL(*receiverMockPtrRaw, startAsyncRead());
         sut->start();

@@ -6,6 +6,7 @@
 #include <cstddef>
 #include "ServerAppTypes.hpp"
 #include "internal_types/Deserializer.hpp"
+#include "mouse_management/FakeMouse.hpp"
 
 namespace key_management
 {
@@ -24,19 +25,22 @@ public:
     ServerSession(
         tcp::socket,
         std::shared_ptr<key_management::IKey>,
+        std::shared_ptr<mouse_management::FakeMouse>,
         std::shared_ptr<IReceiver>,
         std::unique_ptr<internal_types::IDeserializer>);
     void start();
 
 private:
     void onMessage(boost::system::error_code, std::size_t);
+    void onMouseEvent(const internal_types::MouseEvent&);
     void readBody();
 
     tcp::socket socket;
     std::shared_ptr<key_management::IKey> keyHandler;
+    std::shared_ptr<mouse_management::FakeMouse> fakeMouse;
     std::shared_ptr<IReceiver> receiver;
     std::unique_ptr<internal_types::IDeserializer> deserilizer;
-    Buffer buffer = {std::byte{0}, std::byte{0}};
+    Buffer buffer = {std::byte{0}, std::byte{0}, std::byte{0}, std::byte{0}, std::byte{0}};
 
     unsigned count = 0;
 };
