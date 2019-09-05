@@ -6,22 +6,11 @@ namespace key_management
 {
 FakeKey::FakeKey(Display* display_) : display{display_} {}
 
-FakeKey::~FakeKey()
-{
-    XCloseDisplay(display);
-}
+FakeKey::~FakeKey() = default;
 
-void FakeKey::onEvent(internal_types::KeyEvent keyEvent) const try
+void FakeKey::onEvent(const internal_types::KeyEvent& keyEvent) const
 {
     XTestFakeKeyEvent(display, keyEvent.keyCode, keyEvent.isPressed, CurrentTime);
     XFlush(display);
-}
-catch (const std::out_of_range&)
-{
-    throw std::invalid_argument("Key not supported");
-}
-catch (...)
-{
-    throw std::runtime_error("Unexpected exception");
 }
 } // namespace key_management

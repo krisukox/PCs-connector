@@ -18,9 +18,8 @@ public:
     std::variant<KeyEvent, MouseEvent> decode(const server_app::Buffer&) const override;
 
 private:
-    KeyCode decodeKeyCode(const std::byte) const;
-    bool decodeKeyState(const std::byte) const;
-
+    KeyCode decodeKeyCode(const std::byte&) const;
+    bool decodeKeyState(const std::byte&) const;
     MouseMoveEvent decodeMouseMoveEvent(const server_app::Buffer& buffer) const;
 
     Display* display;

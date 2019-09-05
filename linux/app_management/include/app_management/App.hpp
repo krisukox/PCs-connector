@@ -1,5 +1,6 @@
 #pragma once
 
+#include <X11/Xlib.h>
 #include <boost/asio/io_context.hpp>
 #include <list>
 #include "server_app/Server.hpp"
@@ -12,6 +13,7 @@ class App
 {
 public:
     App(int, char* []);
+    ~App();
 
 private:
     tcp::endpoint endpoint;

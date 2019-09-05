@@ -13,7 +13,7 @@ TestKey::~TestKey()
     std::cout.clear();
 }
 
-void TestKey::onEvent(internal_types::KeyEvent keyEvent) const
+void TestKey::onEvent(const internal_types::KeyEvent& keyEvent) const
 {
     std::cout.clear();
     std::cout << keyEvent.keyCode << std::endl;

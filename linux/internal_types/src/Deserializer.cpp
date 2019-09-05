@@ -1,7 +1,6 @@
 #include "internal_types/Deserializer.hpp"
 #include <X11/keysym.h>
 #include <cstddef>
-#include <iostream>
 
 namespace
 {
@@ -71,14 +70,9 @@ constexpr std::byte WIN_DIVIDE{0x6F};
 
 constexpr std::byte WIN_Num_Lock{0x90};
 
-short aggregateDeltaX(const server_app::Buffer& buffer)
+short toShort(const std::byte lv, const std::byte rv)
 {
-    return static_cast<short>((std::to_integer<uint8_t>(buffer[1]) << 8) + std::to_integer<uint8_t>(buffer[2]));
-}
-
-short aggregateDeltaY(const server_app::Buffer& buffer)
-{
-    return static_cast<short>((std::to_integer<uint8_t>(buffer[3]) << 8) + std::to_integer<uint8_t>(buffer[4]));
+    return static_cast<short>((std::to_integer<uint8_t>(lv) << 8) + std::to_integer<uint8_t>(rv));
 }
 } // namespace
 
@@ -123,7 +117,7 @@ Deserializer::Deserializer(Display* display_)
 {
 }
 
-std::variant<KeyEvent, MouseEvent> Deserializer::decode(const server_app::Buffer& buffer) const
+std::variant<KeyEvent, MouseEvent> Deserializer::decode(const server_app::Buffer& buffer) const try
 {
     if (buffer[0] == std::byte(0b11111101)) // Mouse Move
     {
@@ -139,13 +133,16 @@ std::variant<KeyEvent, MouseEvent> Deserializer::decode(const server_app::Buffer
     }
     return KeyEvent{decodeKeyCode(buffer[0]), decodeKeyState(buffer[1])};
 }
-
-MouseMoveEvent Deserializer::decodeMouseMoveEvent(const server_app::Buffer& buffer) const
+catch (const std::out_of_range&)
 {
-    return {aggregateDeltaX(buffer), aggregateDeltaY(buffer)};
+    throw std::invalid_argument("Key not supported");
+}
+catch (...)
+{
+    throw std::runtime_error("Unexpected exception");
 }
 
-KeyCode Deserializer::decodeKeyCode(const std::byte keyId) const
+KeyCode Deserializer::decodeKeyCode(const std::byte& keyId) const
 {
     const auto convertedKeyId = std::to_integer<std::uint8_t>(keyId);
 
@@ -180,8 +177,13 @@ KeyCode Deserializer::decodeKeyCode(const std::byte keyId) const
     return translationTabel.at(keyId);
 };
 
-bool Deserializer::decodeKeyState(const std::byte state) const
+bool Deserializer::decodeKeyState(const std::byte& state) const
 {
     return bool(state);
+}
+
+MouseMoveEvent Deserializer::decodeMouseMoveEvent(const server_app::Buffer& buffer) const
+{
+    return {toShort(buffer[1], buffer[2]), toShort(buffer[3], buffer[4])};
 }
 } // namespace internal_types

@@ -7,6 +7,11 @@ namespace app_management
 {
 using boost::asio::ip::tcp;
 
+App::~App()
+{
+    XCloseDisplay(display);
+}
+
 App::App(int argc, char* argv[])
     : endpoint{tcp::v4(), static_cast<unsigned short>(std::atoi("10000"))}, display{XOpenDisplay(nullptr)}
 {

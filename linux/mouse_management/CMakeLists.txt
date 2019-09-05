@@ -2,6 +2,7 @@ set(MODULE_NAME mouse_management)
 
 set(HEADERS
     include/mouse_management/FakeMouse.hpp
+    include/mouse_management/IMouse.hpp
 )
 
 set(SOURCE_FILES
@@ -16,3 +17,5 @@ target_link_libraries(mouse_management
     Xtst
     internal_types
 )
+
+add_subdirectory(tests)
