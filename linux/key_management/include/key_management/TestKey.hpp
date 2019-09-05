@@ -10,6 +10,6 @@ public:
     TestKey();
     ~TestKey() override;
 
-    void onEvent(internal_types::KeyEvent) const override;
+    void onEvent(const internal_types::KeyEvent&) const override;
 };
 } // namespace key_management

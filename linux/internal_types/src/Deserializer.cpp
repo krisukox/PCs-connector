@@ -69,6 +69,11 @@ constexpr std::byte WIN_MULTIPLY{0x6A};
 constexpr std::byte WIN_DIVIDE{0x6F};
 
 constexpr std::byte WIN_Num_Lock{0x90};
+
+short toShort(const std::byte lv, const std::byte rv)
+{
+    return static_cast<short>((std::to_integer<uint8_t>(lv) << 8) + std::to_integer<uint8_t>(rv));
+}
 } // namespace
 
 namespace internal_types
@@ -112,12 +117,32 @@ Deserializer::Deserializer(Display* display_)
 {
 }
 
-KeyEvent Deserializer::decode(const server_app::Buffer& buffer) const
+std::variant<KeyEvent, MouseEvent> Deserializer::decode(const server_app::Buffer& buffer) const try
 {
-    return {decodeKeyCode(buffer[0]), decodeKeyState(buffer[1])};
+    if (buffer[0] == std::byte(0b11111101)) // Mouse Move
+    {
+        return MouseEvent{decodeMouseMoveEvent(buffer)};
+    }
+    if (buffer[0] == std::byte(0b11111110)) // Mouse Scroll
+    {
+        // return
+    }
+    if (buffer[0] == std::byte(0b11111100)) // Mouse Click
+    {
+        // return
+    }
+    return KeyEvent{decodeKeyCode(buffer[0]), decodeKeyState(buffer[1])};
+}
+catch (const std::out_of_range&)
+{
+    throw std::invalid_argument("Key not supported");
+}
+catch (...)
+{
+    throw std::runtime_error("Unexpected exception");
 }
 
-KeyCode Deserializer::decodeKeyCode(const std::byte keyId) const
+KeyCode Deserializer::decodeKeyCode(const std::byte& keyId) const
 {
     const auto convertedKeyId = std::to_integer<std::uint8_t>(keyId);
 
@@ -152,8 +177,13 @@ KeyCode Deserializer::decodeKeyCode(const std::byte keyId) const
     return translationTabel.at(keyId);
 };
 
-bool Deserializer::decodeKeyState(const std::byte state) const
+bool Deserializer::decodeKeyState(const std::byte& state) const
 {
     return bool(state);
+}
+
+MouseMoveEvent Deserializer::decodeMouseMoveEvent(const server_app::Buffer& buffer) const
+{
+    return {toShort(buffer[1], buffer[2]), toShort(buffer[3], buffer[4])};
 }
 } // namespace internal_types

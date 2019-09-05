@@ -7,6 +7,6 @@
 
 namespace server_app
 {
-using Buffer = std::array<std::byte, 2>;
+using Buffer = std::array<std::byte, 5>;
 using Handler = std::function<void(boost::system::error_code, std::size_t)>;
 } // namespace server_app

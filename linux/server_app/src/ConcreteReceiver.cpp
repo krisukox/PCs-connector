@@ -5,7 +5,7 @@ namespace server_app
 {
 void ConcreteReceiver::asyncRead(boost::asio::ip::tcp::socket& readerSocket, Buffer& buffer, Handler&& handler)
 {
-    boost::asio::async_read(readerSocket, boost::asio::buffer(buffer, 2), handler);
+    boost::asio::async_read(readerSocket, boost::asio::buffer(buffer, 5), handler);
 }
 
 ConcreteReceiver::~ConcreteReceiver() = default;

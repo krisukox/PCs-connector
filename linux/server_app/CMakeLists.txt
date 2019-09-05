@@ -19,6 +19,7 @@ target_include_directories(server_app PUBLIC include PRIVATE src)
 
 target_link_libraries(server_app
     key_management
+    mouse_management
     pthread
     boost_system
     internal_types

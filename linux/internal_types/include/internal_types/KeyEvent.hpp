@@ -12,6 +12,6 @@ struct KeyEvent
 
 inline bool operator==(const internal_types::KeyEvent& lv, const internal_types::KeyEvent& rv)
 {
-    return lv.keyCode == rv.keyCode && lv.isPressed == rv.isPressed;
+    return (lv.keyCode == rv.keyCode && lv.isPressed == rv.isPressed);
 }
 } // namespace internal_types
