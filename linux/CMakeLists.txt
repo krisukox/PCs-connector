@@ -21,9 +21,3 @@ add_subdirectory(key_management)
 add_subdirectory(server_app)
 add_subdirectory(internal_types)
 add_subdirectory(tests)
-
-add_custom_target(
-    build_run
-    COMMAND $(MAKE) pcs_connector
-    COMMAND pcs_connector
-)
