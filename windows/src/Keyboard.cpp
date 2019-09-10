@@ -7,23 +7,28 @@ namespace
 {
 namespace keyboard_callback
 {
-std::function<LRESULT(AsciiCode)> pressedKeyCallbackGlob = nullptr;
+std::function<LRESULT(Buffer)> pressedKeyCallbackGlob = nullptr;
 } // namespace keyboard_callback
 } // namespace
 
-Keyboard::Keyboard(std::function<void(AsciiCode)>&& _pressedKeyCallback, std::function<void()>&& _stopAppCallback)
+Keyboard::Keyboard(std::function<void(Buffer)>&& _pressedKeyCallback, std::function<void()>&& _stopAppCallback)
     : pressedKeyCallback{std::move(_pressedKeyCallback)}, stopAppCallback{std::move(_stopAppCallback)}
 {
 }
 
 void Keyboard::start()
 {
-    keyboard_callback::pressedKeyCallbackGlob = [this](AsciiCode asciiCode) -> LRESULT {
+    keyboard_callback::pressedKeyCallbackGlob = [this](Buffer asciiCode) -> LRESULT {
         changeCtrl(asciiCode);
         changeShift(asciiCode);
         if (isCtrlPressed && isShiftPressed && std::uint8_t(asciiCode[0]) == 65 && std::uint8_t(asciiCode[1]))
         {
             changeState();
+            return 1;
+        }
+        if (isCtrlPressed && isShiftPressed && std::uint8_t(asciiCode[0]) == 81 && std::uint8_t(asciiCode[1]))
+        {
+            PostMessage(nullptr, WM_QUIT, 0, 0);
             return 1;
         }
         if (!hookState)
@@ -33,8 +38,8 @@ void Keyboard::start()
         if (std::uint8_t(asciiCode[0]) == 0x4C && std::uint8_t(asciiCode[1]))
         {
             pressedKeyCallback(asciiCode);
-            pressedKeyCallback(AsciiCode{std::byte(std::uint8_t(VK_LWIN)), std::byte(0)});
-            pressedKeyCallback(AsciiCode{std::byte(std::uint8_t(76)), std::byte(0)});
+            pressedKeyCallback(Buffer{std::byte(std::uint8_t(VK_LWIN)), std::byte(0)});
+            pressedKeyCallback(Buffer{std::byte(std::uint8_t(76)), std::byte(0)});
         }
         else
         {
@@ -54,14 +59,29 @@ void Keyboard::start()
                 case WM_SYSKEYDOWN:
                 {
                     return keyboard_callback::pressedKeyCallbackGlob(
-                        AsciiCode{std::byte(std::uint8_t(keyCode)), std::byte(1)});
+                        Buffer{std::byte(std::uint8_t(keyCode)), std::byte(1)});
                 }
                 case WM_KEYUP:
                 case WM_SYSKEYUP:
                 {
                     return keyboard_callback::pressedKeyCallbackGlob(
-                        AsciiCode{std::byte(std::uint8_t(keyCode)), std::byte(0)});
+                        Buffer{std::byte(std::uint8_t(keyCode)), std::byte(0)});
                 }
+            }
+        }
+        return 1;
+    };
+
+    auto mouseCallback = [](int nCode, WPARAM wParam, LPARAM lParam) -> LRESULT {
+        if (nCode == HC_ACTION)
+        {
+            auto mouseStruct = reinterpret_cast<PMSLLHOOKSTRUCT>(lParam);
+
+            if (wParam == WM_MOUSEMOVE)
+            {
+                POINT point = mouseStruct->pt;
+                std::cerr << ">>x " << point.x << std::endl;
+                std::cerr << ">>y " << point.y << std::endl << std::endl;
             }
         }
         return 1;
@@ -69,24 +89,25 @@ void Keyboard::start()
 
     assert(keyboard_callback::pressedKeyCallbackGlob);
     keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, callback, nullptr, NULL);
+    //    mouseHook = SetWindowsHookEx(WH_MOUSE_LL, mouseCallback, nullptr, NULL);
 
-    MSG msg;
-    BOOL retVal;
-    while ((retVal = GetMessage(&msg, nullptr, 0, 0)) != 0)
-    {
-        if (retVal == -1)
-        {
-            // handle the error and possibly exit
-        }
-    }
+    //    MSG msg;
+    //    BOOL retVal;
+    //    while ((retVal = GetMessage(&msg, nullptr, 0, 0)) != 0)
+    //    {
+    //        if (retVal == -1)
+    //        {
+    //            // handle the error and possibly exit
+    //        }
+    //    }
 }
 
 void Keyboard::changeState()
 {
     if (hookState)
     {
-        pressedKeyCallback(AsciiCode{std::byte(std::uint8_t(VK_LCONTROL)), std::byte(0)});
-        pressedKeyCallback(AsciiCode{std::byte(std::uint8_t(VK_LSHIFT)), std::byte(0)});
+        pressedKeyCallback(Buffer{std::byte(std::uint8_t(VK_LCONTROL)), std::byte(0)});
+        pressedKeyCallback(Buffer{std::byte(std::uint8_t(VK_LSHIFT)), std::byte(0)});
         hookState = false;
     }
     else
@@ -95,7 +116,7 @@ void Keyboard::changeState()
     }
 }
 
-void Keyboard::changeCtrl(AsciiCode asciiCode)
+void Keyboard::changeCtrl(Buffer asciiCode)
 {
     if (std::uint8_t(asciiCode[0]) == VK_LCONTROL)
     {
@@ -110,7 +131,7 @@ void Keyboard::changeCtrl(AsciiCode asciiCode)
     }
 }
 
-void Keyboard::changeShift(AsciiCode asciiCode)
+void Keyboard::changeShift(Buffer asciiCode)
 {
     if (std::uint8_t(asciiCode[0]) == VK_LSHIFT)
     {
