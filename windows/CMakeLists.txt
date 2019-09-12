@@ -1,8 +1,3 @@
-cmake_minimum_required(VERSION 3.14.5)
-set (CMAKE_CXX_STANDARD 17)
-
-project(pcs_connector)
-
 set(Boost_ARCHITECTURE "-x64")
 set(Boost_COMPILER "-vc141")
 set (Boost_DETAILED_FAILURE_MSG ON)
