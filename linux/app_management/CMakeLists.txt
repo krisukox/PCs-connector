@@ -10,6 +10,7 @@ target_include_directories(app_management PUBLIC include PRIVATE src)
 target_link_libraries(app_management
     key_management
     mouse_management
+    server_app
     X11
     internal_types
 )

@@ -16,8 +16,4 @@ set(SOURCE_FILES
 add_library(internal_types ${HEADERS} ${SOURCE_FILES})
 target_include_directories(internal_types PUBLIC include PRIVATE src)
 
-target_link_libraries(internal_types
-    server_app
-)
-
 add_subdirectory(tests)

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <X11/Xlib.h>
+#include <cstdint>
 
 namespace internal_types
 {
 struct KeyEvent
 {
-    KeyCode keyCode;
+    std::uint8_t keyCode;
     bool isPressed;
 };
 
