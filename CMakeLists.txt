@@ -15,3 +15,5 @@ add_custom_target(build_run
     COMMAND pcs_connector
     USES_TERMINAL
 )
+
+add_subdirectory(common)
