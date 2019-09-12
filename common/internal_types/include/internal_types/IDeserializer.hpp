@@ -3,7 +3,6 @@
 #include "KeyEvent.hpp"
 #include "MouseEvent.hpp"
 #include "internal_types/CommonTypes.hpp"
-#include "server_app/ServerAppTypes.hpp"
 #include <variant>
 
 namespace internal_types {

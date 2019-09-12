@@ -3,7 +3,6 @@
 #include "IDeserializer.hpp"
 #include "KeyEvent.hpp"
 #include "MouseEvent.hpp"
-#include "server_app/ServerAppTypes.hpp"
 #include <unordered_map>
 #include <variant>
 
