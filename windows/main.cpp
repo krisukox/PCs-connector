@@ -3,8 +3,9 @@
 #include <thread>
 #include "Client.hpp"
 #include "Keyboard.hpp"
-#include "Mouse.hpp"
+//#include "Mouse.hpp"
 #include "boost/asio/impl/read.hpp"
+#include "mouse_management/MouseHandler.hpp"
 
 // using boost::asio::ip::tcp;
 

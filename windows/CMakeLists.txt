@@ -17,11 +17,11 @@ add_executable(${PROJECT_NAME} main.cpp
                                src/Client.cpp
                                src/Console.cpp
                                src/Keyboard.cpp
-                               src/Mouse.cpp
+#                               src/Mouse.cpp
                                include/Client.hpp
                                include/Console.hpp
                                include/Keyboard.hpp
-                               include/Mouse.hpp
+#                               include/Mouse.hpp
                                include/Types.hpp
 )
 
@@ -29,4 +29,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE include/)
 
 include_directories(boost-path ../../boost_1_70_0/)
 
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}
+    ${Boost_LIBRARIES}
+    mouse_management
+)
+
+add_subdirectory(mouse_management)

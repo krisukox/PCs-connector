@@ -4,13 +4,16 @@ set(HEADERS
     include/internal_types/CommonTypes.hpp
     include/internal_types/Deserializer.hpp
     include/internal_types/IDeserializer.hpp
+    include/internal_types/ISerializer.hpp
     include/internal_types/KeyEvent.hpp
     include/internal_types/MouseEvent.hpp
+    include/internal_types/Serializer.hpp
     include/internal_types/Visitor.hpp
 )
 
 set(SOURCE_FILES
     src/Deserializer.cpp
+    src/Serializer.cpp
 )
 
 add_library(internal_types ${HEADERS} ${SOURCE_FILES})
