@@ -5,6 +5,7 @@
 #include <boost/asio/io_context.hpp>
 #include <cstddef>
 #include "ServerAppTypes.hpp"
+#include "internal_types/CommonTypes.hpp"
 
 namespace key_management
 {
@@ -48,6 +49,6 @@ private:
     std::shared_ptr<IReceiver> receiver;
     std::unique_ptr<internal_types::IDeserializer> deserilizer;
 
-    Buffer buffer;
+    internal_types::Buffer buffer;
 };
 } // namespace server_app

@@ -10,6 +10,6 @@ public:
     ConcreteReceiver() = default;
     ~ConcreteReceiver() override;
 
-    void asyncRead(boost::asio::ip::tcp::socket&, Buffer&, Handler&&) override;
+    void asyncRead(boost::asio::ip::tcp::socket&, internal_types::Buffer&, Handler&&) override;
 };
 } // namespace server_app

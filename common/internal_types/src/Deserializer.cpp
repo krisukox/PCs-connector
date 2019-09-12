@@ -2,8 +2,7 @@
 #include <X11/keysym.h>
 #include <cstddef>
 
-namespace
-{
+namespace {
 constexpr std::uint16_t WIN_LINUX_FUNCTION_KEYCODE_DIFF{0xFF4E};
 constexpr std::uint16_t WIN_LINUX_ARROWS_KEYCODE_DIFF{0xFF2C};
 constexpr std::uint16_t WIN_LINUX_NUMPAD_KEYCODE_DIFF{0xFF50};
@@ -70,17 +69,16 @@ constexpr std::byte WIN_DIVIDE{0x6F};
 
 constexpr std::byte WIN_Num_Lock{0x90};
 
-short toShort(const std::byte lv, const std::byte rv)
-{
-    return static_cast<short>((std::to_integer<uint8_t>(lv) << 8) + std::to_integer<uint8_t>(rv));
+short toShort(const std::byte lv, const std::byte rv) {
+  return static_cast<short>((std::to_integer<uint8_t>(lv) << 8) +
+                            std::to_integer<uint8_t>(rv));
 }
 } // namespace
 
-namespace internal_types
-{
-Deserializer::Deserializer(Display* display_)
-    : display{display_}
-    , translationTabel{
+namespace internal_types {
+Deserializer::Deserializer(Display *display_)
+    : display{display_},
+      translationTabel{
           {WIN_LSHIFT, XKeysymToKeycode(display, XK_Shift_L)},
           {WIN_RSHIFT, XKeysymToKeycode(display, XK_Shift_R)},
           {WIN_LCONTROL, XKeysymToKeycode(display, XK_Control_L)},
@@ -107,83 +105,80 @@ Deserializer::Deserializer(Display* display_)
           {WIN_Insert, XKeysymToKeycode(display, XK_Insert)},
           {WIN_Delete, XKeysymToKeycode(display, XK_Delete)},
           {WIN_Pause, XKeysymToKeycode(display, XK_Pause)},
-          {WIN_Scroll_Lock, XKeysymToKeycode(display, XK_Scroll_Lock)}, // seem to don't work
+          {WIN_Scroll_Lock,
+           XKeysymToKeycode(display, XK_Scroll_Lock)}, // seem to don't work
           {WIN_Insert, XKeysymToKeycode(display, XK_Insert)},
           {WIN_Delete, XKeysymToKeycode(display, XK_Delete)},
           {WIN_Pause, XKeysymToKeycode(display, XK_Pause)},
           {WIN_Scroll_Lock, XKeysymToKeycode(display, XK_Scroll_Lock)},
           {WIN_Num_Lock, XKeysymToKeycode(display, XK_Num_Lock)},
-      }
-{
+      } {}
+
+std::variant<KeyEvent, MouseEvent>
+Deserializer::decode(const internal_types::Buffer &buffer) const try {
+  if (buffer[0] == std::byte(0b11111101)) // Mouse Move
+  {
+    return MouseEvent{decodeMouseMoveEvent(buffer)};
+  }
+  if (buffer[0] == std::byte(0b11111110)) // Mouse Scroll
+  {
+    // return
+  }
+  if (buffer[0] == std::byte(0b11111100)) // Mouse Click
+  {
+    // return
+  }
+  return KeyEvent{decodeKeyCode(buffer[0]), decodeKeyState(buffer[1])};
+} catch (const std::out_of_range &) {
+  throw std::invalid_argument("Key not supported");
+} catch (...) {
+  throw std::runtime_error("Unexpected exception");
 }
 
-std::variant<KeyEvent, MouseEvent> Deserializer::decode(const server_app::Buffer& buffer) const try
-{
-    if (buffer[0] == std::byte(0b11111101)) // Mouse Move
-    {
-        return MouseEvent{decodeMouseMoveEvent(buffer)};
-    }
-    if (buffer[0] == std::byte(0b11111110)) // Mouse Scroll
-    {
-        // return
-    }
-    if (buffer[0] == std::byte(0b11111100)) // Mouse Click
-    {
-        // return
-    }
-    return KeyEvent{decodeKeyCode(buffer[0]), decodeKeyState(buffer[1])};
-}
-catch (const std::out_of_range&)
-{
-    throw std::invalid_argument("Key not supported");
-}
-catch (...)
-{
-    throw std::runtime_error("Unexpected exception");
-}
+KeyCode Deserializer::decodeKeyCode(const std::byte &keyId) const {
+  const auto convertedKeyId = std::to_integer<std::uint8_t>(keyId);
 
-KeyCode Deserializer::decodeKeyCode(const std::byte& keyId) const
-{
-    const auto convertedKeyId = std::to_integer<std::uint8_t>(keyId);
-
-    if ((keyId >= WIN_A && keyId <= WIN_Z) || (keyId >= WIN_0 && keyId <= WIN_9)) // A-Z and 0-9
-    {
-        return XKeysymToKeycode(display, convertedKeyId);
-    }
-    if (keyId >= WIN_F1 && keyId <= WIN_F12) // function keys
-    {
-        return XKeysymToKeycode(display, convertedKeyId + WIN_LINUX_FUNCTION_KEYCODE_DIFF);
-    }
-    if (keyId >= WIN_BRACKETLEFT && keyId <= WIN_BRACKETRIGHT) //'[{'  ']}'  '\|'
-    {
-        return XKeysymToKeycode(display, convertedKeyId - WIN_LINUX_KEYCODE_DIFF_1);
-    }
-    if (keyId >= WIN_COMMA && keyId <= WIN_SLASH) //',<'  '-_'  '.>'  '/?'
-    {
-        return XKeysymToKeycode(display, convertedKeyId - WIN_LINUX_KEYCODE_DIFF_2);
-    }
-    if (keyId >= WIN_Left && keyId <= WIN_Down) // arrows
-    {
-        return XKeysymToKeycode(display, convertedKeyId + WIN_LINUX_ARROWS_KEYCODE_DIFF);
-    }
-    if (keyId >= WIN_NUMPAD0 && keyId <= WIN_NUMPAD9) // numpad
-    {
-        return XKeysymToKeycode(display, convertedKeyId + WIN_LINUX_NUMPAD_KEYCODE_DIFF);
-    }
-    if (keyId >= WIN_MULTIPLY && keyId <= WIN_DIVIDE) // '*'  '+'  '-'  ','  '/'
-    {
-        return XKeysymToKeycode(display, convertedKeyId + WIN_LINUX_KEYCODE_DIFF_3);
-    }
-    return translationTabel.at(keyId);
+  if ((keyId >= WIN_A && keyId <= WIN_Z) ||
+      (keyId >= WIN_0 && keyId <= WIN_9)) // A-Z and 0-9
+  {
+    return XKeysymToKeycode(display, convertedKeyId);
+  }
+  if (keyId >= WIN_F1 && keyId <= WIN_F12) // function keys
+  {
+    return XKeysymToKeycode(display,
+                            convertedKeyId + WIN_LINUX_FUNCTION_KEYCODE_DIFF);
+  }
+  if (keyId >= WIN_BRACKETLEFT && keyId <= WIN_BRACKETRIGHT) //'[{'  ']}'  '\|'
+  {
+    return XKeysymToKeycode(display, convertedKeyId - WIN_LINUX_KEYCODE_DIFF_1);
+  }
+  if (keyId >= WIN_COMMA && keyId <= WIN_SLASH) //',<'  '-_'  '.>'  '/?'
+  {
+    return XKeysymToKeycode(display, convertedKeyId - WIN_LINUX_KEYCODE_DIFF_2);
+  }
+  if (keyId >= WIN_Left && keyId <= WIN_Down) // arrows
+  {
+    return XKeysymToKeycode(display,
+                            convertedKeyId + WIN_LINUX_ARROWS_KEYCODE_DIFF);
+  }
+  if (keyId >= WIN_NUMPAD0 && keyId <= WIN_NUMPAD9) // numpad
+  {
+    return XKeysymToKeycode(display,
+                            convertedKeyId + WIN_LINUX_NUMPAD_KEYCODE_DIFF);
+  }
+  if (keyId >= WIN_MULTIPLY && keyId <= WIN_DIVIDE) // '*'  '+'  '-'  ','  '/'
+  {
+    return XKeysymToKeycode(display, convertedKeyId + WIN_LINUX_KEYCODE_DIFF_3);
+  }
+  return translationTabel.at(keyId);
 };
 
-bool Deserializer::decodeKeyState(const std::byte& state) const
-{
-    return bool(state);
+bool Deserializer::decodeKeyState(const std::byte &state) const {
+  return bool(state);
 }
 
-MouseMoveEvent Deserializer::decodeMouseMoveEvent(const server_app::Buffer& buffer) const
-{
-    return {toShort(buffer[1], buffer[2]), toShort(buffer[3], buffer[4])};
+MouseMoveEvent
+Deserializer::decodeMouseMoveEvent(const internal_types::Buffer &buffer) const {
+  return {toShort(buffer[1], buffer[2]), toShort(buffer[3], buffer[4])};
 }
 } // namespace internal_types
