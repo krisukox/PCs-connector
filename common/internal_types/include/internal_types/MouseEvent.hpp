@@ -35,6 +35,6 @@ inline bool operator==(const MouseMoveEvent& lv, const MouseMoveEvent& rv)
 
 inline bool operator==(const MouseScrollEvent& lv, const MouseScrollEvent& rv)
 {
-    return (lv.deltaForward == rv.deltaForward && lv.deltaForward == rv.deltaForward);
+    return (lv.deltaForward == rv.deltaForward && lv.deltaBackward == rv.deltaBackward);
 }
 } // namespace internal_types

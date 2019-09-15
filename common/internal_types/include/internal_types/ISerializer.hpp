@@ -2,7 +2,6 @@
 
 #include <variant>
 #include "CommonTypes.hpp"
-#include "MouseEvent.hpp"
 
 namespace internal_types
 {

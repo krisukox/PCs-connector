@@ -29,9 +29,9 @@ int main(int argc, char* argv[])
         auto pressedKeyCallback = [&c](internal_types::Event key) { c.send(key); };
 
         auto stopAppCallback = [&c]() { c.close(); };
-        auto keyboard = Keyboard(std::move(pressedKeyCallback), std::move(stopAppCallback));
+        auto keyboard = Keyboard(pressedKeyCallback, stopAppCallback);
+        auto mouse = Mouse(pressedKeyCallback, stopAppCallback);
         keyboard.start();
-        auto mouse = Mouse(std::move(pressedKeyCallback), std::move(stopAppCallback));
         mouse.start();
         MSG msg;
         BOOL retVal;

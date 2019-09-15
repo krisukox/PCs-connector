@@ -1,6 +1,5 @@
 set(MODULE_NAME internal_type)
 
-# WORKAROUND - TODO use in deserializer only internal_types instead of X11 type
 if(UNIX)
     set(HEADERS
         include/internal_types/CommonTypes.hpp
@@ -9,13 +8,11 @@ if(UNIX)
         include/internal_types/ISerializer.hpp
         include/internal_types/KeyEvent.hpp
         include/internal_types/MouseEvent.hpp
-        include/internal_types/Serializer.hpp
         include/internal_types/Visitor.hpp
     )
 
     set(SOURCE_FILES
         src/Deserializer.cpp
-        src/Serializer.cpp
     )
 endif(UNIX)
 

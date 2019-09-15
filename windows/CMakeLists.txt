@@ -32,6 +32,7 @@ include_directories(boost-path ../../boost_1_70_0/)
 target_link_libraries(${PROJECT_NAME}
     ${Boost_LIBRARIES}
     mouse_management
+    internal_types
 )
 
 add_subdirectory(mouse_management)

@@ -1,16 +1,13 @@
 #pragma once
 
-#include <unordered_map>
-#include <variant>
 #include "ISerializer.hpp"
-#include "MouseEvent.hpp"
 
 namespace internal_types
 {
 class Serializer : public ISerializer
 {
 public:
-    Serializer();
+    Serializer() = default;
 
     ~Serializer() override = default;
     Buffer encode(const Event&) const override;
