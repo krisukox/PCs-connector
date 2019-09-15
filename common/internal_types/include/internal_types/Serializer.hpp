@@ -2,27 +2,24 @@
 
 #include <unordered_map>
 #include <variant>
-#include "IDeserializer.hpp"
-#include "KeyEvent.hpp"
+#include "ISerializer.hpp"
 #include "MouseEvent.hpp"
-#include "server_app/ServerAppTypes.hpp"
 
 namespace internal_types
 {
-class Deserializer : public IDeserializer
+class Serializer : public ISerializer
 {
 public:
-    Deserializer(Display*);
+    Serializer();
 
-    ~Deserializer() override = default;
-    std::variant<KeyEvent, MouseEvent> decode(const server_app::Buffer&) const override;
+    ~Serializer() override = default;
+    Buffer encode(const Event&) const override;
 
 private:
-    KeyCode decodeKeyCode(const std::byte&) const;
-    bool decodeKeyState(const std::byte&) const;
-    MouseMoveEvent decodeMouseMoveEvent(const server_app::Buffer& buffer) const;
-
-    Display* display;
-    const std::unordered_map<std::byte, KeyCode> translationTabel;
+    Buffer encode(const MouseEvent&) const;
+    Buffer encode(const KeyEvent&) const;
+    Buffer encode(const MouseMoveEvent&) const;
+    Buffer encode(const MouseScrollEvent&) const;
+    Buffer encode(const MouseKeyEvent&) const;
 };
 } // namespace internal_types

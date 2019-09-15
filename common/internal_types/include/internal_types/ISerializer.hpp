@@ -1,17 +1,16 @@
 #pragma once
 
 #include <variant>
-#include "KeyEvent.hpp"
+#include "CommonTypes.hpp"
 #include "MouseEvent.hpp"
-#include "server_app/ServerAppTypes.hpp"
 
 namespace internal_types
 {
-class IDeserializer
+class ISerializer
 {
 public:
-    virtual ~IDeserializer() = default;
+    virtual ~ISerializer() = default;
 
-    virtual std::variant<KeyEvent, MouseEvent> decode(const server_app::Buffer&) const = 0;
+    virtual Buffer encode(const Event&) const = 0;
 };
 } // namespace internal_types

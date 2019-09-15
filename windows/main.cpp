@@ -3,11 +3,9 @@
 #include <thread>
 #include "Client.hpp"
 #include "Keyboard.hpp"
-//#include "Mouse.hpp"
 #include "boost/asio/impl/read.hpp"
+#include "internal_types/CommonTypes.hpp"
 #include "mouse_management/MouseHandler.hpp"
-
-// using boost::asio::ip::tcp;
 
 int main(int argc, char* argv[])
 {
@@ -28,7 +26,7 @@ int main(int argc, char* argv[])
         Client c(io_context, endpoints);
         io_context.run();
 
-        auto pressedKeyCallback = [&c](std::array<std::byte, 5> key) { c.send(key); };
+        auto pressedKeyCallback = [&c](internal_types::Event key) { c.send(key); };
 
         auto stopAppCallback = [&c]() { c.close(); };
         auto keyboard = Keyboard(std::move(pressedKeyCallback), std::move(stopAppCallback));
