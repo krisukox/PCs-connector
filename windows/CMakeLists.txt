@@ -1,8 +1,3 @@
-cmake_minimum_required(VERSION 3.14.5)
-set (CMAKE_CXX_STANDARD 17)
-
-project(pcs_connector)
-
 set(Boost_ARCHITECTURE "-x64")
 set(Boost_COMPILER "-vc141")
 set (Boost_DETAILED_FAILURE_MSG ON)
@@ -22,11 +17,11 @@ add_executable(${PROJECT_NAME} main.cpp
                                src/Client.cpp
                                src/Console.cpp
                                src/Keyboard.cpp
-                               src/Mouse.cpp
+#                               src/Mouse.cpp
                                include/Client.hpp
                                include/Console.hpp
                                include/Keyboard.hpp
-                               include/Mouse.hpp
+#                               include/Mouse.hpp
                                include/Types.hpp
 )
 
@@ -34,4 +29,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE include/)
 
 include_directories(boost-path ../../boost_1_70_0/)
 
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}
+    ${Boost_LIBRARIES}
+    mouse_management
+    internal_types
+)
+
+add_subdirectory(mouse_management)

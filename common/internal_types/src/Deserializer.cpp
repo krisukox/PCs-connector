@@ -117,7 +117,7 @@ Deserializer::Deserializer(Display* display_)
 {
 }
 
-std::variant<KeyEvent, MouseEvent> Deserializer::decode(const server_app::Buffer& buffer) const try
+std::variant<KeyEvent, MouseEvent> Deserializer::decode(const internal_types::Buffer& buffer) const try
 {
     if (buffer[0] == std::byte(0b11111101)) // Mouse Move
     {
@@ -182,7 +182,7 @@ bool Deserializer::decodeKeyState(const std::byte& state) const
     return bool(state);
 }
 
-MouseMoveEvent Deserializer::decodeMouseMoveEvent(const server_app::Buffer& buffer) const
+MouseMoveEvent Deserializer::decodeMouseMoveEvent(const internal_types::Buffer& buffer) const
 {
     return {toShort(buffer[1], buffer[2]), toShort(buffer[3], buffer[4])};
 }

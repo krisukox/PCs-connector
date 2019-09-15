@@ -30,11 +30,12 @@ void Client::connect(const tcp::resolver::results_type& endpoints)
     });
 }
 
-void Client::send(std::array<std::byte, 5> key)
+void Client::send(internal_types::Event key)
 {
-    //    std::cerr << static_cast<int>(key[0]) << " " << static_cast<int>(key[1]) << std::endl;
     boost::asio::async_write(
-        sessionSocket, boost::asio::buffer(key, 5), [this](boost::system::error_code ec, std::size_t /*length*/) {
+        sessionSocket,
+        boost::asio::buffer(serializer.encode(key), 5),
+        [this](boost::system::error_code ec, std::size_t /*length*/) {
             if (!ec)
             {
                 // LATER CHECK IF VECTOR OF MSGS HAS ANY MSGS LEFT

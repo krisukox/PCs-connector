@@ -1,32 +1,38 @@
 #include "Keyboard.hpp"
-//#include <Windows.h>
 #include <cassert>
 #include <iostream>
+//#include "internal_types/KeyEvent.hpp"
 
 namespace
 {
+constexpr uint8_t WIN_A = 0x41;
+constexpr uint8_t WIN_Q = 0x51;
+constexpr uint8_t WIN_L = 0x4C;
+
 namespace keyboard_callback
 {
-std::function<LRESULT(Buffer)> pressedKeyCallbackGlob = nullptr;
+std::function<LRESULT(internal_types::KeyEvent)> pressedKeyCallbackGlob = nullptr;
 } // namespace keyboard_callback
 } // namespace
 
-Keyboard::Keyboard(std::function<void(Buffer)>&& _pressedKeyCallback, std::function<void()>&& _stopAppCallback)
+Keyboard::Keyboard(
+    std::function<void(internal_types::Event)>&& _pressedKeyCallback,
+    std::function<void()>&& _stopAppCallback)
     : pressedKeyCallback{std::move(_pressedKeyCallback)}, stopAppCallback{std::move(_stopAppCallback)}
 {
 }
 
 void Keyboard::start()
 {
-    keyboard_callback::pressedKeyCallbackGlob = [this](Buffer asciiCode) -> LRESULT {
-        changeCtrl(asciiCode);
-        changeShift(asciiCode);
-        if (isCtrlPressed && isShiftPressed && std::uint8_t(asciiCode[0]) == 65 && std::uint8_t(asciiCode[1]))
+    keyboard_callback::pressedKeyCallbackGlob = [this](internal_types::KeyEvent keyEvent) -> LRESULT {
+        changeCtrl(keyEvent);
+        changeShift(keyEvent);
+        if (isCtrlPressed && isShiftPressed && keyEvent.keyCode == WIN_A && keyEvent.isPressed)
         {
             changeState();
             return 1;
         }
-        if (isCtrlPressed && isShiftPressed && std::uint8_t(asciiCode[0]) == 81 && std::uint8_t(asciiCode[1]))
+        if (isCtrlPressed && isShiftPressed && keyEvent.keyCode == WIN_Q && keyEvent.isPressed)
         {
             PostMessage(nullptr, WM_QUIT, 0, 0);
             return 1;
@@ -35,15 +41,15 @@ void Keyboard::start()
         {
             return 0;
         }
-        if (std::uint8_t(asciiCode[0]) == 0x4C && std::uint8_t(asciiCode[1]))
+        if (keyEvent.keyCode == WIN_L && keyEvent.isPressed)
         {
-            pressedKeyCallback(asciiCode);
-            pressedKeyCallback(Buffer{std::byte(std::uint8_t(VK_LWIN)), std::byte(0)});
-            pressedKeyCallback(Buffer{std::byte(std::uint8_t(76)), std::byte(0)});
+            pressedKeyCallback(keyEvent);
+            pressedKeyCallback(internal_types::KeyEvent{VK_LWIN, false});
+            pressedKeyCallback(internal_types::KeyEvent{WIN_L, false});
         }
         else
         {
-            pressedKeyCallback(asciiCode);
+            pressedKeyCallback(keyEvent);
         }
         return 1;
     };
@@ -59,29 +65,14 @@ void Keyboard::start()
                 case WM_SYSKEYDOWN:
                 {
                     return keyboard_callback::pressedKeyCallbackGlob(
-                        Buffer{std::byte(std::uint8_t(keyCode)), std::byte(1)});
+                        internal_types::KeyEvent{std::uint8_t(keyCode), true});
                 }
                 case WM_KEYUP:
                 case WM_SYSKEYUP:
                 {
                     return keyboard_callback::pressedKeyCallbackGlob(
-                        Buffer{std::byte(std::uint8_t(keyCode)), std::byte(0)});
+                        internal_types::KeyEvent{std::uint8_t(keyCode), false});
                 }
-            }
-        }
-        return 1;
-    };
-
-    auto mouseCallback = [](int nCode, WPARAM wParam, LPARAM lParam) -> LRESULT {
-        if (nCode == HC_ACTION)
-        {
-            auto mouseStruct = reinterpret_cast<PMSLLHOOKSTRUCT>(lParam);
-
-            if (wParam == WM_MOUSEMOVE)
-            {
-                POINT point = mouseStruct->pt;
-                std::cerr << ">>x " << point.x << std::endl;
-                std::cerr << ">>y " << point.y << std::endl << std::endl;
             }
         }
         return 1;
@@ -89,25 +80,14 @@ void Keyboard::start()
 
     assert(keyboard_callback::pressedKeyCallbackGlob);
     keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, callback, nullptr, NULL);
-    //    mouseHook = SetWindowsHookEx(WH_MOUSE_LL, mouseCallback, nullptr, NULL);
-
-    //    MSG msg;
-    //    BOOL retVal;
-    //    while ((retVal = GetMessage(&msg, nullptr, 0, 0)) != 0)
-    //    {
-    //        if (retVal == -1)
-    //        {
-    //            // handle the error and possibly exit
-    //        }
-    //    }
 }
 
 void Keyboard::changeState()
 {
     if (hookState)
     {
-        pressedKeyCallback(Buffer{std::byte(std::uint8_t(VK_LCONTROL)), std::byte(0)});
-        pressedKeyCallback(Buffer{std::byte(std::uint8_t(VK_LSHIFT)), std::byte(0)});
+        pressedKeyCallback(internal_types::KeyEvent{VK_LCONTROL, false});
+        pressedKeyCallback(internal_types::KeyEvent{VK_LSHIFT, false});
         hookState = false;
     }
     else
@@ -116,11 +96,11 @@ void Keyboard::changeState()
     }
 }
 
-void Keyboard::changeCtrl(Buffer asciiCode)
+void Keyboard::changeCtrl(internal_types::KeyEvent keyEvent)
 {
-    if (std::uint8_t(asciiCode[0]) == VK_LCONTROL)
+    if (keyEvent.keyCode == VK_LCONTROL)
     {
-        if (std::uint8_t(asciiCode[1]))
+        if (keyEvent.isPressed)
         {
             isCtrlPressed = true;
         }
@@ -131,11 +111,11 @@ void Keyboard::changeCtrl(Buffer asciiCode)
     }
 }
 
-void Keyboard::changeShift(Buffer asciiCode)
+void Keyboard::changeShift(internal_types::KeyEvent keyEvent)
 {
-    if (std::uint8_t(asciiCode[0]) == VK_LSHIFT)
+    if (keyEvent.keyCode == VK_LSHIFT)
     {
-        if (std::uint8_t(asciiCode[1]))
+        if (keyEvent.isPressed)
         {
             isShiftPressed = true;
         }
