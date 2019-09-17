@@ -119,15 +119,15 @@ Deserializer::Deserializer(Display* display_)
 
 std::variant<KeyEvent, MouseEvent> Deserializer::decode(const internal_types::Buffer& buffer) const try
 {
-    if (buffer[0] == std::byte(0b11111101)) // Mouse Move
+    if (buffer[0] == std::byte{0b11111101}) // Mouse Move
     {
         return MouseEvent{decodeMouseMoveEvent(buffer)};
     }
-    if (buffer[0] == std::byte(0b11111110)) // Mouse Scroll
+    if (buffer[0] == std::byte{0b11111110}) // Mouse Scroll
     {
         // return
     }
-    if (buffer[0] == std::byte(0b11111100)) // Mouse Click
+    if (buffer[0] == std::byte{0b11111100}) // Mouse Click
     {
         // return
     }

@@ -1,7 +1,6 @@
 #include "Keyboard.hpp"
 #include <cassert>
 #include <iostream>
-//#include "internal_types/KeyEvent.hpp"
 
 namespace
 {

@@ -18,6 +18,7 @@ public:
     Keyboard() = delete;
 
     void start();
+    void changeState();
 
 private:
     std::function<void(internal_types::Event)> pressedKeyCallback;
@@ -28,8 +29,7 @@ private:
     bool isCtrlPressed = false;
     bool isShiftPressed = false;
 
-    void changeState();
     void changeCtrl(internal_types::KeyEvent);
     void changeShift(internal_types::KeyEvent);
-    bool hookState = true;
+    bool hookState = false;
 };

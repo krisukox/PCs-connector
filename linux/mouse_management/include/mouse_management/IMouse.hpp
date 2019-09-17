@@ -7,7 +7,7 @@ namespace mouse_management
 class IMouse
 {
 public:
-    virtual void onEvent(const internal_types::MouseEvent&) const = 0;
+    virtual void onEvent(const internal_types::MouseEvent&) = 0;
 
     virtual ~IMouse() = default;
 };

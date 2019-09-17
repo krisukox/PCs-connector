@@ -27,12 +27,14 @@ int main(int argc, char* argv[])
         io_context.run();
 
         auto pressedKeyCallback = [&c](internal_types::Event key) { c.send(key); };
-
         auto stopAppCallback = [&c]() { c.close(); };
+
         auto keyboard = Keyboard(pressedKeyCallback, stopAppCallback);
-        auto mouse = Mouse(pressedKeyCallback, stopAppCallback);
-        keyboard.start();
+        auto changeKeyboardState = [&keyboard]() { keyboard.changeState(); };
+        auto mouse = Mouse(pressedKeyCallback, stopAppCallback, std::move(changeKeyboardState));
+
         mouse.start();
+        keyboard.start();
         MSG msg;
         BOOL retVal;
         while ((retVal = GetMessage(&msg, nullptr, 0, 0)) != 0)
