@@ -1,5 +1,7 @@
-#include "Console.hpp"
+#include "app_management/Console.hpp"
 
+namespace app_management
+{
 Console::Console()
 {
     consoleHandle = GetStdHandle(STD_INPUT_HANDLE);
@@ -11,3 +13,4 @@ Console::~Console()
 {
     SetConsoleMode(consoleHandle, previousMode);
 }
+} // namespace app_management
