@@ -2,6 +2,8 @@
 
 #include <Windows.h>
 
+namespace app_management
+{
 class Console
 {
 public:
@@ -12,3 +14,4 @@ private:
     DWORD previousMode;
     HANDLE consoleHandle;
 };
+} // namespace app_management
