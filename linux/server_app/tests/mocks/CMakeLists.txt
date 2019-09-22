@@ -5,7 +5,7 @@ set_target_properties(server_app_mocks PROPERTIES LINKER_LANGUAGE CXX)
 
 target_link_libraries(server_app_mocks
     gmock
-    boost_system
+    Boost::system
     server_app
 )
 

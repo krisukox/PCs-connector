@@ -5,13 +5,9 @@ project(pcs_connector)
 enable_testing()
 
 get_filename_component(PREFIX_DIR "../.." ABSOLUTE)
-message(${PREFIX_DIR})
 
 link_directories(${PREFIX_DIR}/google-test/googletest/build/lib)
 
-set(BOOST_ROOT "${PREFIX_DIR}/boost_1_70_0/")
-
-find_package(Boost 1.70.0 COMPONENTS system REQUIRED)
 find_package(Python3 COMPONENTS Interpreter)
 find_package(X11 REQUIRED)
 

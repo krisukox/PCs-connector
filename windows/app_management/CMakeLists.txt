@@ -14,7 +14,7 @@ add_library(app_management ${HEADERS} ${SOURCE_FILES})
 target_include_directories(app_management PUBLIC include PRIVATE src)
 
 target_link_libraries(app_management
-    ${Boost_LIBRARIES}
+    Boost::system
     internal_types
     event_vendor
     connection

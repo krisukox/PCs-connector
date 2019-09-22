@@ -21,7 +21,7 @@ target_link_libraries(server_app
     key_management
     mouse_management
     pthread
-    boost_system
+    Boost::system
     internal_types
 )
 
