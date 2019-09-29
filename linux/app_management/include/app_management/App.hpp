@@ -1,13 +1,21 @@
 #pragma once
 
 #include <X11/Xlib.h>
-#include <boost/asio/io_context.hpp>
-#include <list>
-#include "server_app/Server.hpp"
+#include <memory>
+
+namespace connection
+{
+class Socket;
+}
+
+namespace event_consumer
+{
+class IKeyboardReceiver;
+}
 
 namespace app_management
 {
-using boost::asio::ip::tcp;
+class Consumer;
 
 class App
 {
@@ -16,9 +24,10 @@ public:
     ~App();
 
 private:
-    tcp::endpoint endpoint;
+    std::shared_ptr<event_consumer::IKeyboardReceiver> keyboardReceiverSelector(int, char* []);
+
     Display* display;
-    boost::asio::io_context io_context;
-    std::list<server_app::Server> servers;
+    std::unique_ptr<connection::Socket> socket;
+    std::unique_ptr<Consumer> consumer;
 };
 } // namespace app_management
