@@ -64,6 +64,8 @@ void MouseSender::start(std::function<void()>&& changeKeyboardState)
         {
             changeMouseState();
             changeKeyboardState();
+            sender->send(
+                internal_types::MouseChangePositionEvent{static_cast<short>(point->x), static_cast<short>(point->y)});
         }
         return isEventSending;
     };

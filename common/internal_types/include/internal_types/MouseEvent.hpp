@@ -26,7 +26,13 @@ enum class MouseKeyEvent
     MiddleButtonUnpressed
 };
 
-using MouseEvent = std::variant<MouseMoveEvent, MouseScrollEvent, MouseKeyEvent>;
+struct MouseChangePositionEvent
+{
+    short x;
+    short y;
+};
+
+using MouseEvent = std::variant<MouseMoveEvent, MouseScrollEvent, MouseKeyEvent, MouseChangePositionEvent>;
 
 inline bool operator==(const MouseMoveEvent& lv, const MouseMoveEvent& rv)
 {

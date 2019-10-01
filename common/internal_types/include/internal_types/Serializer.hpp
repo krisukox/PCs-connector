@@ -18,5 +18,6 @@ private:
     Buffer encode(const MouseMoveEvent&) const;
     Buffer encode(const MouseScrollEvent&) const;
     Buffer encode(const MouseKeyEvent&) const;
+    Buffer encode(const MouseChangePositionEvent&) const;
 };
 } // namespace internal_types
