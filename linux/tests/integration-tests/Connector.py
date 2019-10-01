@@ -14,7 +14,7 @@ class Connector:
 
     def __run_process(self):
         dirname = path.dirname(__file__)
-        filename = path.join(dirname, '../../build/main_app/pcs_connector')
+        filename = path.join(dirname, '../../../build/linux/main_app/pcs_connector')
         process = Popen([filename, 'test'],
                         stdin=PIPE,
                         stdout=PIPE)

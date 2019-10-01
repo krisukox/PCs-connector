@@ -20,6 +20,7 @@ if(WIN32)
     set(HEADERS
         include/internal_types/CommonTypes.hpp
         include/internal_types/ISerializer.hpp
+        include/internal_types/IDeserializer.hpp
         include/internal_types/KeyEvent.hpp
         include/internal_types/MouseEvent.hpp
         include/internal_types/Serializer.hpp

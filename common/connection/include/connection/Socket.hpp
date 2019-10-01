@@ -12,15 +12,14 @@ public:
     Socket();
 
     void connect(const boost::asio::ip::address&, const std::string& port);
-    void send(internal_types::Event);
+    void listen(const std::string& port, std::function<void(boost::asio::ip::tcp::socket&)>);
     boost::asio::ip::tcp::socket& value();
     void close();
 
 private:
     boost::asio::io_context ioContext;
-    boost::asio::ip::tcp::resolver resolver;
-    boost::asio::ip::tcp::socket socket;
-    boost::asio::ip::tcp::resolver::results_type endpoints;
-    internal_types::Serializer serializer;
+
+    std::optional<boost::asio::ip::tcp::socket> socket;
+    std::optional<boost::asio::ip::tcp::acceptor> socketAcceptor;
 };
 } // namespace connection
