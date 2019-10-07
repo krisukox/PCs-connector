@@ -1,37 +1,64 @@
 #include "app_management/Vendor.hpp"
+#include <iostream>
+#include <thread>
+#include "connection/IReceiver.hpp"
 #include "event_vendor/KeyboardSender.hpp"
 #include "event_vendor/MouseSender.hpp"
 
 namespace app_management
 {
 Vendor::Vendor(
-    std::unique_ptr<event_vendor::KeyboardSender>&& keyboardSender,
-    std::unique_ptr<event_vendor::MouseSender>&& mouseSender)
-    : keyboard{std::move(keyboardSender)}, mouse{std::move(mouseSender)}
+    std::shared_ptr<event_vendor::KeyboardSender> keyboardSender,
+    std::shared_ptr<event_vendor::MouseSender> mouseSender,
+    std::shared_ptr<connection::IReceiver> receiver_,
+    boost::asio::io_context& ioContext_,
+    std::function<void()>&& stopAppCallback_)
+    : keyboard{keyboardSender}
+    , mouse{mouseSender}
+    , receiver{receiver_}
+    , ioContext{ioContext_}
+    , stopAppCallback{std::move(stopAppCallback_)}
 {
 }
 
-void Vendor::start(std::function<void()>&& stopAppCallback)
+void Vendor::start()
 {
-    auto stopApp = [stopAppCallback = std::move(stopAppCallback)] {
-        stopAppCallback();
-        PostMessage(nullptr, WM_QUIT, 0, 0);
-    };
+    std::thread t(&Vendor::startCatchingEvents, this);
 
-    keyboard->start(std::move(stopApp));
-    mouse->start([this]() { keyboard->changeState(); });
-    startCatchingEvents();
+    read();
+    ioContext.run();
+    t.join();
+}
+
+void Vendor::read()
+{
+    receiver->receive(
+        [this](internal_types::Event) {
+            std::cout << "Successful event receive" << std::endl;
+            read();
+        },
+        [](boost::system::error_code) { std::cerr << "Unsuccessful event receive" << std::endl; });
 }
 
 void Vendor::startCatchingEvents()
 {
+    auto stopApp = [this] {
+        PostMessage(nullptr, WM_QUIT, 0, 0);
+        ioContext.stop();
+        stopAppCallback();
+    };
+
+    keyboard->start(std::move(stopApp));
+    mouse->start([this]() { keyboard->changeState(); });
+
     MSG msg;
     BOOL retVal;
     while ((retVal = GetMessage(&msg, nullptr, 0, 0)) != 0)
     {
         if (retVal == -1)
         {
-            // handle the error and possibly exit
+            ioContext.stop();
+            stopAppCallback();
         }
     }
 }

@@ -5,19 +5,29 @@ namespace connection
 {
 Socket::Socket() : ioContext{} {}
 
-void Socket::connect(const boost::asio::ip::address& address, const std::string& port) // listen
+void Socket::connect(
+    const boost::asio::ip::address& address,
+    const std::string& port,
+    std::function<void()> successfullConnection)
 {
     socket = boost::asio::ip::tcp::socket{ioContext};
     auto resolver = boost::asio::ip::tcp::resolver{ioContext};
     auto endpoint = resolver.resolve(address.to_string(), port);
     boost::asio::async_connect(
-        socket.value(), endpoint, [](boost::system::error_code ec, boost::asio::ip::tcp::endpoint) {
+        socket.value(),
+        endpoint,
+        [successfullConnection =
+             std::move(successfullConnection)](boost::system::error_code ec, boost::asio::ip::tcp::endpoint) {
             if (!ec)
             {
                 std::cout << "Connection works properly" << std::endl;
+                successfullConnection();
+            }
+            else
+            {
+                std::cout << "Connection doesn't work" << std::endl;
             }
         });
-
     ioContext.run();
 }
 
@@ -44,6 +54,11 @@ boost::asio::ip::tcp::socket& Socket::value()
         return socket.value();
     }
     throw std::runtime_error("Socket not allocated yet");
+}
+
+boost::asio::io_context& Socket::getIoContext()
+{
+    return ioContext;
 }
 
 void Socket::close()

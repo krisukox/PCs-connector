@@ -19,6 +19,7 @@ endif(UNIX)
 if(WIN32)
     set(HEADERS
         include/internal_types/CommonTypes.hpp
+        include/internal_types/DeserializerWin.hpp
         include/internal_types/ISerializer.hpp
         include/internal_types/IDeserializer.hpp
         include/internal_types/KeyEvent.hpp
@@ -28,6 +29,7 @@ if(WIN32)
     )
 
     set(SOURCE_FILES
+        src/DeserializerWin.cpp
         src/Serializer.cpp
     )
 endif(WIN32)
