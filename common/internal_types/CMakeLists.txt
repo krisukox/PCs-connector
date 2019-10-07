@@ -8,11 +8,13 @@ if(UNIX)
         include/internal_types/KeyEvent.hpp
         include/internal_types/MouseEvent.hpp
         include/internal_types/Point.hpp
+        include/internal_types/Serializer.hpp
         include/internal_types/Visitor.hpp
     )
 
     set(SOURCE_FILES
         src/Deserializer.cpp
+        src/Serializer.cpp
     )
 endif(UNIX)
 

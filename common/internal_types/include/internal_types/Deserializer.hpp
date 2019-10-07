@@ -21,6 +21,7 @@ private:
     KeyCode decodeKeyCode(const std::byte&) const;
     bool decodeKeyState(const std::byte&) const;
     MouseMoveEvent decodeMouseMoveEvent(const internal_types::Buffer& buffer) const;
+    MouseChangePositionEvent decodeMouseChangePositionEvent(const internal_types::Buffer& buffer) const;
 
     Display* display;
     const std::unordered_map<std::byte, KeyCode> translationTabel;
