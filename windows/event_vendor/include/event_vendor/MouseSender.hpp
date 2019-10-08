@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <optional>
 #include "connection/Sender.hpp"
 #include "internal_types/MouseEvent.hpp"
 
@@ -13,7 +14,7 @@ public:
     MouseSender() = delete;
 
     void start(std::function<void()>&&);
-    void changeMouseState();
+    void changeMouseState(const std::optional<internal_types::MouseChangePositionEvent>&);
 
 private:
     LRESULT dispatchWindowsEvent(int, WPARAM, LPARAM);

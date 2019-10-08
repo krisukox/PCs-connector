@@ -33,8 +33,10 @@ void Vendor::start()
 void Vendor::read()
 {
     receiver->receive(
-        [this](internal_types::Event) {
-            std::cout << "Successful event receive" << std::endl;
+        [this](const internal_types::Event& event) {
+            keyboard->changeState();
+            mouse->changeMouseState(
+                std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));
             read();
         },
         [](boost::system::error_code) { std::cerr << "Unsuccessful event receive" << std::endl; });

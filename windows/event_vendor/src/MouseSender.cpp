@@ -60,9 +60,9 @@ void MouseSender::start(std::function<void()>&& changeKeyboardState)
         {
             sender->send(mouseEvent);
         }
-        if (!isEventSending && point && point->x == -1)
+        if (!isEventSending && point && point->x <= -1)
         {
-            changeMouseState();
+            changeMouseState(std::nullopt);
             changeKeyboardState();
             sender->send(
                 internal_types::MouseChangePositionEvent{static_cast<short>(point->x), static_cast<short>(point->y)});
@@ -75,11 +75,12 @@ void MouseSender::start(std::function<void()>&& changeKeyboardState)
     mouseHook = SetWindowsHookEx(WH_MOUSE_LL, mouse_callback::resultCallback, nullptr, NULL);
 }
 
-void MouseSender::changeMouseState()
+void MouseSender::changeMouseState(const std::optional<internal_types::MouseChangePositionEvent>& mouseEvent)
 {
-    if (isEventSending)
+    if (mouseEvent)
     {
         isEventSending = false;
+        SetCursorPos(mouseEvent->x, mouseEvent->y);
     }
     else
     {
