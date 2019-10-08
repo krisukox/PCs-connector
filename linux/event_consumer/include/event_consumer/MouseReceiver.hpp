@@ -40,7 +40,6 @@ private:
 
     Display* display;
     std::unique_ptr<connection::Sender> sender;
-
     CursorGuard cursorGuard;
 
     DispatchState dispatchState;
