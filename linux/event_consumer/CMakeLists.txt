@@ -1,4 +1,5 @@
 set(HEADERS
+    include/event_consumer/CursorGuard.hpp
     include/event_consumer/IKeyboardReceiver.hpp
     include/event_consumer/IMouseReceiver.hpp
     include/event_consumer/KeyboardReceiver.hpp
@@ -7,6 +8,7 @@ set(HEADERS
 )
 
 set(SOURCE_FILES
+    src/CursorGuard.cpp
     src/KeyboardReceiver.cpp
     src/MouseReceiver.cpp
     src/TestKeyboardReceiver.cpp

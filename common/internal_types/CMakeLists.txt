@@ -8,17 +8,20 @@ if(UNIX)
         include/internal_types/KeyEvent.hpp
         include/internal_types/MouseEvent.hpp
         include/internal_types/Point.hpp
+        include/internal_types/Serializer.hpp
         include/internal_types/Visitor.hpp
     )
 
     set(SOURCE_FILES
         src/Deserializer.cpp
+        src/Serializer.cpp
     )
 endif(UNIX)
 
 if(WIN32)
     set(HEADERS
         include/internal_types/CommonTypes.hpp
+        include/internal_types/DeserializerWin.hpp
         include/internal_types/ISerializer.hpp
         include/internal_types/IDeserializer.hpp
         include/internal_types/KeyEvent.hpp
@@ -28,6 +31,7 @@ if(WIN32)
     )
 
     set(SOURCE_FILES
+        src/DeserializerWin.cpp
         src/Serializer.cpp
     )
 endif(WIN32)

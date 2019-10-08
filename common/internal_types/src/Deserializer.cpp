@@ -119,19 +119,27 @@ Deserializer::Deserializer(Display* display_)
 
 std::variant<KeyEvent, MouseEvent> Deserializer::decode(const internal_types::Buffer& buffer) const try
 {
-    if (buffer[0] == std::byte{0b11111101}) // Mouse Move
+    if (buffer[0] == std::byte{0b00000001}) // Keyboard Click
+    {
+        return KeyEvent{decodeKeyCode(buffer[1]), decodeKeyState(buffer[2])};
+    }
+    if (buffer[0] == std::byte{0b00000010}) // Mouse Move
     {
         return MouseEvent{decodeMouseMoveEvent(buffer)};
     }
-    if (buffer[0] == std::byte{0b11111110}) // Mouse Scroll
+    if (buffer[0] == std::byte{0b00000100}) // Mouse Scroll
     {
         // return
     }
-    if (buffer[0] == std::byte{0b11111100}) // Mouse Click
+    if (buffer[0] == std::byte{0b00001000}) // Mouse Click
     {
         // return
     }
-    return KeyEvent{decodeKeyCode(buffer[0]), decodeKeyState(buffer[1])};
+    if (buffer[0] == std::byte{0b00010000}) // Mouse Change Position
+    {
+        return MouseChangePositionEvent{decodeMouseChangePositionEvent(buffer)};
+    }
+    throw std::runtime_error("Unexpected first byte receive");
 }
 catch (const std::out_of_range&)
 {
@@ -183,6 +191,11 @@ bool Deserializer::decodeKeyState(const std::byte& state) const
 }
 
 MouseMoveEvent Deserializer::decodeMouseMoveEvent(const internal_types::Buffer& buffer) const
+{
+    return {toShort(buffer[1], buffer[2]), toShort(buffer[3], buffer[4])};
+}
+
+MouseChangePositionEvent Deserializer::decodeMouseChangePositionEvent(const internal_types::Buffer& buffer) const
 {
     return {toShort(buffer[1], buffer[2]), toShort(buffer[3], buffer[4])};
 }

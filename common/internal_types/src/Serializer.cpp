@@ -29,7 +29,7 @@ Buffer Serializer::encode(const Event& event) const
 
 Buffer Serializer::encode(const KeyEvent& keyEvent) const
 {
-    return {std::byte(keyEvent.keyCode), toByte(keyEvent.isPressed)};
+    return {std::byte(0b00000001), std::byte(keyEvent.keyCode), toByte(keyEvent.isPressed)};
 }
 
 Buffer Serializer::encode(const MouseEvent& mouseEvent) const
@@ -39,7 +39,7 @@ Buffer Serializer::encode(const MouseEvent& mouseEvent) const
 
 Buffer Serializer::encode(const MouseMoveEvent& mouseMoveEvent) const
 {
-    std::byte mouseMoveByte{0b11111101};
+    std::byte mouseMoveByte{0b00000010};
 
     auto [xPart1, xPart2] = toBytes(mouseMoveEvent.deltaX);
     auto [yPart1, yPart2] = toBytes(mouseMoveEvent.deltaY);
@@ -55,5 +55,15 @@ Buffer Serializer::encode(const MouseScrollEvent&) const
 Buffer Serializer::encode(const MouseKeyEvent&) const
 {
     return {};
+}
+
+Buffer Serializer::encode(const MouseChangePositionEvent& event) const
+{
+    std::byte mouseChangePositionByte{0b00010000};
+
+    auto [xPart1, xPart2] = toBytes(event.x);
+    auto [yPart1, yPart2] = toBytes(event.y);
+
+    return {mouseChangePositionByte, xPart1, xPart2, yPart1, yPart2};
 }
 } // namespace internal_types

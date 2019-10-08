@@ -1,5 +1,4 @@
 #include <iostream>
-#include <stdexcept>
 #include "app_management/App.hpp"
 
 int main(int argc, char* argv[])

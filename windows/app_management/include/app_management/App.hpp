@@ -22,7 +22,7 @@ public:
 private:
     std::unique_ptr<connection::Socket> socket;
     std::shared_ptr<connection::Sender> sender;
-    std::unique_ptr<Vendor> vendor;
+    std::shared_ptr<Vendor> vendor;
 
     app_management::Console _;
 };

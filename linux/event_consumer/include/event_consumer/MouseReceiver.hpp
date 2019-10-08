@@ -1,15 +1,29 @@
 #pragma once
 
 #include <X11/Xlib.h>
+#include <memory>
+#include <optional>
+#include "CursorGuard.hpp"
 #include "IMouseReceiver.hpp"
 #include "internal_types/Point.hpp"
 
+namespace connection
+{
+class Sender;
+}
+
 namespace event_consumer
 {
+enum class DispatchState
+{
+    on,
+    off
+};
+
 class MouseReceiver : public IMouseReceiver
 {
 public:
-    MouseReceiver(Display*);
+    MouseReceiver(Display*, std::unique_ptr<connection::Sender>);
     ~MouseReceiver() override;
 
     void onEvent(const internal_types::MouseEvent&) override;
@@ -18,26 +32,17 @@ private:
     void onEvent(const internal_types::MouseMoveEvent&);
     void onEvent(const internal_types::MouseScrollEvent&);
     void onEvent(const internal_types::MouseKeyEvent&);
+    void onEvent(const internal_types::MouseChangePositionEvent&);
 
-    class CursorGuard
-    {
-    public:
-        CursorGuard(Display*);
-        bool checkIfCursorOutOfScreen(const internal_types::MouseMoveEvent&);
+    void setCursorPosition(const internal_types::MouseChangePositionEvent&);
 
-    private:
-        internal_types::Point getMouseXCoordinate();
-
-        Display* display;
-        Window window;
-
-        Window _w_;
-        int _i_;
-        unsigned _u_;
-        int xCoordinate, yCoordinate;
-    };
+    internal_types::MouseChangePositionEvent changeToRelative(const internal_types::MouseChangePositionEvent& event);
 
     Display* display;
+    std::unique_ptr<connection::Sender> sender;
     CursorGuard cursorGuard;
+
+    DispatchState dispatchState;
+    Screen* screen;
 };
 } // namespace event_consumer

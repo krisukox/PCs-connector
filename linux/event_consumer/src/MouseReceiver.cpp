@@ -1,23 +1,43 @@
 #include "event_consumer/MouseReceiver.hpp"
 #include <X11/extensions/XTest.h>
+#include <iostream>
 #include <stdexcept>
+#include "connection/Sender.hpp"
+#include "internal_types/Visitor.hpp"
 
 namespace event_consumer
 {
-MouseReceiver::MouseReceiver(Display* _display) : display{_display}, cursorGuard{display} {}
+MouseReceiver::MouseReceiver(Display* _display, std::unique_ptr<connection::Sender> _sender)
+    : display{_display}
+    , sender{std::move(_sender)}
+    , cursorGuard{display}
+    , dispatchState{DispatchState::off}
+    , screen{DefaultScreenOfDisplay(display)}
+{
+}
 
 MouseReceiver::~MouseReceiver() = default;
 
 void MouseReceiver::onEvent(const internal_types::MouseEvent& mouseEvent)
 {
-    std::visit([this](const auto& event) { onEvent(event); }, mouseEvent);
+    std::visit(
+        internal_types::Visitor{[this](const internal_types::MouseChangePositionEvent& event) { onEvent(event); },
+                                [this](const auto& event) {
+                                    if (dispatchState == DispatchState::on)
+                                    {
+                                        onEvent(event);
+                                    }
+                                }},
+        mouseEvent);
 }
 
 void MouseReceiver::onEvent(const internal_types::MouseMoveEvent& mouseMoveEvent)
 {
-    if (cursorGuard.checkIfCursorOutOfScreen(mouseMoveEvent))
+    if (auto changeMousePositionEvent = cursorGuard.checkIfCursorOutOfScreen(mouseMoveEvent))
     {
-        // OUT OF SCREEN
+        dispatchState = DispatchState::off;
+        sender->send(changeMousePositionEvent.value());
+        setCursorPosition(internal_types::MouseChangePositionEvent{2000, 2000});
     }
     XTestFakeRelativeMotionEvent(display, mouseMoveEvent.deltaX, mouseMoveEvent.deltaY, CurrentTime);
     XFlush(display);
@@ -27,20 +47,24 @@ void MouseReceiver::onEvent(const internal_types::MouseScrollEvent&) {}
 
 void MouseReceiver::onEvent(const internal_types::MouseKeyEvent&) {}
 
-MouseReceiver::CursorGuard::CursorGuard(Display* _display) : display{_display}, window{XRootWindow(display, 0)} {}
-
-internal_types::Point MouseReceiver::CursorGuard::getMouseXCoordinate()
+void MouseReceiver::onEvent(const internal_types::MouseChangePositionEvent& event)
 {
-    if (!XQueryPointer(display, window, &_w_, &_w_, &xCoordinate, &yCoordinate, &_i_, &_i_, &_u_))
-    {
-        throw std::runtime_error("wrong XQueryPointer result");
-    }
-    return {static_cast<short>(xCoordinate), static_cast<short>(yCoordinate)};
+    dispatchState = DispatchState::on;
+    setCursorPosition(changeToRelative(event));
 }
 
-bool MouseReceiver::CursorGuard::checkIfCursorOutOfScreen(const internal_types::MouseMoveEvent& mouseMoveEvent)
+void MouseReceiver::setCursorPosition(const internal_types::MouseChangePositionEvent& event)
 {
-    internal_types::Point newPoint = getMouseXCoordinate() + mouseMoveEvent;
-    return newPoint.x >= XWidthOfScreen(XDefaultScreenOfDisplay(display));
+    XTestFakeRelativeMotionEvent(display, -10000, -10000, CurrentTime);
+    XTestFakeRelativeMotionEvent(display, event.x, event.y, CurrentTime);
+    XFlush(display);
+}
+
+internal_types::MouseChangePositionEvent MouseReceiver::changeToRelative(
+    const internal_types::MouseChangePositionEvent& event)
+{
+    auto returnEvent = event;
+    returnEvent.x += screen->width;
+    return returnEvent;
 }
 } // namespace event_consumer
