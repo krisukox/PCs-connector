@@ -16,19 +16,11 @@ namespace app_management
 App::App(int argc, char* argv[]) : display{XOpenDisplay(nullptr)}, socket{std::make_unique<connection::Socket>()}
 {
     auto successfullConnection = [this, argc, argv](boost::asio::ip::tcp::socket& socket) {
-        //        consumer = std::make_unique<Consumer>(
-        //            keyboardReceiverSelector(argc, argv),
-        //            std::make_shared<event_consumer::MouseReceiver>(display,
-        //            std::make_unique<connection::Sender>(socket)), std::make_shared<connection::Receiver>(socket,
-        //            std::make_unique<internal_types::Deserializer>(display)));
-        //        consumer->start();
-
-        auto sender = std::make_unique<connection::Sender>(socket);
-        while (getchar())
-        {
-            std::cout << "TAK" << std::endl;
-            sender->send(internal_types::KeyEvent{1, true});
-        }
+        consumer = std::make_unique<Consumer>(
+            keyboardReceiverSelector(argc, argv),
+            std::make_shared<event_consumer::MouseReceiver>(display, std::make_unique<connection::Sender>(socket)),
+            std::make_shared<connection::Receiver>(socket, std::make_unique<internal_types::Deserializer>(display)));
+        consumer->start();
     };
 
     socket->listen("10000", successfullConnection);
