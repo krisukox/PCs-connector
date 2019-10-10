@@ -70,6 +70,7 @@ Buffer Serializer::encode(const MouseKeyEvent& mouseKeyEvent) const
         case MouseKeyEvent::MiddleButtonUnpressed:
             return {mouseKeyByte, std::byte{0b00100000}};
     }
+    throw std::runtime_error("Unexpected MouseKeyEvent value");
 }
 
 Buffer Serializer::encode(const MouseChangePositionEvent& event) const
