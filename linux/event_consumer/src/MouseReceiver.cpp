@@ -5,6 +5,13 @@
 #include "connection/Sender.hpp"
 #include "internal_types/Visitor.hpp"
 
+namespace
+{
+constexpr unsigned leftButton{1};
+constexpr unsigned middleButton{2};
+constexpr unsigned rightButton{3};
+} // namespace
+
 namespace event_consumer
 {
 MouseReceiver::MouseReceiver(Display* _display, std::unique_ptr<connection::Sender> _sender)
@@ -45,7 +52,31 @@ void MouseReceiver::onEvent(const internal_types::MouseMoveEvent& mouseMoveEvent
 
 void MouseReceiver::onEvent(const internal_types::MouseScrollEvent&) {}
 
-void MouseReceiver::onEvent(const internal_types::MouseKeyEvent&) {}
+void MouseReceiver::onEvent(const internal_types::MouseKeyEvent& mouseKeyEvent)
+{
+    switch (mouseKeyEvent)
+    {
+        case internal_types::MouseKeyEvent::LeftButtonPressed:
+            XTestFakeButtonEvent(display, leftButton, True, CurrentTime);
+            break;
+        case internal_types::MouseKeyEvent::LeftButtonUnpressed:
+            XTestFakeButtonEvent(display, leftButton, False, CurrentTime);
+            break;
+        case internal_types::MouseKeyEvent::MiddleButtonPressed:
+            XTestFakeButtonEvent(display, middleButton, True, CurrentTime);
+            break;
+        case internal_types::MouseKeyEvent::MiddleButtonUnpressed:
+            XTestFakeButtonEvent(display, middleButton, False, CurrentTime);
+            break;
+        case internal_types::MouseKeyEvent::RightButtonPressed:
+            XTestFakeButtonEvent(display, rightButton, True, CurrentTime);
+            break;
+        case internal_types::MouseKeyEvent::RightButtonUnpressed:
+            XTestFakeButtonEvent(display, rightButton, False, CurrentTime);
+            break;
+    }
+    XFlush(display);
+}
 
 void MouseReceiver::onEvent(const internal_types::MouseChangePositionEvent& event)
 {

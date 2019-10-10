@@ -74,6 +74,13 @@ short toShort(const std::byte lv, const std::byte rv)
 {
     return static_cast<short>((std::to_integer<uint8_t>(lv) << 8) + std::to_integer<uint8_t>(rv));
 }
+
+constexpr auto leftButtonPressed{std::to_integer<std::uint8_t>(std::byte{0b00000001})};
+constexpr auto leftButtonUnpressed{std::to_integer<std::uint8_t>(std::byte{0b00000010})};
+constexpr auto rightButtonPressed{std::to_integer<std::uint8_t>(std::byte{0b00000100})};
+constexpr auto rightButtonUnpressed{std::to_integer<std::uint8_t>(std::byte{0b00001000})};
+constexpr auto middleButtonPressed{std::to_integer<std::uint8_t>(std::byte{0b00010000})};
+constexpr auto middleButtonUnpressed{std::to_integer<std::uint8_t>(std::byte{0b00100000})};
 } // namespace
 
 namespace internal_types
@@ -125,7 +132,7 @@ std::variant<KeyEvent, MouseEvent> Deserializer::decode(const internal_types::Bu
     }
     if (buffer[0] == std::byte{0b00000010}) // Mouse Move
     {
-        return MouseEvent{decodeMouseMoveEvent(buffer)};
+        return decodeMouseMoveEvent(buffer);
     }
     if (buffer[0] == std::byte{0b00000100}) // Mouse Scroll
     {
@@ -133,7 +140,7 @@ std::variant<KeyEvent, MouseEvent> Deserializer::decode(const internal_types::Bu
     }
     if (buffer[0] == std::byte{0b00001000}) // Mouse Click
     {
-        // return
+        return decodeMouseKeyEvent(buffer);
     }
     if (buffer[0] == std::byte{0b00010000}) // Mouse Change Position
     {
@@ -193,6 +200,26 @@ bool Deserializer::decodeKeyState(const std::byte& state) const
 MouseMoveEvent Deserializer::decodeMouseMoveEvent(const internal_types::Buffer& buffer) const
 {
     return {toShort(buffer[1], buffer[2]), toShort(buffer[3], buffer[4])};
+}
+
+MouseKeyEvent Deserializer::decodeMouseKeyEvent(const internal_types::Buffer& buffer) const
+{
+    switch (std::to_integer<uint8_t>(buffer.at(1)))
+    {
+        case leftButtonPressed:
+            return MouseKeyEvent::LeftButtonPressed;
+        case leftButtonUnpressed:
+            return MouseKeyEvent::LeftButtonUnpressed;
+        case rightButtonPressed:
+            return MouseKeyEvent::RightButtonPressed;
+        case rightButtonUnpressed:
+            return MouseKeyEvent::RightButtonUnpressed;
+        case middleButtonPressed:
+            return MouseKeyEvent::MiddleButtonPressed;
+        case middleButtonUnpressed:
+            return MouseKeyEvent::MiddleButtonUnpressed;
+    }
+    throw std::runtime_error("Unexpected Mouse Key Event value");
 }
 
 MouseChangePositionEvent Deserializer::decodeMouseChangePositionEvent(const internal_types::Buffer& buffer) const
