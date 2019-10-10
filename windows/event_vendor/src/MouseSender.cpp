@@ -9,7 +9,7 @@ namespace
 namespace mouse_callback
 {
 std::function<LRESULT()> isEventSending = nullptr;
-std::function<LRESULT(internal_types::MouseEvent&&, POINT&)> dispatchEvent = nullptr;
+std::function<LRESULT(internal_types::MouseEvent&&, std::optional<POINT>)> dispatchEvent = nullptr;
 
 LRESULT resultCallback(int nCode, WPARAM wParam, LPARAM lParam)
 {
@@ -30,13 +30,20 @@ LRESULT resultCallback(int nCode, WPARAM wParam, LPARAM lParam)
                     internal_types::MouseMoveEvent{static_cast<short>(point.x), static_cast<short>(point.y)}, point);
             }
             case WM_LBUTTONDOWN:
+                return mouse_callback::dispatchEvent(internal_types::MouseKeyEvent::LeftButtonPressed, std::nullopt);
             case WM_LBUTTONUP:
-            case WM_LBUTTONDBLCLK:
-            case WM_RBUTTONDOWN:
-            case WM_RBUTTONUP:
-            case WM_RBUTTONDBLCLK:
+                return mouse_callback::dispatchEvent(internal_types::MouseKeyEvent::LeftButtonUnpressed, std::nullopt);
             case WM_MBUTTONDOWN:
+                return mouse_callback::dispatchEvent(internal_types::MouseKeyEvent::MiddleButtonPressed, std::nullopt);
             case WM_MBUTTONUP:
+                return mouse_callback::dispatchEvent(
+                    internal_types::MouseKeyEvent::MiddleButtonUnpressed, std::nullopt);
+            case WM_RBUTTONDOWN:
+                return mouse_callback::dispatchEvent(internal_types::MouseKeyEvent::RightButtonPressed, std::nullopt);
+            case WM_RBUTTONUP:
+                return mouse_callback::dispatchEvent(internal_types::MouseKeyEvent::RightButtonUnpressed, std::nullopt);
+            case WM_LBUTTONDBLCLK:
+            case WM_RBUTTONDBLCLK:
             case WM_MBUTTONDBLCLK:
             case WM_MOUSEWHEEL:
                 return mouse_callback::isEventSending();
@@ -55,7 +62,7 @@ void MouseSender::start(std::function<void()>&& changeKeyboardState)
 {
     mouse_callback::dispatchEvent = [this, changeKeyboardState = std::move(changeKeyboardState)](
                                         internal_types::MouseEvent&& mouseEvent,
-                                        const std::optional<POINT>& point) -> LRESULT {
+                                        const std::optional<POINT> point) -> LRESULT {
         if (isEventSending)
         {
             sender->send(mouseEvent);
