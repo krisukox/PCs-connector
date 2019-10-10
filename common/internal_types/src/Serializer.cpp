@@ -52,9 +52,25 @@ Buffer Serializer::encode(const MouseScrollEvent&) const
     return {};
 }
 
-Buffer Serializer::encode(const MouseKeyEvent&) const
+Buffer Serializer::encode(const MouseKeyEvent& mouseKeyEvent) const
 {
-    return {};
+    std::byte mouseKeyByte{0b00001000};
+    switch (mouseKeyEvent)
+    {
+        case MouseKeyEvent::LeftButtonPressed:
+            return {mouseKeyByte, std::byte{0b00000001}};
+        case MouseKeyEvent::LeftButtonUnpressed:
+            return {mouseKeyByte, std::byte{0b00000010}};
+        case MouseKeyEvent::RightButtonPressed:
+            return {mouseKeyByte, std::byte{0b00000100}};
+        case MouseKeyEvent::RightButtonUnpressed:
+            return {mouseKeyByte, std::byte{0b00001000}};
+        case MouseKeyEvent::MiddleButtonPressed:
+            return {mouseKeyByte, std::byte{0b00010000}};
+        case MouseKeyEvent::MiddleButtonUnpressed:
+            return {mouseKeyByte, std::byte{0b00100000}};
+    }
+    throw std::runtime_error("Unexpected MouseKeyEvent value");
 }
 
 Buffer Serializer::encode(const MouseChangePositionEvent& event) const
