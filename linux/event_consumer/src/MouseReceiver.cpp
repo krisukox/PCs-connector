@@ -10,6 +10,9 @@ namespace
 constexpr unsigned leftButton{1};
 constexpr unsigned middleButton{2};
 constexpr unsigned rightButton{3};
+
+constexpr unsigned forwardScroll{4};
+constexpr unsigned backwardScroll{5};
 } // namespace
 
 namespace event_consumer
@@ -50,7 +53,21 @@ void MouseReceiver::onEvent(const internal_types::MouseMoveEvent& mouseMoveEvent
     XFlush(display);
 }
 
-void MouseReceiver::onEvent(const internal_types::MouseScrollEvent&) {}
+void MouseReceiver::onEvent(const internal_types::MouseScrollEvent& mouseScrollEvent)
+{
+    switch (mouseScrollEvent)
+    {
+        case internal_types::MouseScrollEvent::Forward:
+            XTestFakeButtonEvent(display, forwardScroll, True, CurrentTime);
+            XTestFakeButtonEvent(display, forwardScroll, False, CurrentTime);
+            break;
+        case internal_types::MouseScrollEvent::Backward:
+            XTestFakeButtonEvent(display, backwardScroll, True, CurrentTime);
+            XTestFakeButtonEvent(display, backwardScroll, False, CurrentTime);
+            break;
+    }
+    XFlush(display);
+}
 
 void MouseReceiver::onEvent(const internal_types::MouseKeyEvent& mouseKeyEvent)
 {
