@@ -10,10 +10,10 @@ struct MouseMoveEvent
     short deltaY;
 };
 
-struct MouseScrollEvent
+enum class MouseScrollEvent
 {
-    short deltaForward;
-    short deltaBackward;
+    Forward,
+    Backward
 };
 
 enum class MouseKeyEvent
@@ -37,10 +37,5 @@ using MouseEvent = std::variant<MouseMoveEvent, MouseScrollEvent, MouseKeyEvent,
 inline bool operator==(const MouseMoveEvent& lv, const MouseMoveEvent& rv)
 {
     return (lv.deltaX == rv.deltaX && lv.deltaY == rv.deltaY);
-}
-
-inline bool operator==(const MouseScrollEvent& lv, const MouseScrollEvent& rv)
-{
-    return (lv.deltaForward == rv.deltaForward && lv.deltaBackward == rv.deltaBackward);
 }
 } // namespace internal_types

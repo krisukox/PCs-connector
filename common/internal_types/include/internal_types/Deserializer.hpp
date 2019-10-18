@@ -21,6 +21,7 @@ private:
     KeyCode decodeKeyCode(const std::byte&) const;
     bool decodeKeyState(const std::byte&) const;
     MouseMoveEvent decodeMouseMoveEvent(const internal_types::Buffer&) const;
+    MouseScrollEvent decodeMouseScrollEvent(const internal_types::Buffer&) const;
     MouseChangePositionEvent decodeMouseChangePositionEvent(const internal_types::Buffer&) const;
     MouseKeyEvent decodeMouseKeyEvent(const internal_types::Buffer&) const;
 

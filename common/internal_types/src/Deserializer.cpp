@@ -136,7 +136,7 @@ std::variant<KeyEvent, MouseEvent> Deserializer::decode(const internal_types::Bu
     }
     if (buffer[0] == std::byte{0b00000100}) // Mouse Scroll
     {
-        // return
+        return decodeMouseScrollEvent(buffer);
     }
     if (buffer[0] == std::byte{0b00001000}) // Mouse Click
     {
@@ -200,6 +200,19 @@ bool Deserializer::decodeKeyState(const std::byte& state) const
 MouseMoveEvent Deserializer::decodeMouseMoveEvent(const internal_types::Buffer& buffer) const
 {
     return {toShort(buffer[1], buffer[2]), toShort(buffer[3], buffer[4])};
+}
+
+MouseScrollEvent Deserializer::decodeMouseScrollEvent(const internal_types::Buffer& buffer) const
+{
+    if (buffer.at(1) == std::byte{0b11110000})
+    {
+        return MouseScrollEvent::Forward;
+    }
+    if (buffer.at(1) == std::byte{0b00001111})
+    {
+        return MouseScrollEvent::Backward;
+    }
+    throw std::runtime_error("Unexpected Mouse Scroll Event value");
 }
 
 MouseKeyEvent Deserializer::decodeMouseKeyEvent(const internal_types::Buffer& buffer) const
