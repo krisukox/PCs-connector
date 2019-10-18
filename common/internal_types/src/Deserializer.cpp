@@ -137,7 +137,10 @@ std::variant<KeyEvent, MouseEvent> Deserializer::decode(const internal_types::Bu
     if (buffer[0] == std::byte{0b00000100}) // Mouse Scroll
     {
         return decodeMouseScrollEvent(buffer);
+<<<<<<< HEAD
         // return
+=======
+>>>>>>> 1b2e1c938696db551232b6b85869dd33ff28d902
     }
     if (buffer[0] == std::byte{0b00001000}) // Mouse Click
     {

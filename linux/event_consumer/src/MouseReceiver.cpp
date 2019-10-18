@@ -12,7 +12,7 @@ constexpr unsigned middleButton{2};
 constexpr unsigned rightButton{3};
 
 constexpr unsigned forwardScroll{4};
-constexpr unsigned backwardScroll{4};
+constexpr unsigned backwardScroll{5};
 } // namespace
 
 namespace event_consumer
