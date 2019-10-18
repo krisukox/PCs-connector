@@ -42,10 +42,18 @@ LRESULT resultCallback(int nCode, WPARAM wParam, LPARAM lParam)
                 return mouse_callback::dispatchEvent(internal_types::MouseKeyEvent::RightButtonPressed, std::nullopt);
             case WM_RBUTTONUP:
                 return mouse_callback::dispatchEvent(internal_types::MouseKeyEvent::RightButtonUnpressed, std::nullopt);
+            case WM_MOUSEWHEEL:
+                if (static_cast<std::make_signed_t<WORD>>(HIWORD(mouseStruct->mouseData)) < 0)
+                {
+                    return mouse_callback::dispatchEvent(internal_types::MouseScrollEvent::Backward, std::nullopt);
+                }
+                else
+                {
+                    return mouse_callback::dispatchEvent(internal_types::MouseScrollEvent::Forward, std::nullopt);
+                }
             case WM_LBUTTONDBLCLK:
             case WM_RBUTTONDBLCLK:
             case WM_MBUTTONDBLCLK:
-            case WM_MOUSEWHEEL:
                 return mouse_callback::isEventSending();
         }
     }

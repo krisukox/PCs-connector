@@ -47,9 +47,18 @@ Buffer Serializer::encode(const MouseMoveEvent& mouseMoveEvent) const
     return {mouseMoveByte, xPart1, xPart2, yPart1, yPart2};
 }
 
-Buffer Serializer::encode(const MouseScrollEvent&) const
+Buffer Serializer::encode(const MouseScrollEvent& mouseScrollEvent) const
 {
-    return {};
+    std::byte mouseScrollByte{0b00000100};
+    if (mouseScrollEvent == MouseScrollEvent::Forward)
+    {
+        return {mouseScrollByte, std::byte{0b11110000}};
+    }
+    if (mouseScrollEvent == MouseScrollEvent::Backward)
+    {
+        return {mouseScrollByte, std::byte{0b00001111}};
+    }
+    throw std::runtime_error("Unexpected MouseScrollEvent value");
 }
 
 Buffer Serializer::encode(const MouseKeyEvent& mouseKeyEvent) const
