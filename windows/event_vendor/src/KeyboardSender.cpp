@@ -65,18 +65,20 @@ void KeyboardSender::start()
 
         changeKeyMod(keyEvent);
 
-        if (checkForChangeState(keyEvent))
-        {
-            changeState();
-            return ignoreEvent;
-        }
-
         if (checkForLockComputer(keyEvent))
         {
             lockComputer();
         }
         else if (isEventSending)
         {
+            if (checkForIgnoreCtrl(keyEvent))
+            {
+                return ignoreEvent;
+            }
+            else if (checkForRAltPress(keyEvent))
+            {
+                sender->send(internal_types::KeyEvent{VK_LCONTROL, false});
+            }
             sender->send(keyEvent);
         }
 
@@ -99,6 +101,11 @@ void KeyboardSender::stopApp()
     stopAppCallback();
 }
 
+bool KeyboardSender::checkForIgnoreCtrl(const internal_types::KeyEvent& keyEvent)
+{
+    return (isRAltPressed && keyEvent.keyCode == VK_LCONTROL);
+}
+
 void KeyboardSender::changeKeyMod(const internal_types::KeyEvent& keyEvent)
 {
     if (keyEvent.keyCode == VK_LCONTROL)
@@ -113,11 +120,10 @@ void KeyboardSender::changeKeyMod(const internal_types::KeyEvent& keyEvent)
     {
         isLWinPressed = keyEvent.isPressed;
     }
-}
-
-bool KeyboardSender::checkForChangeState(const internal_types::KeyEvent& keyEvent)
-{
-    return (isCtrlPressed && isShiftPressed && keyEvent.keyCode == VK_A && keyEvent.isPressed);
+    if (keyEvent.keyCode == VK_RMENU)
+    {
+        isRAltPressed = keyEvent.isPressed;
+    }
 }
 
 void KeyboardSender::changeState()
@@ -132,6 +138,16 @@ void KeyboardSender::changeState()
     {
         isEventSending = true;
     }
+}
+
+bool KeyboardSender::checkForChangeState(const internal_types::KeyEvent& keyEvent)
+{
+    return (isCtrlPressed && isShiftPressed && keyEvent.keyCode == VK_A && keyEvent.isPressed);
+}
+
+bool KeyboardSender::checkForRAltPress(const internal_types::KeyEvent& keyEvent)
+{
+    return (isCtrlPressed && keyEvent.keyCode == VK_RMENU && keyEvent.isPressed);
 }
 
 bool KeyboardSender::checkForLockComputer(const internal_types::KeyEvent& keyEvent)
