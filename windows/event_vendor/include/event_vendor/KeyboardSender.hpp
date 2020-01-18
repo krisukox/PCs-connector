@@ -22,7 +22,6 @@ private:
     void stopApp();
     bool checkForIgnoreCtrl(const internal_types::KeyEvent&);
     void changeKeyMod(const internal_types::KeyEvent&);
-    bool checkForChangeState(const internal_types::KeyEvent&);
     bool checkForRAltPress(const internal_types::KeyEvent&);
     bool checkForLockComputer(const internal_types::KeyEvent&);
 

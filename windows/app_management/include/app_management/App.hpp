@@ -20,8 +20,9 @@ public:
     ~App();
 
 private:
+    void initializeVendor();
+
     std::unique_ptr<connection::Socket> socket;
-    std::shared_ptr<connection::Sender> sender;
     std::shared_ptr<Vendor> vendor;
 
     app_management::Console _;

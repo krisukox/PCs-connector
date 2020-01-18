@@ -140,11 +140,6 @@ void KeyboardSender::changeState()
     }
 }
 
-bool KeyboardSender::checkForChangeState(const internal_types::KeyEvent& keyEvent)
-{
-    return (isCtrlPressed && isShiftPressed && keyEvent.keyCode == VK_A && keyEvent.isPressed);
-}
-
 bool KeyboardSender::checkForRAltPress(const internal_types::KeyEvent& keyEvent)
 {
     return (isCtrlPressed && keyEvent.keyCode == VK_RMENU && keyEvent.isPressed);

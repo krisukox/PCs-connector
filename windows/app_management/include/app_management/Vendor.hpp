@@ -24,19 +24,18 @@ public:
         std::shared_ptr<event_vendor::KeyboardSender>,
         std::shared_ptr<event_vendor::MouseSender>,
         std::shared_ptr<connection::IReceiver>,
-        boost::asio::io_context&,
-        std::function<void()>&&);
+        std::function<void()> stopAppCallback_);
 
-    void start();
+    void startReceivingEvents();
+    void startCatchingEvents();
 
 private:
-    void startCatchingEvents();
-    void read();
+    void receiveEvent();
+    void stopApp();
 
     std::shared_ptr<event_vendor::KeyboardSender> keyboard;
     std::shared_ptr<event_vendor::MouseSender> mouse;
     std::shared_ptr<connection::IReceiver> receiver;
-    boost::asio::io_context& ioContext;
-    std::function<void()>&& stopAppCallback;
+    std::function<void()> stopAppCallback;
 };
 } // namespace app_management

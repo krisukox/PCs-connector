@@ -1,6 +1,5 @@
 #include "app_management/Vendor.hpp"
 #include <iostream>
-#include <thread>
 #include "connection/IReceiver.hpp"
 #include "event_vendor/KeyboardSender.hpp"
 #include "event_vendor/MouseSender.hpp"
@@ -11,46 +10,34 @@ Vendor::Vendor(
     std::shared_ptr<event_vendor::KeyboardSender> keyboardSender,
     std::shared_ptr<event_vendor::MouseSender> mouseSender,
     std::shared_ptr<connection::IReceiver> receiver_,
-    boost::asio::io_context& ioContext_,
-    std::function<void()>&& stopAppCallback_)
-    : keyboard{keyboardSender}
-    , mouse{mouseSender}
-    , receiver{receiver_}
-    , ioContext{ioContext_}
-    , stopAppCallback{std::move(stopAppCallback_)}
+    std::function<void()> stopAppCallback_)
+    : keyboard{keyboardSender}, mouse{mouseSender}, receiver{receiver_}, stopAppCallback{stopAppCallback_}
 {
 }
 
-void Vendor::start()
+void Vendor::startReceivingEvents()
 {
-    std::thread t(&Vendor::startCatchingEvents, this);
-
-    read();
-    ioContext.run();
-    t.join();
+    receiveEvent();
 }
 
-void Vendor::read()
+void Vendor::receiveEvent()
 {
     receiver->receive(
         [this](const internal_types::Event& event) {
             keyboard->changeState();
             mouse->changeMouseState(
                 std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));
-            read();
+            startReceivingEvents();
         },
-        [](boost::system::error_code) { std::cerr << "Unsuccessful event receive" << std::endl; });
+        [this](boost::system::error_code) {
+            std::cerr << "Unsuccessful event receive" << std::endl;
+            stopApp();
+        });
 }
 
 void Vendor::startCatchingEvents()
 {
-    auto stopApp = [this] {
-        PostMessage(nullptr, WM_QUIT, 0, 0);
-        ioContext.stop();
-        stopAppCallback();
-    };
-
-    keyboard->start(std::move(stopApp));
+    keyboard->start(std::bind(&Vendor::stopApp, this));
     mouse->start([this]() { keyboard->changeState(); });
 
     MSG msg;
@@ -59,9 +46,14 @@ void Vendor::startCatchingEvents()
     {
         if (retVal == -1)
         {
-            ioContext.stop();
             stopAppCallback();
         }
     }
+}
+
+void Vendor::stopApp()
+{
+    PostMessage(nullptr, WM_QUIT, 0, 0);
+    stopAppCallback();
 }
 } // namespace app_management

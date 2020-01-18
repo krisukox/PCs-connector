@@ -5,42 +5,24 @@ namespace connection
 {
 Socket::Socket() : ioContext{} {}
 
-void Socket::connect(
-    const boost::asio::ip::address& address,
-    const std::string& port,
-    std::function<void()> successfullConnection)
+void Socket::connect(const boost::asio::ip::address& address, const std::string& port)
 {
     socket = boost::asio::ip::tcp::socket{ioContext};
     auto resolver = boost::asio::ip::tcp::resolver{ioContext};
-    auto endpoint = resolver.resolve(address.to_string(), port);
-    boost::asio::async_connect(
-        socket.value(),
-        endpoint,
-        [successfullConnection =
-             std::move(successfullConnection)](boost::system::error_code ec, boost::asio::ip::tcp::endpoint) {
-            if (!ec)
-            {
-                std::cout << "Connection works properly" << std::endl;
-                successfullConnection();
-            }
-            else
-            {
-                std::cout << "Connection doesn't work" << std::endl;
-            }
-        });
-    ioContext.run();
+    boost::asio::ip::tcp::endpoint endpoint(address, std::stoi(port));
+    socket.value().connect(endpoint);
 }
 
-void Socket::listen(const std::string& port, std::function<void(boost::asio::ip::tcp::socket&)> successfullConnection)
+void Socket::listen(const std::string& port, std::function<void(boost::asio::ip::tcp::socket&)> successfulConnection)
 {
     boost::asio::ip::tcp::endpoint endpoint{boost::asio::ip::tcp::v4(), static_cast<unsigned short>(std::stoi(port))};
-    socketAcceptor = boost::asio::ip::tcp::acceptor{ioContext, endpoint};
-    socketAcceptor->async_accept(
-        [this, successfullConnection](boost::system::error_code ec, boost::asio::ip::tcp::socket socket_) mutable {
+    auto socketAcceptor = boost::asio::ip::tcp::acceptor{ioContext, endpoint};
+    socketAcceptor.async_accept(
+        [this, successfulConnection](boost::system::error_code ec, boost::asio::ip::tcp::socket socket_) mutable {
             if (!ec)
             {
                 socket = std::make_optional(std::move(socket_));
-                successfullConnection(socket.value());
+                successfulConnection(socket.value());
             }
         });
 
@@ -63,6 +45,7 @@ boost::asio::io_context& Socket::getIoContext()
 
 void Socket::close()
 {
+    ioContext.stop();
     socket->close();
 }
 } // namespace connection
