@@ -18,7 +18,7 @@ namespace app_management
 {
 using boost::asio::ip::tcp;
 
-class Consumer
+class Consumer : public std::enable_shared_from_this<Consumer>
 {
 public:
     Consumer(

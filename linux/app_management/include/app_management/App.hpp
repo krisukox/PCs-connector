@@ -28,6 +28,5 @@ private:
 
     Display* display;
     std::unique_ptr<connection::Socket> socket;
-    std::unique_ptr<Consumer> consumer;
 };
 } // namespace app_management

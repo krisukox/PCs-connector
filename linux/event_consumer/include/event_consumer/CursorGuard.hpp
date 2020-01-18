@@ -14,7 +14,7 @@ public:
         const internal_types::MouseMoveEvent&);
 
 private:
-    internal_types::Point getMouseXCoordinate();
+    internal_types::Point getMouseCoordinate();
 
     Display* display;
     Window window;

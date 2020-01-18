@@ -23,24 +23,20 @@ void Consumer::start()
 
 void Consumer::readBody()
 {
-    auto successfullCallback = [this](const internal_types::Event& event) {
+    auto successfullCallback = [self = shared_from_this()](const internal_types::Event& event) {
         std::visit(
             internal_types::Visitor{
-                [this](const internal_types::KeyEvent& keyEvent) { keyReceiver->onEvent(keyEvent); },
-                [this](const internal_types::MouseEvent& mouseEvent) { mouseReceiver->onEvent(mouseEvent); },
+                [self](const internal_types::KeyEvent& keyEvent) { self->keyReceiver->onEvent(keyEvent); },
+                [self](const internal_types::MouseEvent& mouseEvent) { self->mouseReceiver->onEvent(mouseEvent); },
             },
             event);
-        readBody();
+        self->readBody();
     };
 
-    auto unsuccessfullCallback = [this](const boost::system::error_code& errorCode) {
+    auto unsuccessfullCallback = [self = shared_from_this()](const boost::system::error_code& errorCode) {
         if (!errorCode)
         {
-            readBody();
-        }
-        else
-        {
-            // LEAVE
+            self->readBody();
         }
     };
 
