@@ -4,90 +4,102 @@
 #include <optional>
 #include <stdexcept>
 
+namespace event_vendor
+{
 namespace
 {
-namespace mouse_callback
-{
-std::function<LRESULT()> isEventSending = nullptr;
-std::function<LRESULT(internal_types::MouseEvent&&, std::optional<POINT>)> dispatchEvent = nullptr;
+event_vendor::MouseSender* This;
 
 LRESULT resultCallback(int nCode, WPARAM wParam, LPARAM lParam)
 {
-    if (!isEventSending || !dispatchEvent)
+    if (!This)
     {
-        throw std::runtime_error("isEventSending or dispatchEvent pointer not defined");
+        std::cerr << "'This' pointer not defined\n";
+        PostMessage(nullptr, WM_QUIT, 0, 0);
     }
+    return This->forwardEvent(nCode, wParam, lParam);
+};
+
+constexpr LRESULT eventSent = 1;
+constexpr LRESULT eventHeld = 0;
+} // namespace
+
+MouseSender::MouseSender(std::shared_ptr<connection::Sender> _sender) : sender{_sender}, isEventSending{false} {}
+
+void MouseSender::start(std::function<void()>&& _changeKeyboardState)
+{
+    This = this;
+    changeKeyboardState = std::move(_changeKeyboardState);
+
+    mouseHook = SetWindowsHookEx(WH_MOUSE_LL, resultCallback, nullptr, NULL);
+}
+
+LRESULT MouseSender::forwardEvent(int nCode, WPARAM wParam, LPARAM lParam)
+{
     if (nCode == HC_ACTION)
     {
         auto mouseStruct = reinterpret_cast<PMSLLHOOKSTRUCT>(lParam);
-
-        switch (wParam)
+        if (!isEventSending && wParam == WM_MOUSEMOVE)
         {
-            case WM_MOUSEMOVE:
+            POINT point = mouseStruct->pt;
+            if (point.x <= -1)
             {
-                POINT point = mouseStruct->pt;
-                return mouse_callback::dispatchEvent(
-                    internal_types::MouseMoveEvent{static_cast<short>(point.x), static_cast<short>(point.y)}, point);
+                changeMouseState(std::nullopt);
+                changeKeyboardState();
+                return sendEvent(
+                    internal_types::MouseChangePositionEvent{static_cast<short>(point.x), static_cast<short>(point.y)});
             }
-            case WM_LBUTTONDOWN:
-                return mouse_callback::dispatchEvent(internal_types::MouseKeyEvent::LeftButtonPressed, std::nullopt);
-            case WM_LBUTTONUP:
-                return mouse_callback::dispatchEvent(internal_types::MouseKeyEvent::LeftButtonUnpressed, std::nullopt);
-            case WM_MBUTTONDOWN:
-                return mouse_callback::dispatchEvent(internal_types::MouseKeyEvent::MiddleButtonPressed, std::nullopt);
-            case WM_MBUTTONUP:
-                return mouse_callback::dispatchEvent(
-                    internal_types::MouseKeyEvent::MiddleButtonUnpressed, std::nullopt);
-            case WM_RBUTTONDOWN:
-                return mouse_callback::dispatchEvent(internal_types::MouseKeyEvent::RightButtonPressed, std::nullopt);
-            case WM_RBUTTONUP:
-                return mouse_callback::dispatchEvent(internal_types::MouseKeyEvent::RightButtonUnpressed, std::nullopt);
-            case WM_MOUSEWHEEL:
-                if (static_cast<std::make_signed_t<WORD>>(HIWORD(mouseStruct->mouseData)) < 0)
+            return eventHeld;
+        }
+        else if (isEventSending)
+        {
+            switch (wParam)
+            {
+                case WM_MOUSEMOVE:
                 {
-                    return mouse_callback::dispatchEvent(internal_types::MouseScrollEvent::Backward, std::nullopt);
+                    POINT point = mouseStruct->pt;
+                    return sendEvent(
+                        internal_types::MouseMoveEvent{static_cast<short>(point.x), static_cast<short>(point.y)});
                 }
-                else
-                {
-                    return mouse_callback::dispatchEvent(internal_types::MouseScrollEvent::Forward, std::nullopt);
-                }
-            case WM_LBUTTONDBLCLK:
-            case WM_RBUTTONDBLCLK:
-            case WM_MBUTTONDBLCLK:
-                return mouse_callback::isEventSending();
+                case WM_LBUTTONDOWN:
+                    return sendEvent(internal_types::MouseKeyEvent::LeftButtonPressed);
+                case WM_LBUTTONUP:
+                    return sendEvent(internal_types::MouseKeyEvent::LeftButtonUnpressed);
+                case WM_MBUTTONDOWN:
+                    return sendEvent(internal_types::MouseKeyEvent::MiddleButtonPressed);
+                case WM_MBUTTONUP:
+                    return sendEvent(internal_types::MouseKeyEvent::MiddleButtonUnpressed);
+                case WM_RBUTTONDOWN:
+                    return sendEvent(internal_types::MouseKeyEvent::RightButtonPressed);
+                case WM_RBUTTONUP:
+                    return sendEvent(internal_types::MouseKeyEvent::RightButtonUnpressed);
+                case WM_MOUSEWHEEL:
+                    if (static_cast<std::make_signed_t<WORD>>(HIWORD(mouseStruct->mouseData)) < 0)
+                    {
+                        return sendEvent(internal_types::MouseScrollEvent::Backward);
+                    }
+                    else
+                    {
+                        return sendEvent(internal_types::MouseScrollEvent::Forward);
+                    }
+                case WM_LBUTTONDBLCLK:
+                case WM_RBUTTONDBLCLK:
+                case WM_MBUTTONDBLCLK:
+                    return eventSent;
+            }
+        }
+        else
+        {
+            return eventHeld;
         }
     }
     return 1;
-};
-} // namespace mouse_callback
-} // namespace
+}
 
-namespace event_vendor
+LRESULT MouseSender::sendEvent(internal_types::MouseEvent&& mouseEvent)
 {
-MouseSender::MouseSender(std::shared_ptr<connection::Sender> _sender) : sender{_sender}, isEventSending{false} {}
-
-void MouseSender::start(std::function<void()>&& changeKeyboardState)
-{
-    mouse_callback::dispatchEvent = [this, changeKeyboardState = std::move(changeKeyboardState)](
-                                        internal_types::MouseEvent&& mouseEvent,
-                                        const std::optional<POINT> point) -> LRESULT {
-        if (isEventSending)
-        {
-            sender->send(mouseEvent);
-        }
-        if (!isEventSending && point && point->x <= -1)
-        {
-            changeMouseState(std::nullopt);
-            changeKeyboardState();
-            sender->send(
-                internal_types::MouseChangePositionEvent{static_cast<short>(point->x), static_cast<short>(point->y)});
-        }
-        return isEventSending;
-    };
-
-    mouse_callback::isEventSending = [this]() -> LRESULT { return isEventSending; };
-
-    mouseHook = SetWindowsHookEx(WH_MOUSE_LL, mouse_callback::resultCallback, nullptr, NULL);
+    sender->send(mouseEvent);
+    return eventSent;
 }
 
 void MouseSender::changeMouseState(const std::optional<internal_types::MouseChangePositionEvent>& mouseEvent)

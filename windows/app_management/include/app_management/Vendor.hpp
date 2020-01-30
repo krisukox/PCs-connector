@@ -32,6 +32,7 @@ public:
 private:
     void receiveEvent();
     void stopApp();
+    void changeKeyboardState();
 
     std::shared_ptr<event_vendor::KeyboardSender> keyboard;
     std::shared_ptr<event_vendor::MouseSender> mouse;

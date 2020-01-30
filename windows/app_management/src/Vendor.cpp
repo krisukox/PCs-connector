@@ -38,7 +38,7 @@ void Vendor::receiveEvent()
 void Vendor::startCatchingEvents()
 {
     keyboard->start(std::bind(&Vendor::stopApp, this));
-    mouse->start([this]() { keyboard->changeState(); });
+    mouse->start(std::bind(&Vendor::changeKeyboardState, this));
 
     MSG msg;
     BOOL retVal;
@@ -55,5 +55,10 @@ void Vendor::stopApp()
 {
     PostMessage(nullptr, WM_QUIT, 0, 0);
     stopAppCallback();
+}
+
+void Vendor::changeKeyboardState()
+{
+    keyboard->changeState();
 }
 } // namespace app_management
