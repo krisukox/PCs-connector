@@ -1,5 +1,6 @@
 #include "./ui_MainWindow.h"
 
+#include <QCoreApplication>
 #include <QMouseEvent>
 #include "gui/GraphicsRectItem.h"
 #include "gui/GraphicsScene.h"
@@ -29,14 +30,29 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow{parent}, ui{new Ui::MainWindow}, app{std::make_unique<app_management::App>()}
 {
     ui->setupUi(this);
-    auto scene = new GraphicsScene(0, 0, 598, 598);
+
+    auto setContactPoints = [this](const std::pair<QPointF, QPointF>& contactPoints, const QPointF& diffPoint) {
+        this->app->setContactPoints(
+            {{static_cast<short>(contactPoints.first.x() * SCREEN_SIZE_MULTIPLIER),
+              static_cast<short>(contactPoints.first.y() * SCREEN_SIZE_MULTIPLIER)},
+             {static_cast<short>(contactPoints.second.x() * SCREEN_SIZE_MULTIPLIER),
+              static_cast<short>(contactPoints.second.y() * SCREEN_SIZE_MULTIPLIER)}},
+            {static_cast<short>(diffPoint.x() * SCREEN_SIZE_MULTIPLIER),
+             static_cast<short>(diffPoint.y() * SCREEN_SIZE_MULTIPLIER)});
+    };
+    auto scene = new GraphicsScene(0, 0, 598, 598, std::move(setContactPoints));
+
     ui->graphicsView->setScene(scene);
 
-    GraphicsRectItem* item = new GraphicsRectItem(QRectF(0, 0, 136, 76));
+    GraphicsRectItem* item = new GraphicsRectItem(
+        QRectF(0, 0, MASTER_SCREEN_WIDTH / SCREEN_SIZE_MULTIPLIER, MASTER_SCREEN_HEIGHT / SCREEN_SIZE_MULTIPLIER),
+        GraphicsRectItem::ScreenType::master);
     item->setBrush(QBrush(Qt::green));
     item->setFlags(QGraphicsItem::ItemIsMovable);
 
-    GraphicsRectItem* item2 = new GraphicsRectItem(QRectF(0, 0, 196, 108));
+    GraphicsRectItem* item2 = new GraphicsRectItem(
+        QRectF(0, 0, SLAVE_SCREEN_WIDTH / SCREEN_SIZE_MULTIPLIER, SLAVE_SCREEN_HEIGHT / SCREEN_SIZE_MULTIPLIER),
+        GraphicsRectItem::ScreenType::slave);
     item2->setBrush(QBrush(Qt::blue));
     item2->setFlags(QGraphicsItem::ItemIsMovable);
 
@@ -53,12 +69,15 @@ MainWindow::MainWindow(QWidget* parent)
     QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
     QCoreApplication::sendEvent(scene, &event);
 
+    auto rect1 = item->rectPlaced();
+    auto rect2 = item->rectPlaced();
+
     appThread =
         std::thread(&app_management::App::start, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
 }
 
 MainWindow::~MainWindow()
 {
-    appThread.join();
+    //    appThread.join();
     delete ui;
 }

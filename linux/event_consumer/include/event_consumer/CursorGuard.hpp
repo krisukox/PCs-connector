@@ -13,8 +13,12 @@ public:
     std::optional<internal_types::MouseChangePositionEvent> checkIfCursorOutOfScreen(
         const internal_types::MouseMoveEvent&);
 
+    void setContactPoints(const std::pair<internal_types::Point, internal_types::Point>&, const internal_types::Point&);
+
 private:
     internal_types::Point getMouseCoordinate();
+    bool isCursorInsideScreen(const internal_types::Point&);
+    bool isCursorOutOfContactArea(const internal_types::Point&);
 
     Display* display;
     Window window;
@@ -23,5 +27,8 @@ private:
     int _i_;
     unsigned _u_;
     int xCoordinate, yCoordinate;
+
+    std::pair<internal_types::Point, internal_types::Point> contactPoints;
+    internal_types::Point diffPoint;
 };
 } // namespace event_consumer
