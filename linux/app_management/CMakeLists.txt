@@ -39,7 +39,7 @@ target_link_libraries(app_management
     internal_types
     connection
     event_consumer
-#    X11::X11
+    X11::X11
     Qt5::Widgets
     Qt5::X11Extras
     pthread
