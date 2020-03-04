@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QtX11Extras/QX11Info>
+#include <X11/Xlib.h>
 #include "IKeyboardReceiver.hpp"
 
 namespace event_consumer
