@@ -4,15 +4,16 @@ set(HEADERS
     include/app_management/App.hpp
     include/app_management/Consumer.hpp
     include/app_management/MainWindow.h
-    include/app_management/MyGraphicsRectItem.h
+    include/app_management/GraphicsRectItem.h
     include/app_management/MyGraphicsScene.h
 )
+
 
 set(SOURCE_FILES
     src/App.cpp
     src/Consumer.cpp
     src/MainWindow.cpp
-    src/MyGraphicsRectItem.cpp
+    src/GraphicsRectItem.cpp
     src/MyGraphicsScene.cpp
 )
 

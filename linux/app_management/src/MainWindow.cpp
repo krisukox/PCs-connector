@@ -1,8 +1,8 @@
 #include "./ui_MainWindow.h"
 
 #include <QMouseEvent>
+#include "app_management/GraphicsRectItem.h"
 #include "app_management/MainWindow.h"
-#include "app_management/MyGraphicsRectItem.h"
 #include "app_management/MyGraphicsScene.h"
 
 namespace

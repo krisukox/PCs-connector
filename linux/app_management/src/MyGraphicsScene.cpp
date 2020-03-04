@@ -8,7 +8,7 @@
 #include <cmath>
 #include <iostream>
 #include <optional>
-#include "app_management/MyGraphicsRectItem.h"
+#include "app_management/GraphicsRectItem.h"
 
 namespace
 {

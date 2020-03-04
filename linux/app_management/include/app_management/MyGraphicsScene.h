@@ -3,7 +3,7 @@
 #include <QGraphicsScene>
 #include <functional>
 #include <vector>
-#include "MyGraphicsRectItem.h"
+#include "GraphicsRectItem.h"
 
 class MyGraphicsScene : public QGraphicsScene
 {
