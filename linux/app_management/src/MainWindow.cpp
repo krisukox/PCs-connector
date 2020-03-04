@@ -11,6 +11,27 @@
 #include "app_management/MyGraphicsRectItem.h"
 #include "app_management/MyGraphicsScene.h"
 
+namespace
+{
+char** convertToArgv(QStringList commandArgs)
+{
+    int count = 0;
+    char** argv = new char*[commandArgs.size()];
+
+    for (auto t = commandArgs.begin(); t != commandArgs.end(); t++)
+    {
+        const auto& itemStr = (*t).toStdString();
+        char* item = new char[itemStr.size() + 1];
+        itemStr.copy(item, itemStr.size() + 1);
+        item[itemStr.size()] = '\0';
+        argv[count] = item;
+        count++;
+    }
+    return argv;
+}
+
+} // namespace
+
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -38,7 +59,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
     QCoreApplication::sendEvent(scene, &event);
 
-    //    app = std::make_unique<app_management::App>(qApp->arguments().size(), qApp->arguments().toVector().data());
+    app = std::make_unique<app_management::App>(qApp->arguments().size(), convertToArgv(qApp->arguments()));
 }
 
 MainWindow::~MainWindow()

@@ -1,8 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#define __stdcall
-
 #include <QMainWindow>
 #include <memory>
 #include "App.hpp"
