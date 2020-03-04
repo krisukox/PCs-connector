@@ -2,8 +2,8 @@
 
 #include <QMouseEvent>
 #include "app_management/GraphicsRectItem.h"
+#include "app_management/GraphicsScene.h"
 #include "app_management/MainWindow.h"
-#include "app_management/MyGraphicsScene.h"
 
 namespace
 {
@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow{parent}, ui{new Ui::MainWindow}, app{std::make_unique<app_management::App>()}
 {
     ui->setupUi(this);
-    auto scene = new MyGraphicsScene(0, 0, 598, 598);
+    auto scene = new GraphicsScene(0, 0, 598, 598);
     ui->graphicsView->setScene(scene);
 
     GraphicsRectItem* item = new GraphicsRectItem(QRectF(0, 0, 136, 76));
