@@ -34,16 +34,16 @@ App::~App()
 
 std::shared_ptr<event_consumer::IKeyboardReceiver> App::keyboardReceiverSelector(int argc, char* argv[])
 {
-    //    if (argc == 2 && !std::strcmp(argv[1], "test"))
-    //    {
-    //        std::clog << "test mode started" << std::endl;
-    //        return std::make_shared<event_consumer::TestKeyboardReceiver>();
-    //    }
-    //    else if (argc == 1)
-    //    {
-    //        std::clog << "release mode started" << std::endl;
-    //        return std::make_shared<event_consumer::KeyboardReceiver>(display);
-    //    }
+    if (argc == 2 && !std::strcmp(argv[1], "test"))
+    {
+        std::clog << "test mode started" << std::endl;
+        return std::make_shared<event_consumer::TestKeyboardReceiver>();
+    }
+    else if (argc == 1)
+    {
+        std::clog << "release mode started" << std::endl;
+        return std::make_shared<event_consumer::KeyboardReceiver>(display);
+    }
     throw std::invalid_argument("not valid startup argument");
 }
 
