@@ -1,4 +1,3 @@
-#include "app_management/MainWindow.h"
 #include <QApplication>
 #include <QDebug>
 #include <QGraphicsRectItem>
@@ -8,6 +7,7 @@
 //#include <QtX11Extras/QX11Info>
 #include <iostream>
 #include "./ui_MainWindow.h"
+#include "app_management/MainWindow.h"
 #include "app_management/MyGraphicsRectItem.h"
 #include "app_management/MyGraphicsScene.h"
 
