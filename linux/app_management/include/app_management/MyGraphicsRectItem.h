@@ -3,7 +3,7 @@
 #include <QGraphicsRectItem>
 #include <functional>
 
-class MyGraphicsRectItem : public QGraphicsRectItem
+class GraphicsRectItem : public QGraphicsRectItem
 {
     using QGraphicsRectItem::QGraphicsRectItem;
 

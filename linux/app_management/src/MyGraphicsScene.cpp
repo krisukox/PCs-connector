@@ -112,7 +112,7 @@ void MyGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
 void MyGraphicsScene::addItem(QGraphicsItem* item)
 {
-    auto rectItem = dynamic_cast<MyGraphicsRectItem*>(item);
+    auto rectItem = dynamic_cast<GraphicsRectItem*>(item);
     if (rectItem)
     {
         rectList.push_back(rectItem);

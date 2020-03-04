@@ -14,5 +14,5 @@ public:
 
 private:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent*) override;
-    std::vector<MyGraphicsRectItem*> rectList;
+    std::vector<GraphicsRectItem*> rectList;
 };

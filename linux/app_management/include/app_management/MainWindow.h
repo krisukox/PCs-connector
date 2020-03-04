@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <memory>
@@ -28,4 +27,3 @@ public:
 private:
     std::thread appThread;
 };
-#endif // MAINWINDOW_H

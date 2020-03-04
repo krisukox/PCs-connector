@@ -1,12 +1,6 @@
 #include "./ui_MainWindow.h"
 
-#include <QApplication>
-#include <QDebug>
-#include <QGraphicsRectItem>
-#include <QGraphicsScene>
-#include <QGraphicsSceneEvent>
 #include <QMouseEvent>
-
 #include "app_management/MainWindow.h"
 #include "app_management/MyGraphicsRectItem.h"
 #include "app_management/MyGraphicsScene.h"
@@ -38,11 +32,11 @@ MainWindow::MainWindow(QWidget* parent)
     auto scene = new MyGraphicsScene(0, 0, 598, 598);
     ui->graphicsView->setScene(scene);
 
-    MyGraphicsRectItem* item = new MyGraphicsRectItem(QRectF(0, 0, 136, 76));
+    GraphicsRectItem* item = new GraphicsRectItem(QRectF(0, 0, 136, 76));
     item->setBrush(QBrush(Qt::green));
     item->setFlags(QGraphicsItem::ItemIsMovable);
 
-    MyGraphicsRectItem* item2 = new MyGraphicsRectItem(QRectF(0, 0, 196, 108));
+    GraphicsRectItem* item2 = new GraphicsRectItem(QRectF(0, 0, 196, 108));
     item2->setBrush(QBrush(Qt::blue));
     item2->setFlags(QGraphicsItem::ItemIsMovable);
 
