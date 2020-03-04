@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <memory>
 #include <thread>
+
 #include "App.hpp"
 
 QT_BEGIN_NAMESPACE

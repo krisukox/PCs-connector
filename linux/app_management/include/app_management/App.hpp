@@ -1,7 +1,11 @@
 #pragma once
 
 #include <QtX11Extras/QX11Info>
+//#include <X11/Xlib.h>
+//#include <X11/Xtos.h>
 #include <memory>
+
+// struct Display;
 
 namespace connection
 {

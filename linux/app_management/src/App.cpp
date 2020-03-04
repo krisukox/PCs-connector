@@ -1,5 +1,5 @@
 #include "app_management/App.hpp"
-#include <QtX11Extras/QX11Info>
+//#include <QtX11Extras/QX11Info>
 #include <iostream>
 #include <stdio.h>
 #include "app_management/Consumer.hpp"
