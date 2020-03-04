@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <memory>
+#include <thread>
 #include "App.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -22,5 +23,8 @@ public:
 
     Ui::MainWindow* ui;
     std::unique_ptr<app_management::App> app;
+
+private:
+    std::thread appThread;
 };
 #endif // MAINWINDOW_H

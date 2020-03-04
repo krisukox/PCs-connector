@@ -14,7 +14,14 @@
 
 namespace app_management
 {
-App::App(int argc, char* argv[]) : display{XOpenDisplay(nullptr)}, socket{std::make_unique<connection::Socket>()}
+App::App() : display{XOpenDisplay(nullptr)}, socket{std::make_unique<connection::Socket>()} {}
+
+App::~App()
+{
+    XCloseDisplay(display);
+}
+
+void App::start(int argc, char* argv[])
 {
     auto successfullConnection = [this, argc, argv](boost::asio::ip::tcp::socket& socket) {
         std::make_shared<Consumer>(
@@ -26,12 +33,6 @@ App::App(int argc, char* argv[]) : display{XOpenDisplay(nullptr)}, socket{std::m
 
     socket->listen("10000", successfullConnection);
 }
-
-App::~App()
-{
-    XCloseDisplay(display);
-}
-
 std::shared_ptr<event_consumer::IKeyboardReceiver> App::keyboardReceiverSelector(int argc, char* argv[])
 {
     if (argc == 2 && !std::strcmp(argv[1], "test"))

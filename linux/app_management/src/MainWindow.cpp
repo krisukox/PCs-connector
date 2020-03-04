@@ -29,10 +29,10 @@ char** convertToArgv(QStringList commandArgs)
     }
     return argv;
 }
-
 } // namespace
 
-MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget* parent)
+    : QMainWindow{parent}, ui{new Ui::MainWindow}, app{std::make_unique<app_management::App>()}
 {
     ui->setupUi(this);
     auto scene = new MyGraphicsScene(0, 0, 598, 598);
@@ -59,10 +59,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
     QCoreApplication::sendEvent(scene, &event);
 
-    app = std::make_unique<app_management::App>(qApp->arguments().size(), convertToArgv(qApp->arguments()));
+    appThread =
+        std::thread(&app_management::App::start, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
 }
 
 MainWindow::~MainWindow()
 {
+    appThread.join();
     delete ui;
 }
