@@ -1,9 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#define __stdcall
+
 #include <QMainWindow>
 #include <memory>
-//#include "App.hpp"
+#include "App.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -21,6 +23,6 @@ public:
     ~MainWindow();
 
     Ui::MainWindow* ui;
-    //    std::unique_ptr<app_management::App> app;
+    std::unique_ptr<app_management::App> app;
 };
 #endif // MAINWINDOW_H

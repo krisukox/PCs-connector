@@ -1,6 +1,6 @@
 #pragma once
 
-#include <X11/Xlib.h>
+#include <QtX11Extras/QX11Info>
 #include <memory>
 
 namespace connection

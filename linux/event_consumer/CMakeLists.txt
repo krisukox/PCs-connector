@@ -18,9 +18,10 @@ add_library(event_consumer ${HEADERS} ${SOURCE_FILES})
 target_include_directories(event_consumer PUBLIC include PRIVATE src)
 
 target_link_libraries(event_consumer
-    Xtst
+#    Xtst
     internal_types
     connection
+    Qt5::X11Extras
 )
 
 add_subdirectory(tests)
