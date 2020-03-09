@@ -24,4 +24,5 @@ target_link_libraries(gui
     X11::X11
     Qt5::Widgets
     Qt5::X11Extras
+    app_management
 )
