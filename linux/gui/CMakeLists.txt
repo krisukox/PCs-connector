@@ -1,14 +1,10 @@
 set(HEADERS
-    include/gui/App.hpp
-    include/gui/Consumer.hpp
     include/gui/MainWindow.h
     include/gui/GraphicsRectItem.h
     include/gui/GraphicsScene.h
 )
 
 set(SOURCE_FILES
-    src/App.cpp
-    src/Consumer.cpp
     src/MainWindow.cpp
     src/GraphicsRectItem.cpp
     src/GraphicsScene.cpp

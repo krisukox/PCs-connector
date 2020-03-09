@@ -4,7 +4,7 @@
 #include <memory>
 #include <thread>
 
-#include "App.hpp"
+#include "app_management/App.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
