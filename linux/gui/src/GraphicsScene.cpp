@@ -1,12 +1,5 @@
 #include "gui/GraphicsScene.h"
-#include <QDebug>
-#include <QGraphicsEllipseItem>
-#include <QGraphicsItem>
-#include <QGraphicsLineItem>
 #include <QLineF>
-#include <QMouseEvent>
-#include <cmath>
-#include <iostream>
 #include <optional>
 #include "gui/GraphicsRectItem.h"
 
@@ -103,10 +96,6 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     }
     auto rect1 = rectList.at(0)->rectPlaced();
     auto rect2 = rectList.at(1)->rectPlaced();
-    qDebug() << "rect1: " << rect1.topLeft() << " " << rect1.topRight() << " " << rect1.bottomRight() << " "
-             << rect1.bottomLeft();
-    qDebug() << "rect2: " << rect2.topLeft() << " " << rect2.topRight() << " " << rect2.bottomRight() << " "
-             << rect2.bottomLeft();
     QGraphicsScene::mouseReleaseEvent(event);
 }
 

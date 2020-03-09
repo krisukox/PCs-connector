@@ -1,15 +1,8 @@
-cmake_minimum_required(VERSION 3.14.5)
-set (CMAKE_CXX_STANDARD 17)
-project(pcs_connector)
-
 enable_testing()
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_PREFIX_PATH /home/krisukox/Qt/5.14.1/gcc_64)
 set(QT_QMAKE_EXECUTABLE /home/krisukox/Qt/5.14.1/gcc_64/bin/qmake)
