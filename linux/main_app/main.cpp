@@ -1,18 +1,10 @@
-#include <X11/Xlib.h>
-#include <X11/extensions/XTest.h>
-#include <iostream>
-#include "app_management/App.hpp"
+#include <QApplication>
+#include "gui/MainWindow.h"
 
 int main(int argc, char* argv[])
 {
-    try
-    {
-        app_management::App app{argc, argv};
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Exception: " << e.what() << "\n";
-    }
-
-    return 0;
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    return a.exec();
 }

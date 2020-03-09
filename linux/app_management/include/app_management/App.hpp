@@ -20,8 +20,9 @@ class Consumer;
 class App
 {
 public:
-    App(int, char* []);
+    App();
     ~App();
+    void start(int, char* []);
 
 private:
     std::shared_ptr<event_consumer::IKeyboardReceiver> keyboardReceiverSelector(int, char* []);
