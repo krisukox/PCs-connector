@@ -19,7 +19,6 @@ set(Qt5Widgets_DIR /home/krisukox/Qt/5.14.1/gcc_64/lib/cmake/Qt5Widgets)
 set(Qt5_DIR /home/krisukox/Qt/5.14.1/gcc_64/lib/cmake/Qt5)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
-find_package(Qt5 COMPONENTS X11Extras REQUIRED)
 
 get_filename_component(PREFIX_DIR "../.." ABSOLUTE)
 

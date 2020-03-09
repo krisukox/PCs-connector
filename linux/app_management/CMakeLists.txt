@@ -18,7 +18,6 @@ target_link_libraries(app_management
     connection
     event_consumer
     X11::X11
-    Qt5::X11Extras
 )
 
 add_subdirectory(tests)

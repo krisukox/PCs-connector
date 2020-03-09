@@ -21,7 +21,6 @@ target_link_libraries(event_consumer
     Xtst
     internal_types
     connection
-    Qt5::X11Extras
 )
 
 add_subdirectory(tests)
