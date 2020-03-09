@@ -14,11 +14,6 @@ add_library(gui ${HEADERS} ${SOURCE_FILES})
 target_include_directories(gui PUBLIC include PRIVATE src)
 
 target_link_libraries(gui
-    internal_types
-    connection
-    event_consumer
-    X11::X11
     Qt5::Widgets
-    Qt5::X11Extras
     app_management
 )
