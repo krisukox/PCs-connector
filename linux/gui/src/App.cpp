@@ -1,13 +1,13 @@
-#include "app_management/App.hpp"
+#include "gui/App.hpp"
 #include <iostream>
 #include <stdio.h>
-#include "app_management/Consumer.hpp"
 #include "connection/Receiver.hpp"
 #include "connection/Sender.hpp"
 #include "connection/Socket.hpp"
 #include "event_consumer/KeyboardReceiver.hpp"
 #include "event_consumer/MouseReceiver.hpp"
 #include "event_consumer/TestKeyboardReceiver.hpp"
+#include "gui/Consumer.hpp"
 #include "internal_types/Deserializer.hpp"
 #include "internal_types/KeyEvent.hpp"
 

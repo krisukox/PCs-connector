@@ -1,4 +1,4 @@
-#include "app_management/GraphicsRectItem.h"
+#include "gui/GraphicsRectItem.h"
 #include <QGraphicsSceneMouseEvent>
 #include <iostream>
 

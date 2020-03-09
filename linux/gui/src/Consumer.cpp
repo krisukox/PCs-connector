@@ -1,4 +1,4 @@
-#include "app_management/Consumer.hpp"
+#include "gui/Consumer.hpp"
 #include <iostream>
 #include <stdexcept>
 #include "connection/Receiver.hpp"

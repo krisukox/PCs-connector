@@ -1,3 +1,4 @@
+#include "gui/GraphicsScene.h"
 #include <QDebug>
 #include <QGraphicsEllipseItem>
 #include <QGraphicsItem>
@@ -7,8 +8,7 @@
 #include <cmath>
 #include <iostream>
 #include <optional>
-#include "app_management/GraphicsRectItem.h"
-#include "app_management/GraphicsScene.h"
+#include "gui/GraphicsRectItem.h"
 
 namespace
 {
