@@ -17,10 +17,13 @@ constexpr unsigned backwardScroll{5};
 
 namespace event_consumer
 {
-MouseReceiver::MouseReceiver(Display* _display, std::unique_ptr<connection::Sender> _sender)
+MouseReceiver::MouseReceiver(
+    Display* _display,
+    std::unique_ptr<connection::Sender> _sender,
+    std::shared_ptr<CursorGuard> _cursorGuard)
     : display{_display}
     , sender{std::move(_sender)}
-    , cursorGuard{display}
+    , cursorGuard{_cursorGuard}
     , dispatchState{DispatchState::off}
     , screen{DefaultScreenOfDisplay(display)}
 {
@@ -43,7 +46,7 @@ void MouseReceiver::onEvent(const internal_types::MouseEvent& mouseEvent)
 
 void MouseReceiver::onEvent(const internal_types::MouseMoveEvent& mouseMoveEvent)
 {
-    if (auto changeMousePositionEvent = cursorGuard.checkIfCursorOutOfScreen(mouseMoveEvent))
+    if (auto changeMousePositionEvent = cursorGuard->checkIfCursorOutOfScreen(mouseMoveEvent))
     {
         dispatchState = DispatchState::off;
         sender->send(changeMousePositionEvent.value());

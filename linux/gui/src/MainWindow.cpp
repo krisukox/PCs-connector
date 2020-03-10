@@ -30,7 +30,15 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow{parent}, ui{new Ui::MainWindow}, app{std::make_unique<app_management::App>()}
 {
     ui->setupUi(this);
-    auto scene = new GraphicsScene(0, 0, 598, 598);
+
+    auto setContactPoints = [this](const std::pair<QPointF, QPointF>& contactPoints, const QPointF& diffPoint) {
+        this->app->setContactPoints(
+            {{static_cast<short>(contactPoints.first.x()), static_cast<short>(contactPoints.first.y())},
+             {static_cast<short>(contactPoints.second.x()), static_cast<short>(contactPoints.second.y())}},
+            {static_cast<short>(diffPoint.x()), static_cast<short>(diffPoint.y())});
+    };
+    auto scene = new GraphicsScene(0, 0, 598, 598, std::move(setContactPoints));
+
     ui->graphicsView->setScene(scene);
 
     GraphicsRectItem* item = new GraphicsRectItem(QRectF(0, 0, 136, 76));

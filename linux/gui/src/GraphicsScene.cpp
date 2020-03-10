@@ -131,6 +131,16 @@ std::pair<QPointF, QPointF> getContactPoints(const QRectF& rect1, const QRectF& 
 }
 } // namespace
 
+GraphicsScene::GraphicsScene(
+    qreal x,
+    qreal y,
+    qreal width,
+    qreal height,
+    std::function<void(std::pair<QPointF, QPointF>, QPointF)>&& setContactPoints_)
+    : QGraphicsScene{x, y, width, height}, setContactPoints{setContactPoints_}
+{
+}
+
 void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
     if (rectList.size() != 2) return;
@@ -183,7 +193,7 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     auto contactPoints = getContactPoints(rect1, rect2);
     auto point = rectList.at(0)->pos() - rectList.at(1)->pos();
     qDebug() << contactPoints.first << " " << contactPoints.second << " " << point;
-
+    setContactPoints(contactPoints, point);
     QGraphicsScene::mouseReleaseEvent(event);
 }
 
