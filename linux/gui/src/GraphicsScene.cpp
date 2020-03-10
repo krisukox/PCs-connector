@@ -181,7 +181,9 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     qDebug() << rect2.topLeft() << " " << rect2.topRight() << " " << rect2.bottomRight() << " " << rect2.bottomLeft()
              << " ";
     auto contactPoints = getContactPoints(rect1, rect2);
-    qDebug() << contactPoints.first << " " << contactPoints.second;
+    auto point = rectList.at(0)->pos() - rectList.at(1)->pos();
+    qDebug() << contactPoints.first << " " << contactPoints.second << " " << point;
+
     QGraphicsScene::mouseReleaseEvent(event);
 }
 
