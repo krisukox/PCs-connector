@@ -1,6 +1,7 @@
-#include "app_management/App.hpp"
 #include <iostream>
-#include <stdio.h>
+
+#include <vector>
+#include "app_management/App.hpp"
 #include "app_management/Consumer.hpp"
 #include "connection/Receiver.hpp"
 #include "connection/Sender.hpp"
@@ -9,7 +10,6 @@
 #include "event_consumer/MouseReceiver.hpp"
 #include "event_consumer/TestKeyboardReceiver.hpp"
 #include "internal_types/Deserializer.hpp"
-#include "internal_types/KeyEvent.hpp"
 
 namespace app_management
 {
@@ -32,6 +32,7 @@ void App::start(int argc, char* argv[])
 
     socket->listen("10000", successfullConnection);
 }
+
 std::shared_ptr<event_consumer::IKeyboardReceiver> App::keyboardReceiverSelector(int argc, char* argv[])
 {
     if (argc == 2 && !std::strcmp(argv[1], "test"))

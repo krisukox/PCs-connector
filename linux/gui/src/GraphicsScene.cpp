@@ -1,6 +1,9 @@
 #include "gui/GraphicsScene.h"
+#include <QDebug>
 #include <QLineF>
 #include <optional>
+#include <set>
+#include <vector>
 #include "gui/GraphicsRectItem.h"
 
 namespace
@@ -49,6 +52,83 @@ std::optional<QPointF> intersectPoint(const QRectF& rect, const QLineF& line)
          QLineF(rect.bottomLeft(), rect.topLeft())},
         line);
 }
+
+struct QPointCmp
+{
+    bool operator()(const QPointF& point1, const QPointF& point2) const
+    {
+        if (point1.x() == point2.x())
+        {
+            return point1.y() < point2.y();
+        }
+        else
+        {
+            return point1.x() < point2.x();
+        }
+    }
+};
+
+std::set<QPointF, QPointCmp> getTwoLinearPoints(std::vector<QPointF>& rect1Points, std::vector<QPointF>& rect2Points)
+{
+    for (auto point1 = rect1Points.begin(); point1 != rect1Points.end(); point1++)
+    {
+        for (auto point2 = rect2Points.begin(); point2 != rect2Points.end(); point2++)
+        {
+            if (point1->x() == point2->x() || point1->y() == point2->y())
+            {
+                std::set<QPointF, QPointCmp> s{*point1, *point2};
+                rect1Points.erase(point1);
+                rect2Points.erase(point2);
+
+                return s;
+            }
+        }
+    }
+    return {};
+}
+
+void addLinearPoint(const std::vector<QPointF>& rectPoints, std::set<QPointF, QPointCmp>& linearPoints)
+{
+    auto linearPoint = linearPoints.begin();
+    auto linearPoint2 = linearPoint++;
+
+    for (const auto& point : rectPoints)
+    {
+        if (linearPoint->x() == linearPoint2->x())
+        {
+            if (point.x() == linearPoint->x())
+            {
+                linearPoints.insert(point);
+                return;
+            }
+        }
+        else
+        {
+            if (point.y() == linearPoint->y())
+            {
+                linearPoints.insert(point);
+                return;
+            }
+        }
+    }
+}
+
+std::pair<QPointF, QPointF> getContactPoints(const QRectF& rect1, const QRectF& rect2)
+{
+    std::vector<QPointF> rect1Points{rect1.topLeft(), rect1.topRight(), rect1.bottomLeft(), rect1.bottomRight()};
+    std::vector<QPointF> rect2Points{rect2.topLeft(), rect2.topRight(), rect2.bottomLeft(), rect2.bottomRight()};
+
+    auto linearPoints = getTwoLinearPoints(rect1Points, rect2Points);
+
+    addLinearPoint(rect1Points, linearPoints);
+    addLinearPoint(rect2Points, linearPoints);
+
+    auto pointIt1 = ++linearPoints.begin();
+    auto pointIt2 = pointIt1;
+    pointIt2++;
+
+    return {*pointIt1, *pointIt2};
+}
 } // namespace
 
 void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
@@ -96,6 +176,12 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     }
     auto rect1 = rectList.at(0)->rectPlaced();
     auto rect2 = rectList.at(1)->rectPlaced();
+    qDebug() << rect1.topLeft() << " " << rect1.topRight() << " " << rect1.bottomRight() << " " << rect1.bottomLeft()
+             << " ";
+    qDebug() << rect2.topLeft() << " " << rect2.topRight() << " " << rect2.bottomRight() << " " << rect2.bottomLeft()
+             << " ";
+    auto contactPoints = getContactPoints(rect1, rect2);
+    qDebug() << contactPoints.first << " " << contactPoints.second;
     QGraphicsScene::mouseReleaseEvent(event);
 }
 
