@@ -1,4 +1,5 @@
 #include "event_consumer/CursorGuard.hpp"
+#include <iostream>
 
 namespace event_consumer
 {
@@ -12,14 +13,17 @@ std::optional<internal_types::MouseChangePositionEvent> CursorGuard::checkIfCurs
     {
         return std::nullopt;
     }
+    std::cout << newPoint.y << " " << diffPoint.y << std::endl;
     return internal_types::MouseChangePositionEvent{
-        static_cast<short>(newPoint.x - XWidthOfScreen(XDefaultScreenOfDisplay(display))), newPoint.y};
+        static_cast<short>(newPoint.x - XWidthOfScreen(XDefaultScreenOfDisplay(display)) + diffPoint.x * 10),
+        static_cast<short>(newPoint.y + diffPoint.y * 10)};
 }
 
 void CursorGuard::setContactPoints(
     const std::pair<internal_types::Point, internal_types::Point>& contactPoints_,
     const internal_types::Point& diffPoint_)
 {
+    std::cout << "TAAAAAAAAAAAK" << std::endl;
     contactPoints = contactPoints_;
     diffPoint = diffPoint_;
 }
