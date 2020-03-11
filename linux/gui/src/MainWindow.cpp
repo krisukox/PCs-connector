@@ -69,15 +69,12 @@ MainWindow::MainWindow(QWidget* parent)
     QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
     QCoreApplication::sendEvent(scene, &event);
 
-    auto rect1 = item->rectPlaced();
-    auto rect2 = item->rectPlaced();
-
     appThread =
         std::thread(&app_management::App::start, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
 }
 
 MainWindow::~MainWindow()
 {
-    //    appThread.join();
+    appThread.join();
     delete ui;
 }
