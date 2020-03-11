@@ -14,6 +14,7 @@ public:
         const internal_types::MouseMoveEvent&);
 
     void setContactPoints(const std::pair<internal_types::Point, internal_types::Point>&, const internal_types::Point&);
+    internal_types::MouseChangePositionEvent changeToRelative(const internal_types::MouseChangePositionEvent&);
 
 private:
     internal_types::Point getMouseCoordinate();

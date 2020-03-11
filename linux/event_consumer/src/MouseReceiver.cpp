@@ -101,7 +101,7 @@ void MouseReceiver::onEvent(const internal_types::MouseKeyEvent& mouseKeyEvent)
 void MouseReceiver::onEvent(const internal_types::MouseChangePositionEvent& event)
 {
     dispatchState = DispatchState::on;
-    setCursorPosition(changeToRelative(event));
+    setCursorPosition(cursorGuard->changeToRelative(event));
 }
 
 void MouseReceiver::setCursorPosition(const internal_types::MouseChangePositionEvent& event)

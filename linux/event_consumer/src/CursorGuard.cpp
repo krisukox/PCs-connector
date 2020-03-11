@@ -1,5 +1,4 @@
 #include "event_consumer/CursorGuard.hpp"
-#include <iostream>
 
 namespace event_consumer
 {
@@ -13,7 +12,6 @@ std::optional<internal_types::MouseChangePositionEvent> CursorGuard::checkIfCurs
     {
         return std::nullopt;
     }
-    std::cout << newPoint.x << " " << diffPoint.x << " " << static_cast<short>(newPoint.x + diffPoint.x) << std::endl;
     return internal_types::MouseChangePositionEvent{static_cast<short>(newPoint.x + diffPoint.x),
                                                     static_cast<short>(newPoint.y + diffPoint.y)};
 }
@@ -24,6 +22,14 @@ void CursorGuard::setContactPoints(
 {
     contactPoints = contactPoints_;
     diffPoint = diffPoint_;
+}
+
+internal_types::MouseChangePositionEvent CursorGuard::changeToRelative(
+    const internal_types::MouseChangePositionEvent& event)
+{
+    auto returnEvent = event;
+    returnEvent.x += XDefaultScreenOfDisplay(display)->width;
+    return returnEvent;
 }
 
 internal_types::Point CursorGuard::getMouseCoordinate()
@@ -43,8 +49,6 @@ bool CursorGuard::isCursorInsideScreen(const internal_types::Point& cursor)
 
 bool CursorGuard::isCursorOutOfContactArea(const internal_types::Point& cursor)
 {
-    std::cout << contactPoints.first.x << " " << contactPoints.first.y << " " << contactPoints.second.x << " "
-              << contactPoints.second.y << std::endl;
     if (contactPoints.first.x == contactPoints.second.x)
     {
         if (contactPoints.first.y < contactPoints.second.y)

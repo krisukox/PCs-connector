@@ -1,7 +1,5 @@
-#include <iostream>
-
-#include <vector>
 #include "app_management/App.hpp"
+#include <iostream>
 #include "app_management/Consumer.hpp"
 #include "connection/Receiver.hpp"
 #include "connection/Sender.hpp"
