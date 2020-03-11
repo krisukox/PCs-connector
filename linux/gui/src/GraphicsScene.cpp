@@ -170,21 +170,21 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
     if (rectList.size() != 2) return;
 
-    auto subRect1 = rectList.at(0)->rectPlaced();
-    auto subRect2 = rectList.at(1)->rectPlaced();
+    auto rect1 = rectList.at(0)->rectPlaced();
+    auto rect2 = rectList.at(1)->rectPlaced();
 
-    auto lineBetweenCenters = QLineF(subRect1.center(), subRect2.center());
+    auto lineBetweenCenters = QLineF(rect1.center(), rect2.center());
 
-    if (subRect1.intersects(subRect2))
+    if (rect1.intersects(rect2))
     {
-        auto intersectedRect = subRect1.intersected(subRect2);
+        auto intersectedRect = rect1.intersected(rect2);
         auto normalLine = normalizeLine(lineBetweenCenters);
 
         auto diffLine = intersectLine(intersectedRect, normalLine);
         if (diffLine)
         {
-            if (QLineF(subRect1.center() + QPointF(diffLine->dx(), diffLine->dy()), subRect2.center()).length() <
-                QLineF(subRect1.center() - QPointF(diffLine->dx(), diffLine->dy()), subRect2.center()).length())
+            if (QLineF(rect1.center() + QPointF(diffLine->dx(), diffLine->dy()), rect2.center()).length() <
+                QLineF(rect1.center() - QPointF(diffLine->dx(), diffLine->dy()), rect2.center()).length())
             {
                 rectList.at(0)->moveBy(-diffLine->dx(), -diffLine->dy());
             }
@@ -196,16 +196,16 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     }
     else
     {
-        auto point1 = intersectPoint(subRect1, lineBetweenCenters);
-        auto point2 = intersectPoint(subRect2, lineBetweenCenters);
+        auto point1 = intersectPoint(rect1, lineBetweenCenters);
+        auto point2 = intersectPoint(rect2, lineBetweenCenters);
         if (point1 && point2)
         {
             QLineF diffLine(point1.value(), point2.value());
             rectList.at(0)->moveBy(diffLine.dx(), diffLine.dy());
         }
     }
-    auto rect1 = rectList.at(0)->rectPlaced();
-    auto rect2 = rectList.at(1)->rectPlaced();
+    rect1 = rectList.at(0)->rectPlaced();
+    rect2 = rectList.at(1)->rectPlaced();
 
     if (rect1.intersects(rect2))
     {

@@ -31,7 +31,7 @@ internal_types::MouseChangePositionEvent CursorGuard::changeToRelative(
     const internal_types::MouseChangePositionEvent& event)
 {
     auto returnEvent = event;
-    returnEvent.x += XDefaultScreenOfDisplay(display)->width;
+    returnEvent.x += screen->width;
     return returnEvent;
 }
 
@@ -53,11 +53,27 @@ bool CursorGuard::isCursorOutOfContactArea(const internal_types::Point& cursor)
 {
     if (contactPoints.first.x == contactPoints.second.x)
     {
+        if (contactPoints.first.x == 0 && cursor.x > 0)
+        {
+            return true;
+        }
+        if (contactPoints.first.x != 0 && cursor.x < 0)
+        {
+            return true;
+        }
         if (contactPoints.first.y < contactPoints.second.y)
         {
             return cursor.y < contactPoints.first.y || cursor.y > contactPoints.second.y;
         }
         return cursor.y > contactPoints.first.y || cursor.y < contactPoints.second.y;
+    }
+    if (contactPoints.first.y == 0 && cursor.y > 0)
+    {
+        return true;
+    }
+    if (contactPoints.first.y != 0 && cursor.y < 0)
+    {
+        return true;
     }
     if (contactPoints.first.x < contactPoints.second.x)
     {
