@@ -17,12 +17,11 @@ constexpr unsigned backwardScroll{5};
 
 namespace event_consumer
 {
-MouseReceiver::MouseReceiver(Display* _display, std::unique_ptr<connection::Sender> _sender)
-    : display{_display}
-    , sender{std::move(_sender)}
-    , cursorGuard{display}
-    , dispatchState{DispatchState::off}
-    , screen{DefaultScreenOfDisplay(display)}
+MouseReceiver::MouseReceiver(
+    Display* _display,
+    std::unique_ptr<connection::Sender> _sender,
+    std::shared_ptr<CursorGuard> _cursorGuard)
+    : display{_display}, sender{std::move(_sender)}, cursorGuard{_cursorGuard}, dispatchState{DispatchState::off}
 {
 }
 
@@ -43,7 +42,7 @@ void MouseReceiver::onEvent(const internal_types::MouseEvent& mouseEvent)
 
 void MouseReceiver::onEvent(const internal_types::MouseMoveEvent& mouseMoveEvent)
 {
-    if (auto changeMousePositionEvent = cursorGuard.checkIfCursorOutOfScreen(mouseMoveEvent))
+    if (auto changeMousePositionEvent = cursorGuard->checkIfCursorOutOfScreen(mouseMoveEvent))
     {
         dispatchState = DispatchState::off;
         sender->send(changeMousePositionEvent.value());
@@ -98,7 +97,7 @@ void MouseReceiver::onEvent(const internal_types::MouseKeyEvent& mouseKeyEvent)
 void MouseReceiver::onEvent(const internal_types::MouseChangePositionEvent& event)
 {
     dispatchState = DispatchState::on;
-    setCursorPosition(changeToRelative(event));
+    setCursorPosition(cursorGuard->changeToRelative(event));
 }
 
 void MouseReceiver::setCursorPosition(const internal_types::MouseChangePositionEvent& event)
@@ -106,13 +105,5 @@ void MouseReceiver::setCursorPosition(const internal_types::MouseChangePositionE
     XTestFakeRelativeMotionEvent(display, -10000, -10000, CurrentTime);
     XTestFakeRelativeMotionEvent(display, event.x, event.y, CurrentTime);
     XFlush(display);
-}
-
-internal_types::MouseChangePositionEvent MouseReceiver::changeToRelative(
-    const internal_types::MouseChangePositionEvent& event)
-{
-    auto returnEvent = event;
-    returnEvent.x += screen->width;
-    return returnEvent;
 }
 } // namespace event_consumer
