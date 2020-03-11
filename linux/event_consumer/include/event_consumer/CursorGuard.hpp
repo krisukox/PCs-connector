@@ -23,13 +23,14 @@ private:
 
     Display* display;
     Window window;
+    Screen* screen;
+
+    std::pair<internal_types::Point, internal_types::Point> contactPoints;
+    internal_types::Point diffPoint;
 
     Window _w_;
     int _i_;
     unsigned _u_;
     int xCoordinate, yCoordinate;
-
-    std::pair<internal_types::Point, internal_types::Point> contactPoints;
-    internal_types::Point diffPoint;
 };
 } // namespace event_consumer

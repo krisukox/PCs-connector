@@ -2,7 +2,10 @@
 
 namespace event_consumer
 {
-CursorGuard::CursorGuard(Display* _display) : display{_display}, window{XRootWindow(display, 0)} {}
+CursorGuard::CursorGuard(Display* _display)
+    : display{_display}, window{XRootWindow(display, 0)}, screen{XDefaultScreenOfDisplay(display)}
+{
+}
 
 std::optional<internal_types::MouseChangePositionEvent> CursorGuard::checkIfCursorOutOfScreen(
     const internal_types::MouseMoveEvent& mouseMoveEvent)
@@ -43,8 +46,7 @@ internal_types::Point CursorGuard::getMouseCoordinate()
 
 bool CursorGuard::isCursorInsideScreen(const internal_types::Point& cursor)
 {
-    return cursor.x < XWidthOfScreen(XDefaultScreenOfDisplay(display)) && cursor.x >= 0 &&
-        cursor.y < XHeightOfScreen(XDefaultScreenOfDisplay(display)) && cursor.y >= 0;
+    return cursor.x < XWidthOfScreen(screen) && cursor.x >= 0 && cursor.y < XHeightOfScreen(screen) && cursor.y >= 0;
 }
 
 bool CursorGuard::isCursorOutOfContactArea(const internal_types::Point& cursor)

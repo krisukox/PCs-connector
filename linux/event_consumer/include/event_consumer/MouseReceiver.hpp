@@ -38,13 +38,10 @@ private:
 
     void setCursorPosition(const internal_types::MouseChangePositionEvent&);
 
-    internal_types::MouseChangePositionEvent changeToRelative(const internal_types::MouseChangePositionEvent& event);
-
     Display* display;
     std::unique_ptr<connection::Sender> sender;
     std::shared_ptr<CursorGuard> cursorGuard;
 
     DispatchState dispatchState;
-    Screen* screen;
 };
 } // namespace event_consumer

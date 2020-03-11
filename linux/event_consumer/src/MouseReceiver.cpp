@@ -21,11 +21,7 @@ MouseReceiver::MouseReceiver(
     Display* _display,
     std::unique_ptr<connection::Sender> _sender,
     std::shared_ptr<CursorGuard> _cursorGuard)
-    : display{_display}
-    , sender{std::move(_sender)}
-    , cursorGuard{_cursorGuard}
-    , dispatchState{DispatchState::off}
-    , screen{DefaultScreenOfDisplay(display)}
+    : display{_display}, sender{std::move(_sender)}, cursorGuard{_cursorGuard}, dispatchState{DispatchState::off}
 {
 }
 
@@ -109,13 +105,5 @@ void MouseReceiver::setCursorPosition(const internal_types::MouseChangePositionE
     XTestFakeRelativeMotionEvent(display, -10000, -10000, CurrentTime);
     XTestFakeRelativeMotionEvent(display, event.x, event.y, CurrentTime);
     XFlush(display);
-}
-
-internal_types::MouseChangePositionEvent MouseReceiver::changeToRelative(
-    const internal_types::MouseChangePositionEvent& event)
-{
-    auto returnEvent = event;
-    returnEvent.x += screen->width;
-    return returnEvent;
 }
 } // namespace event_consumer
