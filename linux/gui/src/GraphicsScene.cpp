@@ -145,6 +145,15 @@ void alignPointsToMasterScreen(
     }
     throw std::runtime_error("alignPointsToMasterScreen - rectList doesn't have master screen");
 }
+
+QPointF diffPointAlignedToMasterScreen(const std::vector<GraphicsRectItem*>& rectList)
+{
+    if (rectList.at(0)->type() == GraphicsRectItem::ScreenType::master)
+    {
+        return rectList.at(0)->pos() - rectList.at(1)->pos();
+    }
+    return rectList.at(1)->pos() - rectList.at(0)->pos();
+}
 } // namespace
 
 GraphicsScene::GraphicsScene(
@@ -195,23 +204,21 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
             rectList.at(0)->moveBy(diffLine.dx(), diffLine.dy());
         }
     }
-    if (rectList.at(0)->rectPlaced().intersects(rectList.at(1)->rectPlaced()))
+    auto rect1 = rectList.at(0)->rectPlaced();
+    auto rect2 = rectList.at(1)->rectPlaced();
+
+    if (rect1.intersects(rect2))
     {
         mouseReleaseEvent(event);
         return;
     }
-    auto rect1 = rectList.at(0)->rectPlaced();
-    auto rect2 = rectList.at(1)->rectPlaced();
-    qDebug() << rect1.topLeft() << " " << rect1.topRight() << " " << rect1.bottomRight() << " " << rect1.bottomLeft()
-             << " ";
-    qDebug() << rect2.topLeft() << " " << rect2.topRight() << " " << rect2.bottomRight() << " " << rect2.bottomLeft()
-             << " ";
+
     auto contactPoints = getContactPoints(rect1, rect2);
     alignPointsToMasterScreen(contactPoints, rectList);
 
-    auto point = rectList.at(0)->pos() - rectList.at(1)->pos();
-    qDebug() << contactPoints.first << " " << contactPoints.second << " " << point;
-    setContactPoints(contactPoints, point);
+    auto diffPoint = diffPointAlignedToMasterScreen(rectList);
+
+    setContactPoints(contactPoints, diffPoint);
     QGraphicsScene::mouseReleaseEvent(event);
 }
 
