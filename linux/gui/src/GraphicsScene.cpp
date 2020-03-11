@@ -1,9 +1,7 @@
 #include "gui/GraphicsScene.h"
-#include <QDebug>
 #include <QLineF>
 #include <optional>
 #include <set>
-#include <vector>
 #include "gui/GraphicsRectItem.h"
 
 namespace

@@ -53,11 +53,14 @@ bool CursorGuard::isCursorOutOfContactArea(const internal_types::Point& cursor)
 {
     if (contactPoints.first.x == contactPoints.second.x)
     {
-        if (contactPoints.first.x == 0 && cursor.x > 0)
+        if (contactPoints.first.x == 0)
         {
-            return true;
+            if (cursor.x > 0)
+            {
+                return true;
+            }
         }
-        if (contactPoints.first.x != 0 && cursor.x < 0)
+        else if (cursor.x < 0)
         {
             return true;
         }
@@ -67,11 +70,14 @@ bool CursorGuard::isCursorOutOfContactArea(const internal_types::Point& cursor)
         }
         return cursor.y > contactPoints.first.y || cursor.y < contactPoints.second.y;
     }
-    if (contactPoints.first.y == 0 && cursor.y > 0)
+    if (contactPoints.first.y == 0)
     {
-        return true;
+        if (cursor.y > 0)
+        {
+            return true;
+        }
     }
-    if (contactPoints.first.y != 0 && cursor.y < 0)
+    else if (cursor.y < 0)
     {
         return true;
     }
