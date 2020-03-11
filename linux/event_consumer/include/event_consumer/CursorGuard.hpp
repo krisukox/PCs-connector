@@ -17,6 +17,8 @@ public:
 
 private:
     internal_types::Point getMouseCoordinate();
+    bool isCursorInsideScreen(const internal_types::Point&);
+    bool isCursorOutOfContactArea(const internal_types::Point&);
 
     Display* display;
     Window window;

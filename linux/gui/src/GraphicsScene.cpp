@@ -129,6 +129,22 @@ std::pair<QPointF, QPointF> getContactPoints(const QRectF& rect1, const QRectF& 
 
     return {*pointIt1, *pointIt2};
 }
+
+void alignPointsToMasterScreen(
+    std::pair<QPointF, QPointF>& contactPoints,
+    const std::vector<GraphicsRectItem*>& rectList)
+{
+    for (const auto& rect : rectList)
+    {
+        if (rect->type() == GraphicsRectItem::ScreenType::master)
+        {
+            contactPoints.first -= rect->rectPlaced().topLeft();
+            contactPoints.second -= rect->rectPlaced().topLeft();
+            return;
+        }
+    }
+    throw std::runtime_error("alignPointsToMasterScreen - rectList doesn't have master screen");
+}
 } // namespace
 
 GraphicsScene::GraphicsScene(
@@ -191,6 +207,8 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     qDebug() << rect2.topLeft() << " " << rect2.topRight() << " " << rect2.bottomRight() << " " << rect2.bottomLeft()
              << " ";
     auto contactPoints = getContactPoints(rect1, rect2);
+    alignPointsToMasterScreen(contactPoints, rectList);
+
     auto point = rectList.at(0)->pos() - rectList.at(1)->pos();
     qDebug() << contactPoints.first << " " << contactPoints.second << " " << point;
     setContactPoints(contactPoints, point);

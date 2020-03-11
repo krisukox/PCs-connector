@@ -33,19 +33,26 @@ MainWindow::MainWindow(QWidget* parent)
 
     auto setContactPoints = [this](const std::pair<QPointF, QPointF>& contactPoints, const QPointF& diffPoint) {
         this->app->setContactPoints(
-            {{static_cast<short>(contactPoints.first.x()), static_cast<short>(contactPoints.first.y())},
-             {static_cast<short>(contactPoints.second.x()), static_cast<short>(contactPoints.second.y())}},
-            {static_cast<short>(diffPoint.x()), static_cast<short>(diffPoint.y())});
+            {{static_cast<short>(contactPoints.first.x() * SCREEN_SIZE_MULTIPLIER),
+              static_cast<short>(contactPoints.first.y() * SCREEN_SIZE_MULTIPLIER)},
+             {static_cast<short>(contactPoints.second.x() * SCREEN_SIZE_MULTIPLIER),
+              static_cast<short>(contactPoints.second.y() * SCREEN_SIZE_MULTIPLIER)}},
+            {static_cast<short>(diffPoint.x() * SCREEN_SIZE_MULTIPLIER),
+             static_cast<short>(diffPoint.y() * SCREEN_SIZE_MULTIPLIER)});
     };
     auto scene = new GraphicsScene(0, 0, 598, 598, std::move(setContactPoints));
 
     ui->graphicsView->setScene(scene);
 
-    GraphicsRectItem* item = new GraphicsRectItem(QRectF(0, 0, 136, 76));
+    GraphicsRectItem* item = new GraphicsRectItem(
+        QRectF(0, 0, MASTER_SCREEN_WIDTH / SCREEN_SIZE_MULTIPLIER, MASTER_SCREEN_HEIGHT / SCREEN_SIZE_MULTIPLIER),
+        GraphicsRectItem::ScreenType::master);
     item->setBrush(QBrush(Qt::green));
     item->setFlags(QGraphicsItem::ItemIsMovable);
 
-    GraphicsRectItem* item2 = new GraphicsRectItem(QRectF(0, 0, 196, 108));
+    GraphicsRectItem* item2 = new GraphicsRectItem(
+        QRectF(0, 0, SLAVE_SCREEN_WIDTH / SCREEN_SIZE_MULTIPLIER, SLAVE_SCREEN_HEIGHT / SCREEN_SIZE_MULTIPLIER),
+        GraphicsRectItem::ScreenType::slave);
     item2->setBrush(QBrush(Qt::blue));
     item2->setFlags(QGraphicsItem::ItemIsMovable);
 

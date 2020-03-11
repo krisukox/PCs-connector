@@ -2,11 +2,9 @@
 #include <QGraphicsSceneMouseEvent>
 #include <iostream>
 
-void GraphicsRectItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
+GraphicsRectItem::GraphicsRectItem(const QRectF& rect, ScreenType _screenType)
+    : QGraphicsRectItem{rect}, screenType{_screenType}
 {
-    setZValue(1);
-    callbackSetSecondItemDown();
-    QGraphicsItem::mousePressEvent(event);
 }
 
 void GraphicsRectItem::setCallback(std::function<void()>&& callback)
@@ -19,4 +17,16 @@ QRectF GraphicsRectItem::rectPlaced()
     auto ownRect = rect();
     ownRect.moveTo(pos());
     return ownRect;
+}
+
+GraphicsRectItem::ScreenType GraphicsRectItem::type()
+{
+    return screenType;
+}
+
+void GraphicsRectItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
+{
+    setZValue(1);
+    callbackSetSecondItemDown();
+    QGraphicsItem::mousePressEvent(event);
 }
