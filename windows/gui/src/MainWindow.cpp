@@ -2,6 +2,7 @@
 
 #include <QCoreApplication>
 #include <QMouseEvent>
+#include <QScreen>
 #include "gui/GraphicsRectItem.h"
 #include "gui/GraphicsScene.h"
 #include "gui/MainWindow.h"
@@ -24,10 +25,38 @@ char** convertToArgv(QStringList commandArgs)
     }
     return argv;
 }
+
+const unsigned SCREEN_SIZE_MULTIPLIER = 10;
+
+const int SCREEN_WIDTH_1 = 1920;
+const int SCREEN_HEIGHT_1 = 1080;
+const int SCREEN_WIDTH_2 = 1366;
+const int SCREEN_HEIGHT_2 = 768;
+
+QSize getMasterSize()
+{
+    return qApp->screens().at(0)->size();
+}
+
+QSize getSlaveSize()
+{
+    if (qApp->screens().at(0)->size().width() == SCREEN_WIDTH_1)
+    {
+        return QSize{SCREEN_WIDTH_2, SCREEN_HEIGHT_2};
+    }
+    else
+    {
+        return QSize{SCREEN_WIDTH_1, SCREEN_HEIGHT_1};
+    }
+}
 } // namespace
 
 MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow{parent}, ui{new Ui::MainWindow}, app(std::make_unique<app_management::App>())
+    : QMainWindow{parent}
+    , ui{new Ui::MainWindow}
+    , app{std::make_unique<app_management::App>()}
+    , MASTER_SIZE{getMasterSize()}
+    , SLAVE_SIZE{getSlaveSize()}
 {
     ui->setupUi(this);
 
@@ -37,13 +66,13 @@ MainWindow::MainWindow(QWidget* parent)
     ui->graphicsView->setScene(scene);
 
     GraphicsRectItem* item = new GraphicsRectItem(
-        QRectF(0, 0, MASTER_SCREEN_WIDTH / SCREEN_SIZE_MULTIPLIER, MASTER_SCREEN_HEIGHT / SCREEN_SIZE_MULTIPLIER),
+        QRectF(0, 0, MASTER_SIZE.width() / SCREEN_SIZE_MULTIPLIER, MASTER_SIZE.height() / SCREEN_SIZE_MULTIPLIER),
         GraphicsRectItem::ScreenType::master);
     item->setBrush(QBrush(Qt::green));
     item->setFlags(QGraphicsItem::ItemIsMovable);
 
     GraphicsRectItem* item2 = new GraphicsRectItem(
-        QRectF(0, 0, SLAVE_SCREEN_WIDTH / SCREEN_SIZE_MULTIPLIER, SLAVE_SCREEN_HEIGHT / SCREEN_SIZE_MULTIPLIER),
+        QRectF(0, 0, SLAVE_SIZE.width() / SCREEN_SIZE_MULTIPLIER, SLAVE_SIZE.height() / SCREEN_SIZE_MULTIPLIER),
         GraphicsRectItem::ScreenType::slave);
     item2->setBrush(QBrush(Qt::blue));
     item2->setFlags(QGraphicsItem::ItemIsMovable);

@@ -26,11 +26,7 @@ public:
 
 private:
     std::thread appThread;
-    const unsigned SCREEN_SIZE_MULTIPLIER = 10;
-    // HARDCODE
-    const unsigned MASTER_SCREEN_WIDTH = 1920;
-    const unsigned MASTER_SCREEN_HEIGHT = 1080;
-    const unsigned SLAVE_SCREEN_WIDTH = 1366;
-    const unsigned SLAVE_SCREEN_HEIGHT = 768;
-    // HARDCODE END
+
+    const QSize MASTER_SIZE;
+    const QSize SLAVE_SIZE;
 };
