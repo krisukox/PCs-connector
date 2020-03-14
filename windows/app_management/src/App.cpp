@@ -13,7 +13,9 @@ namespace app_management
 {
 App::~App() {}
 
-App::App(int argc, char* argv[]) : socket{std::make_unique<connection::Socket>()}
+App::App() : socket{std::make_unique<connection::Socket>()} {}
+
+void App::start(int argc, char* argv[])
 {
     auto port = std::string("10000");
 

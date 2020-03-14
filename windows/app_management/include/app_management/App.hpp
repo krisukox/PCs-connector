@@ -16,8 +16,10 @@ class Vendor;
 class App
 {
 public:
-    App(int, char*[]);
+    App();
     ~App();
+
+    void start(int, char*[]);
 
 private:
     void initializeVendor();
