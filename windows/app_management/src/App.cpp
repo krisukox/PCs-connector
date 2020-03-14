@@ -11,7 +11,7 @@
 
 namespace app_management
 {
-App::~App() {}
+App::~App() = default;
 
 App::App() : socket{std::make_unique<connection::Socket>()} {}
 
@@ -48,6 +48,10 @@ void App::start(int argc, char* argv[])
     {
         std::clog << e.what() << std::endl;
     }
+}
+
+void App::setContactPoints(const std::pair<internal_types::Point, internal_types::Point>&, const internal_types::Point&)
+{
 }
 
 void App::initializeVendor()
