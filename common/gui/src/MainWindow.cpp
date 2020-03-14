@@ -60,7 +60,15 @@ MainWindow::MainWindow(QWidget* parent)
 {
     ui->setupUi(this);
 
-    auto setContactPoints = [this](const std::pair<QPointF, QPointF>& contactPoints, const QPointF& diffPoint) {};
+    auto setContactPoints = [this](const std::pair<QPointF, QPointF>& contactPoints, const QPointF& diffPoint) {
+        this->app->setContactPoints(
+            {{static_cast<short>(contactPoints.first.x() * SCREEN_SIZE_MULTIPLIER),
+              static_cast<short>(contactPoints.first.y() * SCREEN_SIZE_MULTIPLIER)},
+             {static_cast<short>(contactPoints.second.x() * SCREEN_SIZE_MULTIPLIER),
+              static_cast<short>(contactPoints.second.y() * SCREEN_SIZE_MULTIPLIER)}},
+            {static_cast<short>(diffPoint.x() * SCREEN_SIZE_MULTIPLIER),
+             static_cast<short>(diffPoint.y() * SCREEN_SIZE_MULTIPLIER)});
+    };
     auto scene = new GraphicsScene(0, 0, 598, 598, std::move(setContactPoints));
 
     ui->graphicsView->setScene(scene);
