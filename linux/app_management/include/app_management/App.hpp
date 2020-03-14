@@ -2,6 +2,7 @@
 
 #include <X11/Xlib.h>
 #include <memory>
+#include "interface/IApp.hpp"
 #include "internal_types/Point.hpp"
 
 namespace connection
@@ -19,14 +20,15 @@ namespace app_management
 {
 class Consumer;
 
-class App
+class App : public IApp
 {
 public:
     App();
-    ~App();
-    void start(int, char* []);
+    ~App() override;
+    void start(int, char* []) override;
 
-    void setContactPoints(const std::pair<internal_types::Point, internal_types::Point>&, const internal_types::Point&);
+    void setContactPoints(const std::pair<internal_types::Point, internal_types::Point>&, const internal_types::Point&)
+        override;
 
 private:
     std::shared_ptr<event_consumer::IKeyboardReceiver> keyboardReceiverSelector(int, char* []);
