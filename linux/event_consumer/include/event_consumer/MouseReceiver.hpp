@@ -39,6 +39,7 @@ private:
     void setCursorPosition(const internal_types::MouseChangePositionEvent&);
 
     Display* display;
+    Window window;
     std::unique_ptr<connection::Sender> sender;
     std::shared_ptr<CursorGuard> cursorGuard;
 

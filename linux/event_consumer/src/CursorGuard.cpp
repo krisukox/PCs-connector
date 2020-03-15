@@ -8,15 +8,14 @@ CursorGuard::CursorGuard(Display* _display)
 }
 
 std::optional<internal_types::MouseChangePositionEvent> CursorGuard::checkIfCursorOutOfScreen(
-    const internal_types::MouseMoveEvent& mouseMoveEvent)
+    const internal_types::Point& cursor)
 {
-    internal_types::Point newPoint = getMouseCoordinate() + mouseMoveEvent;
-    if (isCursorInsideScreen(newPoint) || isCursorOutOfContactArea(newPoint))
+    if (isCursorInsideScreen(cursor) || isCursorOutOfContactArea(cursor))
     {
         return std::nullopt;
     }
-    return internal_types::MouseChangePositionEvent{static_cast<short>(newPoint.x + diffPoint.x),
-                                                    static_cast<short>(newPoint.y + diffPoint.y)};
+    return internal_types::MouseChangePositionEvent{static_cast<short>(cursor.x + diffPoint.x),
+                                                    static_cast<short>(cursor.y + diffPoint.y)};
 }
 
 void CursorGuard::setContactPoints(
@@ -25,23 +24,6 @@ void CursorGuard::setContactPoints(
 {
     contactPoints = contactPoints_;
     diffPoint = diffPoint_;
-}
-
-internal_types::MouseChangePositionEvent CursorGuard::changeToRelative(
-    const internal_types::MouseChangePositionEvent& event)
-{
-    auto returnEvent = event;
-    returnEvent.x += screen->width;
-    return returnEvent;
-}
-
-internal_types::Point CursorGuard::getMouseCoordinate()
-{
-    if (!XQueryPointer(display, window, &_w_, &_w_, &xCoordinate, &yCoordinate, &_i_, &_i_, &_u_))
-    {
-        throw std::runtime_error("wrong XQueryPointer result");
-    }
-    return {static_cast<short>(xCoordinate), static_cast<short>(yCoordinate)};
 }
 
 bool CursorGuard::isCursorInsideScreen(const internal_types::Point& cursor)

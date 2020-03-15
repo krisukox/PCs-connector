@@ -10,11 +10,9 @@ class CursorGuard
 {
 public:
     CursorGuard(Display*);
-    std::optional<internal_types::MouseChangePositionEvent> checkIfCursorOutOfScreen(
-        const internal_types::MouseMoveEvent&);
+    std::optional<internal_types::MouseChangePositionEvent> checkIfCursorOutOfScreen(const internal_types::Point&);
 
     void setContactPoints(const std::pair<internal_types::Point, internal_types::Point>&, const internal_types::Point&);
-    internal_types::MouseChangePositionEvent changeToRelative(const internal_types::MouseChangePositionEvent&);
 
 private:
     internal_types::Point getMouseCoordinate();
