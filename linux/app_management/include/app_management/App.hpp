@@ -2,7 +2,7 @@
 
 #include <X11/Xlib.h>
 #include <memory>
-#include "interface/IApp.hpp"
+#include "commons/IApp.hpp"
 #include "internal_types/Point.hpp"
 
 namespace connection

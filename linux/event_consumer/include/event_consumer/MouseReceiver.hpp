@@ -3,7 +3,6 @@
 #include <X11/Xlib.h>
 #include <memory>
 #include <optional>
-#include "CursorGuard.hpp"
 #include "IMouseReceiver.hpp"
 #include "internal_types/Point.hpp"
 

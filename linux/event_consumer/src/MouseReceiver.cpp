@@ -2,8 +2,8 @@
 #include <X11/extensions/XTest.h>
 #include <iostream>
 #include <stdexcept>
+#include "commons/CursorGuard.hpp"
 #include "connection/Sender.hpp"
-#include "interface/CursorGuard.hpp"
 #include "internal_types/Visitor.hpp"
 
 namespace
