@@ -95,9 +95,7 @@ LRESULT MouseSender::forwardEvent(int nCode, WPARAM wParam, LPARAM lParam)
     {
         auto mouseStruct = reinterpret_cast<PMSLLHOOKSTRUCT>(lParam);
         POINT cursor = mouseStruct->pt;
-        if (!isEventSending && wParam == WM_MOUSEMOVE) /* !isEventSending && wParam == WM_MOUSEMOVE
-     && !isCursorInsideScreen({static_cast<short>(mouseStruct->pt.x), static_cast<short>(mouseStruct->pt.y)}) &&
-     !isCursorOutOfContactArea({static_cast<short>(mouseStruct->pt.x), static_cast<short>(mouseStruct->pt.y)}))*/
+        if (!isEventSending && wParam == WM_MOUSEMOVE)
         {
             auto mouseChangePositionEvent =
                 cursorGuard->checkIfCursorOutOfScreen({static_cast<short>(cursor.x), static_cast<short>(cursor.y)});
