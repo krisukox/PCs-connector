@@ -40,13 +40,6 @@ void App::start(int argc, char* argv[])
     socket->listen("10000", successfullConnection);
 }
 
-// void App::setContactPoints(
-//    const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
-//    const internal_types::Point& diffPoint)
-//{
-//    cursorGuard->setContactPoints(contactPoints, diffPoint);
-//}
-
 std::shared_ptr<event_consumer::IKeyboardReceiver> App::keyboardReceiverSelector(int argc, char* argv[])
 {
     if (argc == 2 && !std::strcmp(argv[1], "test"))
