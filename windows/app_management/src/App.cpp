@@ -13,7 +13,10 @@ namespace app_management
 {
 App::~App() = default;
 
-App::App() : socket{std::make_unique<connection::Socket>()} {}
+App::App(std::shared_ptr<commons::CursorGuard>&& _cursorGuard)
+    : commons::IApp(std::move(_cursorGuard)), socket{std::make_unique<connection::Socket>()}
+{
+}
 
 void App::start(int argc, char* argv[])
 {
@@ -50,10 +53,6 @@ void App::start(int argc, char* argv[])
     }
 }
 
-void App::setContactPoints(const std::pair<internal_types::Point, internal_types::Point>&, const internal_types::Point&)
-{
-}
-
 void App::initializeVendor()
 {
     auto stopAppCallback = [this] { socket->close(); };
@@ -63,7 +62,7 @@ void App::initializeVendor()
     auto sender = std::make_shared<connection::Sender>(socket->value());
 
     auto keyboard = std::make_shared<event_vendor::KeyboardSender>(sender);
-    auto mouse = std::make_shared<event_vendor::MouseSender>(sender);
+    auto mouse = std::make_shared<event_vendor::MouseSender>(sender, cursorGuard);
 
     vendor = std::make_shared<app_management::Vendor>(keyboard, mouse, receiver, stopAppCallback);
 }

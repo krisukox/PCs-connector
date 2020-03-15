@@ -5,12 +5,17 @@
 #include "connection/Sender.hpp"
 #include "internal_types/MouseEvent.hpp"
 
+namespace commons
+{
+class CursorGuard;
+}
+
 namespace event_vendor
 {
 class MouseSender
 {
 public:
-    MouseSender(std::shared_ptr<connection::Sender>);
+    MouseSender(std::shared_ptr<connection::Sender>, std::shared_ptr<commons::CursorGuard>);
     MouseSender() = delete;
 
     void start(std::function<void()>&&);
@@ -23,6 +28,7 @@ private:
 
     std::shared_ptr<connection::Sender> sender;
     bool isEventSending;
+    std::shared_ptr<commons::CursorGuard> cursorGuard;
 
     HHOOK mouseHook;
     std::function<void()> changeKeyboardState;

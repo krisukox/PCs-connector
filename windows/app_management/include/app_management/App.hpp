@@ -2,7 +2,12 @@
 
 #include <memory>
 #include "app_management/Console.hpp"
-#include "interface/IApp.hpp"
+#include "commons/IApp.hpp"
+
+namespace commons
+{
+class CursorGuard;
+}
 
 namespace connection
 {
@@ -14,15 +19,13 @@ namespace app_management
 {
 class Vendor;
 
-class App : public IApp
+class App : public commons::IApp
 {
 public:
-    App();
+    App(std::shared_ptr<commons::CursorGuard>&&);
     ~App() override;
 
     void start(int, char*[]) override;
-    void setContactPoints(const std::pair<internal_types::Point, internal_types::Point>&, const internal_types::Point&)
-        override;
 
 private:
     void initializeVendor();

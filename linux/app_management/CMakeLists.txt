@@ -18,7 +18,7 @@ target_link_libraries(app_management
     connection
     event_consumer
     X11::X11
-    interface
+    commons
 )
 
 add_subdirectory(tests)

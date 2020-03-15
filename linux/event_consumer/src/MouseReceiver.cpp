@@ -2,6 +2,7 @@
 #include <X11/extensions/XTest.h>
 #include <iostream>
 #include <stdexcept>
+#include "commons/CursorGuard.hpp"
 #include "connection/Sender.hpp"
 #include "internal_types/Visitor.hpp"
 
@@ -13,6 +14,20 @@ constexpr unsigned rightButton{3};
 
 constexpr unsigned forwardScroll{4};
 constexpr unsigned backwardScroll{5};
+
+Window _w_;
+int _i_;
+unsigned _u_;
+
+internal_types::Point getMouseCoordinate(Display* display, Window& window)
+{
+    int xCoordinate, yCoordinate;
+    if (!XQueryPointer(display, window, &_w_, &_w_, &xCoordinate, &yCoordinate, &_i_, &_i_, &_u_))
+    {
+        throw std::runtime_error("wrong XQueryPointer result");
+    }
+    return {static_cast<short>(xCoordinate), static_cast<short>(yCoordinate)};
+}
 } // namespace
 
 namespace event_consumer
@@ -20,8 +35,12 @@ namespace event_consumer
 MouseReceiver::MouseReceiver(
     Display* _display,
     std::unique_ptr<connection::Sender> _sender,
-    std::shared_ptr<CursorGuard> _cursorGuard)
-    : display{_display}, sender{std::move(_sender)}, cursorGuard{_cursorGuard}, dispatchState{DispatchState::off}
+    std::shared_ptr<commons::CursorGuard> _cursorGuard)
+    : display{_display}
+    , window{XRootWindow(display, 0)}
+    , sender{std::move(_sender)}
+    , cursorGuard{_cursorGuard}
+    , dispatchState{DispatchState::off}
 {
 }
 
@@ -42,7 +61,8 @@ void MouseReceiver::onEvent(const internal_types::MouseEvent& mouseEvent)
 
 void MouseReceiver::onEvent(const internal_types::MouseMoveEvent& mouseMoveEvent)
 {
-    if (auto changeMousePositionEvent = cursorGuard->checkIfCursorOutOfScreen(mouseMoveEvent))
+    internal_types::Point cursor = getMouseCoordinate(display, window) + mouseMoveEvent;
+    if (auto changeMousePositionEvent = cursorGuard->checkIfCursorOutOfScreen(cursor))
     {
         dispatchState = DispatchState::off;
         sender->send(changeMousePositionEvent.value());
@@ -97,7 +117,7 @@ void MouseReceiver::onEvent(const internal_types::MouseKeyEvent& mouseKeyEvent)
 void MouseReceiver::onEvent(const internal_types::MouseChangePositionEvent& event)
 {
     dispatchState = DispatchState::on;
-    setCursorPosition(cursorGuard->changeToRelative(event));
+    setCursorPosition(event);
 }
 
 void MouseReceiver::setCursorPosition(const internal_types::MouseChangePositionEvent& event)
