@@ -26,6 +26,7 @@ if(WIN32)
         include/internal_types/IDeserializer.hpp
         include/internal_types/KeyEvent.hpp
         include/internal_types/MouseEvent.hpp
+        include/internal_types/Point.hpp
         include/internal_types/Serializer.hpp
         include/internal_types/Visitor.hpp
     )

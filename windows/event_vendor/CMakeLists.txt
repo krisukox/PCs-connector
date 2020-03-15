@@ -14,4 +14,5 @@ target_include_directories(event_vendor PUBLIC include PRIVATE src)
 target_link_libraries(event_vendor
     internal_types
     connection
+    commons
 )

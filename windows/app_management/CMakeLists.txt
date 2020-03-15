@@ -18,5 +18,5 @@ target_link_libraries(app_management
     internal_types
     event_vendor
     connection
-    interface
+    commons
 )
