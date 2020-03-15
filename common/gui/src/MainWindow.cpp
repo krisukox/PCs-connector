@@ -6,6 +6,7 @@
 #include <QDesktopWidget>
 #include <QMouseEvent>
 #include <QScreen>
+#include "app_management/App.hpp"
 #include "commons/CursorGuard.hpp"
 #include "gui/GraphicsRectItem.h"
 #include "gui/GraphicsScene.h"
@@ -110,7 +111,7 @@ MainWindow::MainWindow(QWidget* parent)
     QCoreApplication::sendEvent(scene, &event);
 
     appThread =
-        std::thread(&app_management::App::start, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
+        std::thread(&commons::IApp::start, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
 }
 
 MainWindow::~MainWindow()

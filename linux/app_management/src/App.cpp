@@ -12,7 +12,10 @@
 
 namespace app_management
 {
-App::App() : display{XOpenDisplay(nullptr)}, socket{std::make_unique<connection::Socket>()}
+App::App(std::shared_ptr<commons::CursorGuard>&& _cursorGuard)
+    : commons::IApp(std::move(_cursorGuard))
+    , display{XOpenDisplay(nullptr)}
+    , socket{std::make_unique<connection::Socket>()}
 {
     cursorGuard = std::make_shared<commons::CursorGuard>(
         XWidthOfScreen(XDefaultScreenOfDisplay(display)), XHeightOfScreen(XDefaultScreenOfDisplay(display)));

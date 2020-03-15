@@ -4,7 +4,10 @@
 #include <memory>
 #include <thread>
 
-#include "app_management/App.hpp"
+namespace commons
+{
+class IApp;
+}
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -22,7 +25,7 @@ public:
     ~MainWindow();
 
     Ui::MainWindow* ui;
-    std::unique_ptr<app_management::App> app;
+    std::unique_ptr<commons::IApp> app;
 
 private:
     std::thread appThread;

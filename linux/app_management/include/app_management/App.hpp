@@ -5,6 +5,11 @@
 #include "commons/IApp.hpp"
 #include "internal_types/Point.hpp"
 
+namespace commons
+{
+class CursorGuard;
+}
+
 namespace connection
 {
 class Socket;
@@ -13,7 +18,6 @@ class Socket;
 namespace event_consumer
 {
 class IKeyboardReceiver;
-class CursorGuard;
 } // namespace event_consumer
 
 namespace app_management
@@ -23,7 +27,7 @@ class Consumer;
 class App : public commons::IApp
 {
 public:
-    App();
+    App(std::shared_ptr<commons::CursorGuard>&&);
     ~App() override;
     void start(int, char* []) override;
 
