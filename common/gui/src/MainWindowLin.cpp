@@ -6,7 +6,7 @@
 #include "commons/CursorGuard.hpp"
 #include "gui/GraphicsRectItem.h"
 #include "gui/GraphicsScene.h"
-#include "gui/MainWindow.h"
+#include "gui/MainWindowLin.h"
 
 namespace
 {
