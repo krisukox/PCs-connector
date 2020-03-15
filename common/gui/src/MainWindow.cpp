@@ -1,9 +1,5 @@
 #include "./ui_MainWindow.h"
 
-#include <QApplication>
-#include <QCoreApplication>
-#include <QDebug>
-#include <QDesktopWidget>
 #include <QMouseEvent>
 #include <QScreen>
 #include "app_management/App.hpp"
