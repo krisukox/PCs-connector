@@ -18,39 +18,21 @@ App::App(std::shared_ptr<commons::CursorGuard>&& _cursorGuard)
 {
 }
 
-void App::start(int argc, char* argv[])
+void App::startConnection(const boost::asio::ip::address& address)
+try
 {
     auto port = std::string("10000");
+    socket->connect(address, port);
 
-    try
-    {
-        if (argc == 1)
-        {
-            auto address = boost::asio::ip::make_address("192.168.1.10");
-            socket->connect(address, port);
-
-            initializeVendor();
-            std::thread t(&Vendor::startCatchingEvents, vendor);
-            vendor->startReceivingEvents();
-            socket->getIoContext().run();
-            t.join();
-        }
-        else
-        {
-            auto address = boost::asio::ip::make_address(argv[1]);
-            socket->connect(address, port);
-
-            initializeVendor();
-            std::thread t(&Vendor::startCatchingEvents, vendor);
-            vendor->startReceivingEvents();
-            socket->getIoContext().run();
-            t.join();
-        }
-    }
-    catch (std::exception e)
-    {
-        std::clog << e.what() << std::endl;
-    }
+    initializeVendor();
+    std::thread t(&Vendor::startCatchingEvents, vendor);
+    vendor->startReceivingEvents();
+    socket->getIoContext().run();
+    t.join();
+}
+catch (std::exception e)
+{
+    std::clog << e.what() << std::endl;
 }
 
 void App::initializeVendor()

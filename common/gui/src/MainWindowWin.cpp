@@ -2,9 +2,11 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QGuiApplication>
 #include <QLineEdit>
 #include <QMouseEvent>
 #include <QScreen>
+#include <boost/asio.hpp>
 #include "app_management/App.hpp"
 #include "commons/CursorGuard.hpp"
 #include "gui/GraphicsRectItem.h"
@@ -113,8 +115,16 @@ MainWindow::MainWindow(QWidget* parent)
 
 void MainWindow::handleConnectButton()
 {
-    appThread =
-        std::thread(&commons::IApp::start, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
+    if (qApp->arguments().size() == 2)
+    {
+        auto address = boost::asio::ip::make_address(convertToArgv(qApp->arguments())[1]);
+        appThread = std::thread(&commons::IApp::startConnection, app.get(), address);
+    }
+    else
+    {
+        auto address = boost::asio::ip::make_address("192.168.1.10");
+        appThread = std::thread(&commons::IApp::startConnection, app.get(), address);
+    }
 }
 
 MainWindow::~MainWindow()

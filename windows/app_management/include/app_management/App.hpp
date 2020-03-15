@@ -25,7 +25,7 @@ public:
     App(std::shared_ptr<commons::CursorGuard>&&);
     ~App() override;
 
-    void start(int, char*[]) override;
+    void startConnection(const boost::asio::ip::address&) override;
 
 private:
     void initializeVendor();
