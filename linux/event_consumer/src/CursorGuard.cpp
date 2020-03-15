@@ -2,8 +2,8 @@
 
 namespace event_consumer
 {
-CursorGuard::CursorGuard(Display* _display)
-    : display{_display}, window{XRootWindow(display, 0)}, screen{XDefaultScreenOfDisplay(display)}
+CursorGuard::CursorGuard(const int _widthOfScreen, const int _heightOfScreen)
+    : widthOfScreen{_widthOfScreen}, heightOfScreen{_heightOfScreen}
 {
 }
 
@@ -28,7 +28,7 @@ void CursorGuard::setContactPoints(
 
 bool CursorGuard::isCursorInsideScreen(const internal_types::Point& cursor)
 {
-    return cursor.x < XWidthOfScreen(screen) && cursor.x >= 0 && cursor.y < XHeightOfScreen(screen) && cursor.y >= 0;
+    return cursor.x < widthOfScreen && cursor.x >= 0 && cursor.y < heightOfScreen && cursor.y >= 0;
 }
 
 bool CursorGuard::isCursorOutOfContactArea(const internal_types::Point& cursor)

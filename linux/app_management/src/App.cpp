@@ -15,7 +15,9 @@ namespace app_management
 App::App()
     : display{XOpenDisplay(nullptr)}
     , socket{std::make_unique<connection::Socket>()}
-    , cursorGuard{std::make_shared<event_consumer::CursorGuard>(display)}
+    , cursorGuard{std::make_shared<event_consumer::CursorGuard>(
+          XWidthOfScreen(XDefaultScreenOfDisplay(display)),
+          XHeightOfScreen(XDefaultScreenOfDisplay(display)))}
 {
 }
 
