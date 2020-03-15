@@ -1,0 +1,19 @@
+#include <memory>
+#include <utility>
+#include "CursorGuard.hpp"
+#include "internal_types/Point.hpp"
+
+namespace commons
+{
+class IApp
+{
+public:
+    virtual ~IApp() = default;
+
+    virtual void start(int, char* []) = 0;
+    void setContactPoints(const std::pair<internal_types::Point, internal_types::Point>&, const internal_types::Point&);
+
+protected:
+    std::shared_ptr<CursorGuard> cursorGuard;
+};
+} // namespace commons
