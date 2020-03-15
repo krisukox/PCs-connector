@@ -1,20 +1,20 @@
-set(HEADERS
-    include/gui/MainWindow.h
-    include/gui/GraphicsRectItem.h
-    include/gui/GraphicsScene.h
-)
-
-set(SOURCE_FILES
-    src/MainWindow.cpp
-    src/GraphicsRectItem.cpp
-    src/GraphicsScene.cpp
-)
-
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 if(UNIX)
+    set(HEADERS
+        include/gui/MainWindowLin.h
+        include/gui/GraphicsRectItem.h
+        include/gui/GraphicsScene.h
+    )
+
+    set(SOURCE_FILES
+        src/MainWindowLin.cpp
+        src/GraphicsRectItem.cpp
+        src/GraphicsScene.cpp
+    )
+
     set(CMAKE_PREFIX_PATH /home/krisukox/Qt/5.14.1/gcc_64)
     set(QT_QMAKE_EXECUTABLE /home/krisukox/Qt/5.14.1/gcc_64/bin/qmake)
     set(Qt5Core_DIR /home/krisukox/Qt/5.14.1/gcc_64/lib/cmake/Qt5Core)
@@ -25,6 +25,18 @@ endif(UNIX)
 
 
 if(WIN32)
+    set(HEADERS
+        include/gui/MainWindowWin.h
+        include/gui/GraphicsRectItem.h
+        include/gui/GraphicsScene.h
+    )
+
+    set(SOURCE_FILES
+        src/MainWindowWin.cpp
+        src/GraphicsRectItem.cpp
+        src/GraphicsScene.cpp
+    )
+
     set(CMAKE_PREFIX_PATH D:/Qt/5.14.1/msvc2017_64)
     set(QT_QMAKE_EXECUTABLE D:/Qt/5.14.1/msvc2017_64/bin/qmake)
     set(Qt5Core_DIR D:/Qt/5.14.1/msvc2017_64/lib/cmake/Qt5Core)
