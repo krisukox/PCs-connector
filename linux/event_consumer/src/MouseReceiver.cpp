@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 #include "connection/Sender.hpp"
+#include "interface/CursorGuard.hpp"
 #include "internal_types/Visitor.hpp"
 
 namespace
@@ -34,7 +35,7 @@ namespace event_consumer
 MouseReceiver::MouseReceiver(
     Display* _display,
     std::unique_ptr<connection::Sender> _sender,
-    std::shared_ptr<CursorGuard> _cursorGuard)
+    std::shared_ptr<commons::CursorGuard> _cursorGuard)
     : display{_display}
     , window{XRootWindow(display, 0)}
     , sender{std::move(_sender)}

@@ -21,6 +21,7 @@ target_link_libraries(event_consumer
     Xtst
     internal_types
     connection
+    interface
 )
 
 add_subdirectory(tests)

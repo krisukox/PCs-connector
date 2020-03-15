@@ -1,6 +1,15 @@
-add_library(interface INTERFACE)
-add_custom_target(interface_headers SOURCES include/interface/IApp.hpp)
+set(HEADERS
+    include/interface/IApp.hpp
+    include/interface/CursorGuard.hpp
+)
 
-target_include_directories(interface INTERFACE include)
-target_link_libraries(interface INTERFACE internal_types)
+set(SOURCE_FILES
+    src/IApp.cpp
+    src/CursorGuard.cpp
+)
+
+add_library(interface ${HEADERS} ${SOURCE_FILES})
+
+target_include_directories(interface PUBLIC include PRIVATE src)
+target_link_libraries(interface internal_types)
 

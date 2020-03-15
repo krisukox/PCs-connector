@@ -12,13 +12,10 @@
 
 namespace app_management
 {
-App::App()
-    : display{XOpenDisplay(nullptr)}
-    , socket{std::make_unique<connection::Socket>()}
-    , cursorGuard{std::make_shared<event_consumer::CursorGuard>(
-          XWidthOfScreen(XDefaultScreenOfDisplay(display)),
-          XHeightOfScreen(XDefaultScreenOfDisplay(display)))}
+App::App() : display{XOpenDisplay(nullptr)}, socket{std::make_unique<connection::Socket>()}
 {
+    cursorGuard = std::make_shared<commons::CursorGuard>(
+        XWidthOfScreen(XDefaultScreenOfDisplay(display)), XHeightOfScreen(XDefaultScreenOfDisplay(display)));
 }
 
 App::~App()
@@ -40,12 +37,12 @@ void App::start(int argc, char* argv[])
     socket->listen("10000", successfullConnection);
 }
 
-void App::setContactPoints(
-    const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
-    const internal_types::Point& diffPoint)
-{
-    cursorGuard->setContactPoints(contactPoints, diffPoint);
-}
+// void App::setContactPoints(
+//    const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
+//    const internal_types::Point& diffPoint)
+//{
+//    cursorGuard->setContactPoints(contactPoints, diffPoint);
+//}
 
 std::shared_ptr<event_consumer::IKeyboardReceiver> App::keyboardReceiverSelector(int argc, char* argv[])
 {
