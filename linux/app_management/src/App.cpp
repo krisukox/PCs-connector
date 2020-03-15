@@ -4,7 +4,6 @@
 #include "connection/Receiver.hpp"
 #include "connection/Sender.hpp"
 #include "connection/Socket.hpp"
-#include "event_consumer/CursorGuard.hpp"
 #include "event_consumer/KeyboardReceiver.hpp"
 #include "event_consumer/MouseReceiver.hpp"
 #include "event_consumer/TestKeyboardReceiver.hpp"
