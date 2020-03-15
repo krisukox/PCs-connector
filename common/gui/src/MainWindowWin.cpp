@@ -1,4 +1,4 @@
-#include "./ui_MainWindowLinux.h"
+#include "./ui_MainWindowWin.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -9,7 +9,7 @@
 #include "commons/CursorGuard.hpp"
 #include "gui/GraphicsRectItem.h"
 #include "gui/GraphicsScene.h"
-#include "gui/MainWindow.h"
+#include "gui/MainWindowWin.h"
 
 namespace
 {
