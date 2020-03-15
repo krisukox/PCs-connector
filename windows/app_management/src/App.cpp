@@ -13,9 +13,9 @@ namespace app_management
 {
 App::~App() = default;
 
-App::App() : socket{std::make_unique<connection::Socket>()}
+App::App(std::shared_ptr<commons::CursorGuard>&& _cursorGuard)
+    : commons::IApp(std::move(_cursorGuard)), socket{std::make_unique<connection::Socket>()}
 {
-    cursorGuard = std::make_shared<commons::CursorGuard>(1920, 1080);
 }
 
 void App::start(int argc, char* argv[])

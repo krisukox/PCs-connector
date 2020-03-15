@@ -9,8 +9,9 @@ class IApp
 {
 public:
     virtual ~IApp() = default;
+    IApp(std::shared_ptr<commons::CursorGuard>&&);
 
-    virtual void start(int, char* []) = 0;
+    virtual void start(int, char*[]) = 0;
     void setContactPoints(const std::pair<internal_types::Point, internal_types::Point>&, const internal_types::Point&);
 
 protected:

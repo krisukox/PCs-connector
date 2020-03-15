@@ -4,6 +4,11 @@
 #include "app_management/Console.hpp"
 #include "commons/IApp.hpp"
 
+namespace commons
+{
+class CursorGuard;
+}
+
 namespace connection
 {
 class Socket;
@@ -17,7 +22,7 @@ class Vendor;
 class App : public commons::IApp
 {
 public:
-    App();
+    App(std::shared_ptr<commons::CursorGuard>&&);
     ~App() override;
 
     void start(int, char*[]) override;
