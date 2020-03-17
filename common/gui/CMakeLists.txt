@@ -21,8 +21,6 @@ if(UNIX)
     set(Qt5Gui_DIR /home/krisukox/Qt/5.14.1/gcc_64/lib/cmake/Qt5Gui)
     set(Qt5Widgets_DIR /home/krisukox/Qt/5.14.1/gcc_64/lib/cmake/Qt5Widgets)
     set(Qt5_DIR /home/krisukox/Qt/5.14.1/gcc_64/lib/cmake/Qt5)
-
-    find_package(Qt5 COMPONENTS Widgets REQUIRED)
 endif(UNIX)
 
 
@@ -33,9 +31,9 @@ if(WIN32)
     set(Qt5Gui_DIR D:/Qt/5.14.1/msvc2017_64/lib/cmake/Qt5Gui)
     set(Qt5_DIR D:/Qt/5.14.1/msvc2017_64/lib/cmake/Qt5)
     set(Qt5Widgets_DIR D:/Qt/5.14.1/msvc2017_64/lib/cmake/Qt5Widgets)
-
-    find_package(Qt5 COMPONENTS Widgets REQUIRED)
 endif(WIN32)
+
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 add_library(gui ${HEADERS} ${SOURCE_FILES} ${costam})
 target_include_directories(gui PUBLIC include PRIVATE src)
