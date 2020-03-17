@@ -25,7 +25,7 @@ App::~App()
     XCloseDisplay(display);
 }
 
-void App::start(int argc, char* argv[])
+void App::listen(int argc, char* argv[])
 {
     auto successfullConnection = [this, argc, argv](boost::asio::ip::tcp::socket& socket) {
         std::make_shared<Consumer>(

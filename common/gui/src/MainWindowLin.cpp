@@ -1,5 +1,6 @@
 #include "./ui_MainWindowLin.h"
 
+#include <QCoreApplication>
 #include <QMouseEvent>
 #include <QScreen>
 #include "app_management/App.hpp"
@@ -107,7 +108,7 @@ MainWindow::MainWindow(QWidget* parent)
     QCoreApplication::sendEvent(scene, &event);
 
     appThread =
-        std::thread(&commons::IApp::start, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
+        std::thread(&commons::IApp::listen, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
 }
 
 MainWindow::~MainWindow()

@@ -12,7 +12,8 @@ public:
     virtual ~IApp() = default;
     IApp(std::shared_ptr<commons::CursorGuard>&&);
 
-    virtual void connect(const boost::asio::ip::address&) = 0;
+    virtual void connect(const boost::asio::ip::address&);
+    virtual void listen(int, char* []);
     void setContactPoints(const std::pair<internal_types::Point, internal_types::Point>&, const internal_types::Point&);
 
 protected:
