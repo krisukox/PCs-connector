@@ -35,7 +35,7 @@ endif(WIN32)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
-add_library(gui ${HEADERS} ${SOURCE_FILES} ${costam})
+add_library(gui ${HEADERS} ${SOURCE_FILES})
 target_include_directories(gui PUBLIC include PRIVATE src)
 
 target_link_libraries(gui
