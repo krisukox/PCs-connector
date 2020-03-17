@@ -1,3 +1,7 @@
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
 set(HEADERS
     include/gui/MainWindow.h
     include/gui/GraphicsRectItem.h
@@ -9,10 +13,6 @@ set(SOURCE_FILES
     src/GraphicsRectItem.cpp
     src/GraphicsScene.cpp
 )
-
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
 
 if(UNIX)
     set(CMAKE_PREFIX_PATH /home/krisukox/Qt/5.14.1/gcc_64)

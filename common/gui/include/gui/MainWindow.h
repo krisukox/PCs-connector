@@ -27,6 +27,10 @@ public:
     Ui::MainWindow* ui;
     std::unique_ptr<commons::IApp> app;
 
+private slots:
+    void handleConnectButton();
+    void handleStartButton();
+
 private:
     std::thread appThread;
 

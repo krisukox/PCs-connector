@@ -11,5 +11,8 @@ set(SOURCE_FILES
 add_library(commons ${HEADERS} ${SOURCE_FILES})
 
 target_include_directories(commons PUBLIC include PRIVATE src)
-target_link_libraries(commons internal_types)
+target_link_libraries(commons
+    internal_types
+    Boost::system
+)
 

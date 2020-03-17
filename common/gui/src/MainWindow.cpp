@@ -1,7 +1,13 @@
-#include "./ui_MainWindow.h"
+#include "ui_MainWindow.h"
 
+#include <QCoreApplication>
+#include <QDebug>
+#include <QGuiApplication>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMouseEvent>
 #include <QScreen>
+#include <boost/asio.hpp>
 #include "app_management/App.hpp"
 #include "commons/CursorGuard.hpp"
 #include "gui/GraphicsRectItem.h"
@@ -67,6 +73,8 @@ MainWindow::MainWindow(QWidget* parent)
     , SLAVE_SIZE{getSlaveSize()}
 {
     ui->setupUi(this);
+    connect(ui->connectButton, SIGNAL(released()), this, SLOT(handleConnectButton()));
+    connect(ui->startButton, SIGNAL(released()), this, SLOT(handleStartButton()));
 
     auto setContactPoints = [this](const std::pair<QPointF, QPointF>& contactPoints, const QPointF& diffPoint) {
         this->app->setContactPoints(
@@ -77,8 +85,7 @@ MainWindow::MainWindow(QWidget* parent)
             {static_cast<short>(diffPoint.x() * SCREEN_SIZE_MULTIPLIER),
              static_cast<short>(diffPoint.y() * SCREEN_SIZE_MULTIPLIER)});
     };
-    auto scene = new GraphicsScene(0, 0, 598, 598, std::move(setContactPoints));
-
+    auto scene = new GraphicsScene(0, 0, 448, 448, std::move(setContactPoints));
     ui->graphicsView->setScene(scene);
 
     GraphicsRectItem* item = new GraphicsRectItem(
@@ -99,6 +106,7 @@ MainWindow::MainWindow(QWidget* parent)
     item->setX(100);
     item->setY(100);
     item2->setZValue(1);
+    item2->setY(160);
     item->setZValue(0);
     scene->addItem(item);
     scene->addItem(item2);
@@ -106,8 +114,37 @@ MainWindow::MainWindow(QWidget* parent)
     QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
     QCoreApplication::sendEvent(scene, &event);
 
+    ui->infoLabel->setText("");
+}
+
+void MainWindow::handleConnectButton()
+{
+    if (qApp->arguments().size() == 2)
+    {
+        auto address = boost::asio::ip::make_address(convertToArgv(qApp->arguments())[1]);
+        appThread = std::thread(&commons::IApp::connect, app.get(), address);
+    }
+    else
+    {
+        boost::system::error_code errorCode;
+        auto address = boost::asio::ip::make_address(ui->inputIpAddress->text().toStdString(), errorCode);
+        if (!errorCode.failed())
+        {
+            appThread = std::thread(&commons::IApp::connect, app.get(), address);
+            ui->infoLabel->setText("");
+        }
+        else
+        {
+            ui->infoLabel->setText("Ip address not correct");
+        }
+    }
+}
+
+void MainWindow::handleStartButton()
+{
+    qDebug() << "START";
     appThread =
-        std::thread(&commons::IApp::start, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
+        std::thread(&commons::IApp::listen, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
 }
 
 MainWindow::~MainWindow()
