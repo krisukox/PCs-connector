@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QGuiApplication>
+#include <QLabel>
 #include <QLineEdit>
 #include <QMouseEvent>
 #include <QScreen>
@@ -107,12 +108,15 @@ MainWindow::MainWindow(QWidget* parent)
     item->setX(100);
     item->setY(100);
     item2->setZValue(1);
+    item2->setY(160);
     item->setZValue(0);
     scene->addItem(item);
     scene->addItem(item2);
 
     QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
     QCoreApplication::sendEvent(scene, &event);
+
+    ui->infoLabel->setText("");
 }
 
 void MainWindow::handleConnectButton()
@@ -120,12 +124,21 @@ void MainWindow::handleConnectButton()
     if (qApp->arguments().size() == 2)
     {
         auto address = boost::asio::ip::make_address(convertToArgv(qApp->arguments())[1]);
-        appThread = std::thread(&commons::IApp::startConnection, app.get(), address);
+        appThread = std::thread(&commons::IApp::connect, app.get(), address);
     }
     else
     {
-        auto address = boost::asio::ip::make_address("192.168.1.10");
-        appThread = std::thread(&commons::IApp::startConnection, app.get(), address);
+        boost::system::error_code errorCode;
+        auto address = boost::asio::ip::make_address(ui->inputIpAddress->text().toStdString(), errorCode);
+        if (!errorCode.failed())
+        {
+            appThread = std::thread(&commons::IApp::connect, app.get(), address);
+            ui->infoLabel->setText("");
+        }
+        else
+        {
+            ui->infoLabel->setText("Ip address not correct");
+        }
     }
 }
 

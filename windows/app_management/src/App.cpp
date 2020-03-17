@@ -18,7 +18,7 @@ App::App(std::shared_ptr<commons::CursorGuard>&& _cursorGuard)
 {
 }
 
-void App::startConnection(const boost::asio::ip::address& address)
+void App::connect(const boost::asio::ip::address& address)
 try
 {
     auto port = std::string("10000");
