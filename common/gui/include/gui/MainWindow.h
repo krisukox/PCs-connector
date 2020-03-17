@@ -29,6 +29,7 @@ public:
 
 private slots:
     void handleConnectButton();
+    void handleStartButton();
 
 private:
     std::thread appThread;
