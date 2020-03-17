@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ISerializer.hpp"
+#include "internal_types/ScreenResolution.hpp"
 
 namespace internal_types
 {
@@ -11,6 +12,7 @@ public:
 
     ~Serializer() override = default;
     Buffer encode(const Event&) const override;
+    Buffer encode(const ScreenResolution&) const;
 
 private:
     Buffer encode(const MouseEvent&) const;

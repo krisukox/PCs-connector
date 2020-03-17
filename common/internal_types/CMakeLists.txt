@@ -29,6 +29,7 @@ if(WIN32)
         include/internal_types/Point.hpp
         include/internal_types/Serializer.hpp
         include/internal_types/Visitor.hpp
+        include/internal_types/ScreenResolution.hpp
     )
 
     set(SOURCE_FILES
