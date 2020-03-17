@@ -84,7 +84,7 @@ MainWindow::MainWindow(QWidget* parent)
             {static_cast<short>(diffPoint.x() * SCREEN_SIZE_MULTIPLIER),
              static_cast<short>(diffPoint.y() * SCREEN_SIZE_MULTIPLIER)});
     };
-    auto scene = new GraphicsScene(0, 0, 498, 398, std::move(setContactPoints));
+    auto scene = new GraphicsScene(0, 0, 448, 448, std::move(setContactPoints));
 
     QGraphicsView* gr_view = ui->graphicsView;
 
