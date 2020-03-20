@@ -1,6 +1,8 @@
 #pragma once
 
 #include <X11/Xlib.h>
+#include <stdexcept>
+#include <type_traits>
 #include <unordered_map>
 #include <variant>
 #include "IDeserializer.hpp"
@@ -16,10 +18,40 @@ public:
     Deserializer(Display*);
 
     ~Deserializer() = default;
-    internal_types::Event decode(const internal_types::Buffer&) const;
+
+    template <class T>
+    T foo()
+    {
+    }
+    template <>
+    int foo<int>()
+    {
+    }
+
+    template <class T>
+    T decode(const internal_types::Buffer& buffer)
+    {
+        if (std::is_same<T, internal_types::Event>::value)
+        {
+            return decodeEvent(buffer);
+        }
+        if (std::is_same<T, internal_types::ScreenResolution>::value)
+        {
+            return decodeScreenResolution(buffer);
+        }
+        //        throw std::runtime_error<>;
+    }
+
+    template <>
+    internal_types::Event decode<internal_types::Event>(const internal_types::Buffer&)
+    {
+        return {};
+    }
 
 private:
+    internal_types::Event decodeEvent(const internal_types::Buffer&) const;
     internal_types::ScreenResolution decodeScreenResolution(const internal_types::Buffer&) const;
+
     KeyCode decodeKeyCode(const std::byte&) const;
     bool decodeKeyState(const std::byte&) const;
     MouseMoveEvent decodeMouseMoveEvent(const internal_types::Buffer&) const;

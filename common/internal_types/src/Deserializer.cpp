@@ -131,6 +131,24 @@ Deserializer::Deserializer(Display* display_)
 {
 }
 
+// template <class T>
+// T Deserializer::decode(const internal_types::Buffer& buffer)
+//{
+//    if (std::is_same<T, internal_types::Event>::value)
+//    {
+//        return decodeEvent(buffer);
+//    }
+//    if (std::is_same<T, internal_types::ScreenResolution>::value)
+//    {
+//        return decodeScreenResolution(buffer);
+//    }
+//    //    throw std::runtime_error<>
+//}
+// template <>
+// internal_types::ScreenResolution Deserializer::decode<internal_types::ScreenResolution>(internal_types::Buffer&)
+//{
+//}
+
 internal_types::ScreenResolution Deserializer::decodeScreenResolution(const internal_types::Buffer& buffer) const
 {
     if (buffer[0] == screenResolutionByte)
@@ -140,7 +158,7 @@ internal_types::ScreenResolution Deserializer::decodeScreenResolution(const inte
     return {};
 }
 
-std::variant<KeyEvent, MouseEvent> Deserializer::decode(const internal_types::Buffer& buffer) const try
+internal_types::Event Deserializer::decodeEvent(const internal_types::Buffer& buffer) const try
 {
     if (buffer[0] == std::byte{0b00000001}) // Keyboard Click
     {
