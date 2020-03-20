@@ -20,33 +20,7 @@ public:
     ~Deserializer() = default;
 
     template <class T>
-    T foo()
-    {
-    }
-    template <>
-    int foo<int>()
-    {
-    }
-
-    template <class T>
-    T decode(const internal_types::Buffer& buffer)
-    {
-        if (std::is_same<T, internal_types::Event>::value)
-        {
-            return decodeEvent(buffer);
-        }
-        if (std::is_same<T, internal_types::ScreenResolution>::value)
-        {
-            return decodeScreenResolution(buffer);
-        }
-        //        throw std::runtime_error<>;
-    }
-
-    template <>
-    internal_types::Event decode<internal_types::Event>(const internal_types::Buffer&)
-    {
-        return {};
-    }
+    T decode(const internal_types::Buffer& buffer);
 
 private:
     internal_types::Event decodeEvent(const internal_types::Buffer&) const;

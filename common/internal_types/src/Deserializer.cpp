@@ -131,23 +131,18 @@ Deserializer::Deserializer(Display* display_)
 {
 }
 
-// template <class T>
-// T Deserializer::decode(const internal_types::Buffer& buffer)
-//{
-//    if (std::is_same<T, internal_types::Event>::value)
-//    {
-//        return decodeEvent(buffer);
-//    }
-//    if (std::is_same<T, internal_types::ScreenResolution>::value)
-//    {
-//        return decodeScreenResolution(buffer);
-//    }
-//    //    throw std::runtime_error<>
-//}
-// template <>
-// internal_types::ScreenResolution Deserializer::decode<internal_types::ScreenResolution>(internal_types::Buffer&)
-//{
-//}
+template <>
+internal_types::ScreenResolution Deserializer::decode<internal_types::ScreenResolution>(
+    const internal_types::Buffer& buffer)
+{
+    return decodeScreenResolution(buffer);
+}
+
+template <>
+internal_types::Event Deserializer::decode<internal_types::Event>(const internal_types::Buffer& buffer)
+{
+    return decodeEvent(buffer);
+}
 
 internal_types::ScreenResolution Deserializer::decodeScreenResolution(const internal_types::Buffer& buffer) const
 {
