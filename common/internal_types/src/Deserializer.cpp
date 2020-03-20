@@ -75,12 +75,19 @@ short toShort(const std::byte lv, const std::byte rv)
     return static_cast<short>((std::to_integer<uint8_t>(lv) << 8) + std::to_integer<uint8_t>(rv));
 }
 
+std::uint16_t toUInt(const std::byte lv, const std::byte rv)
+{
+    return (std::to_integer<uint8_t>(lv) << 8) + std::to_integer<uint8_t>(rv);
+}
+
 constexpr auto leftButtonPressed{std::to_integer<std::uint8_t>(std::byte{0b00000001})};
 constexpr auto leftButtonUnpressed{std::to_integer<std::uint8_t>(std::byte{0b00000010})};
 constexpr auto rightButtonPressed{std::to_integer<std::uint8_t>(std::byte{0b00000100})};
 constexpr auto rightButtonUnpressed{std::to_integer<std::uint8_t>(std::byte{0b00001000})};
 constexpr auto middleButtonPressed{std::to_integer<std::uint8_t>(std::byte{0b00010000})};
 constexpr auto middleButtonUnpressed{std::to_integer<std::uint8_t>(std::byte{0b00100000})};
+
+constexpr std::byte screenResolutionByte{0b00100000};
 } // namespace
 
 namespace internal_types
@@ -122,6 +129,15 @@ Deserializer::Deserializer(Display* display_)
           {WIN_Num_Lock, XKeysymToKeycode(display, XK_Num_Lock)},
       }
 {
+}
+
+internal_types::ScreenResolution Deserializer::decodeScreenResolution(const internal_types::Buffer& buffer) const
+{
+    if (buffer[0] == screenResolutionByte)
+    {
+        return {toUInt(buffer[1], buffer[2]), toUInt(buffer[3], buffer[4])};
+    }
+    return {};
 }
 
 std::variant<KeyEvent, MouseEvent> Deserializer::decode(const internal_types::Buffer& buffer) const try

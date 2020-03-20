@@ -8,6 +8,7 @@
 #include "event_consumer/MouseReceiver.hpp"
 #include "event_consumer/TestKeyboardReceiver.hpp"
 #include "internal_types/Deserializer.hpp"
+#include "internal_types/ScreenResolution.hpp"
 
 namespace app_management
 {
@@ -28,11 +29,22 @@ App::~App()
 void App::listen(int argc, char* argv[])
 {
     auto successfullConnection = [this, argc, argv](boost::asio::ip::tcp::socket& socket) {
+        auto receiver =
+            std::make_shared<connection::Receiver>(socket, std::make_unique<internal_types::Deserializer>(display));
+
+        auto successfullCallback = [](const internal_types::ScreenResolution& event) {
+            std::cout << "ScreenResolution received \n";
+        };
+        auto unsuccessfullCallback = [](const boost::system::error_code&) {};
+
+        //        receiver->receive<internal_types::ScreenResolution>(
+        //            std::move(successfullCallback), std::move(unsuccessfullCallback));
+
         std::make_shared<Consumer>(
             keyboardReceiverSelector(argc, argv),
             std::make_shared<event_consumer::MouseReceiver>(
                 display, std::make_unique<connection::Sender>(socket), cursorGuard),
-            std::make_shared<connection::Receiver>(socket, std::make_unique<internal_types::Deserializer>(display)))
+            std::move(receiver))
             ->start();
     };
 

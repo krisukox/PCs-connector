@@ -11,7 +11,7 @@ namespace app_management
 Consumer::Consumer(
     std::shared_ptr<event_consumer::IKeyboardReceiver> _keyReceiver,
     std::shared_ptr<event_consumer::IMouseReceiver> _mouseReceiver,
-    std::shared_ptr<connection::IReceiver> _receiver)
+    std::shared_ptr<connection::Receiver> _receiver)
     : keyReceiver{std::move(_keyReceiver)}, mouseReceiver{std::move(_mouseReceiver)}, receiver{_receiver}
 {
 }
@@ -40,6 +40,6 @@ void Consumer::readBody()
         }
     };
 
-    receiver->receive(std::move(successfullCallback), std::move(unsuccessfullCallback));
+    receiver->receive<internal_types::Event>(std::move(successfullCallback), std::move(unsuccessfullCallback));
 }
 } // namespace app_management

@@ -6,6 +6,7 @@
 #include "IDeserializer.hpp"
 #include "KeyEvent.hpp"
 #include "MouseEvent.hpp"
+#include "ScreenResolution.hpp"
 
 namespace internal_types
 {
@@ -18,6 +19,7 @@ public:
     internal_types::Event decode(const internal_types::Buffer&) const override;
 
 private:
+    internal_types::ScreenResolution decodeScreenResolution(const internal_types::Buffer&) const;
     KeyCode decodeKeyCode(const std::byte&) const;
     bool decodeKeyState(const std::byte&) const;
     MouseMoveEvent decodeMouseMoveEvent(const internal_types::Buffer&) const;

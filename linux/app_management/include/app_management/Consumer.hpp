@@ -5,7 +5,7 @@
 
 namespace connection
 {
-class IReceiver;
+class Receiver;
 }
 
 namespace event_consumer
@@ -24,7 +24,7 @@ public:
     Consumer(
         std::shared_ptr<event_consumer::IKeyboardReceiver>,
         std::shared_ptr<event_consumer::IMouseReceiver>,
-        std::shared_ptr<connection::IReceiver>);
+        std::shared_ptr<connection::Receiver>);
     void start();
 
 private:
@@ -33,6 +33,6 @@ private:
 
     std::shared_ptr<event_consumer::IKeyboardReceiver> keyReceiver;
     std::shared_ptr<event_consumer::IMouseReceiver> mouseReceiver;
-    std::shared_ptr<connection::IReceiver> receiver;
+    std::shared_ptr<connection::Receiver> receiver;
 };
 } // namespace app_management
