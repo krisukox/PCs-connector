@@ -10,13 +10,13 @@
 
 namespace internal_types
 {
-class Deserializer : public IDeserializer
+class Deserializer
 {
 public:
     Deserializer(Display*);
 
-    ~Deserializer() override = default;
-    internal_types::Event decode(const internal_types::Buffer&) const override;
+    ~Deserializer() = default;
+    internal_types::Event decode(const internal_types::Buffer&) const;
 
 private:
     internal_types::ScreenResolution decodeScreenResolution(const internal_types::Buffer&) const;

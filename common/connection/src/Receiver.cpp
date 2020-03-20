@@ -6,7 +6,7 @@
 
 namespace connection
 {
-Receiver::Receiver(boost::asio::ip::tcp::socket& socket_, std::unique_ptr<internal_types::IDeserializer> deserializer)
+Receiver::Receiver(boost::asio::ip::tcp::socket& socket_, std::unique_ptr<internal_types::Deserializer> deserializer)
     : socket{socket_}, deserializer{std::move(deserializer)}
 {
     buffer.fill(std::byte{0});

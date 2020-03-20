@@ -4,7 +4,7 @@
 #include <type_traits>
 #include "connection/IReceiver.hpp"
 #include "internal_types/CommonTypes.hpp"
-#include "internal_types/IDeserializer.hpp"
+#include "internal_types/Deserializer.hpp"
 #include "memory"
 
 namespace connection
@@ -12,7 +12,7 @@ namespace connection
 class Receiver
 {
 public:
-    Receiver(boost::asio::ip::tcp::socket&, std::unique_ptr<internal_types::IDeserializer>);
+    Receiver(boost::asio::ip::tcp::socket&, std::unique_ptr<internal_types::Deserializer>);
 
     //    void receive(SuccessfulCallback, UnsuccessfulCallback) override;
     template <class T>
@@ -42,7 +42,7 @@ public:
 
 private:
     boost::asio::ip::tcp::socket& socket;
-    std::unique_ptr<internal_types::IDeserializer> deserializer;
+    std::unique_ptr<internal_types::Deserializer> deserializer;
 
     internal_types::Buffer buffer;
 };
