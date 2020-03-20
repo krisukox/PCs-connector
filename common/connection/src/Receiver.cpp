@@ -12,19 +12,19 @@ Receiver::Receiver(boost::asio::ip::tcp::socket& socket_, std::unique_ptr<intern
     buffer.fill(std::byte{0});
 }
 
-void Receiver::receive(SuccessfulCallback successfullCallback, UnsuccessfulCallback unsuccessfullCallback)
-{
-    socket.async_receive(
-        boost::asio::buffer(buffer, 5),
-        [this, successfullCallback, unsuccessfullCallback](boost::system::error_code errorCode, std::size_t size) {
-            if (size > 0 && !errorCode)
-            {
-                successfullCallback(deserializer->decode(buffer));
-            }
-            else
-            {
-                unsuccessfullCallback(errorCode);
-            }
-        });
-}
+// void Receiver::receive(SuccessfulCallback successfullCallback, UnsuccessfulCallback unsuccessfullCallback)
+//{
+//    socket.async_receive(
+//        boost::asio::buffer(buffer, 5),
+//        [this, successfullCallback, unsuccessfullCallback](boost::system::error_code errorCode, std::size_t size) {
+//            if (size > 0 && !errorCode)
+//            {
+//                successfullCallback(deserializer->decode(buffer));
+//            }
+//            else
+//            {
+//                unsuccessfullCallback(errorCode);
+//            }
+//        });
+//}
 } // namespace connection

@@ -8,6 +8,7 @@
 #include "event_vendor/KeyboardSender.hpp"
 #include "event_vendor/MouseSender.hpp"
 #include "internal_types/DeserializerWin.hpp"
+#include "internal_types/ScreenResolution.hpp"
 
 namespace app_management
 {
@@ -42,6 +43,15 @@ void App::initializeVendor()
     auto receiver =
         std::make_shared<connection::Receiver>(socket->value(), std::make_unique<internal_types::Deserializer>());
     auto sender = std::make_shared<connection::Sender>(socket->value());
+
+    sender->send(internal_types::ScreenResolution{1920, 1080});
+    //    receiver->receive(
+    //        [](internal_types::ScreenResolution) {
+
+    //        },
+    //        [](boost::system::error_code ec) {
+
+    //        });
 
     auto keyboard = std::make_shared<event_vendor::KeyboardSender>(sender);
     auto mouse = std::make_shared<event_vendor::MouseSender>(sender, cursorGuard);

@@ -11,10 +11,15 @@ public:
     Serializer() = default;
 
     ~Serializer() override = default;
+    template <class T>
+    Buffer encode(const T& event) const
+    {
+        return encode(event);
+    }
     Buffer encode(const Event&) const override;
-    Buffer encode(const ScreenResolution&) const;
 
 private:
+    Buffer encode(const ScreenResolution&) const;
     Buffer encode(const MouseEvent&) const;
     Buffer encode(const KeyEvent&) const;
     Buffer encode(const MouseMoveEvent&) const;
