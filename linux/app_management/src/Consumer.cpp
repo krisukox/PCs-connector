@@ -18,7 +18,22 @@ Consumer::Consumer(
 
 void Consumer::start()
 {
-    readBody();
+    //    std::this_thread::sleep_for(std::chrono::seconds(2));
+    unsigned long long index = 0;
+    while (true)
+    {
+        index++;
+        if (index == 5000000000)
+        {
+            break;
+        }
+        if (index % 1000000000 == 0)
+        {
+            //            index = 0;
+            std::cout << " !START " << pthread_self() << std::endl;
+        }
+    }
+    //    readBody();
 }
 
 void Consumer::readBody()

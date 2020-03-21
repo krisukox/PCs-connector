@@ -8,11 +8,24 @@
 #include <QMouseEvent>
 #include <QScreen>
 #include <boost/asio.hpp>
+#include <iostream>
 #include "app_management/App.hpp"
 #include "commons/CursorGuard.hpp"
 #include "gui/GraphicsRectItem.h"
 #include "gui/GraphicsScene.h"
 #include "gui/MainWindow.h"
+#include "gui/ScreenResolutionMsg.h"
+#include "internal_types/ScreenResolution.hpp"
+
+Thread::Thread(commons::IApp& _app, int _argc, char** _argv, commons::IApp::SetScreenResolution _setScreenResolution)
+    : app{_app}, argc{_argc}, argv{_argv}, setScreenResolution{_setScreenResolution}
+{
+}
+
+void Thread::run()
+{
+    app.listen(argc, argv, setScreenResolution);
+}
 
 namespace
 {
@@ -88,6 +101,13 @@ MainWindow::MainWindow(QWidget* parent)
     auto scene = new GraphicsScene(0, 0, 448, 448, std::move(setContactPoints));
     ui->graphicsView->setScene(scene);
 
+    ui->infoLabel->setText("");
+}
+
+void MainWindow::addScreensToScene(const QSize& slaveSize)
+{
+    auto masterSize = getMasterSize();
+
     GraphicsRectItem* item = new GraphicsRectItem(
         QRectF(0, 0, MASTER_SIZE.width() / SCREEN_SIZE_MULTIPLIER, MASTER_SIZE.height() / SCREEN_SIZE_MULTIPLIER),
         GraphicsRectItem::ScreenType::master);
@@ -108,13 +128,20 @@ MainWindow::MainWindow(QWidget* parent)
     item2->setZValue(1);
     item2->setY(160);
     item->setZValue(0);
-    scene->addItem(item);
-    scene->addItem(item2);
 
-    QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
-    QCoreApplication::sendEvent(scene, &event);
+    GraphicsScene* scene = dynamic_cast<GraphicsScene*>(ui->graphicsView->scene());
+    if (scene)
+    {
+        scene->addItem(item);
+        scene->addItem(item2);
 
-    ui->infoLabel->setText("");
+        QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
+        QCoreApplication::sendEvent(scene, &event);
+    }
+
+    //    ui->graphicsView->scene()->update();
+
+    qDebug() << "QT addScreensToScene END";
 }
 
 void MainWindow::handleConnectButton()
@@ -142,9 +169,12 @@ void MainWindow::handleConnectButton()
 
 void MainWindow::handleStartButton()
 {
-    qDebug() << "START";
-    appThread =
-        std::thread(&commons::IApp::listen, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
+    auto setSlaveScreenResolution = [this](const internal_types::ScreenResolution& screenResolution) {
+        std::cout << "giouajwidujawd" << std::endl;
+        qDebug() << "QT setSlaveScreenResolution";
+        addScreensToScene(QSize(screenResolution.width, screenResolution.height));
+    };
+    app->listen(qApp->arguments().size(), convertToArgv(qApp->arguments()), std::move(setSlaveScreenResolution));
 }
 
 MainWindow::~MainWindow()

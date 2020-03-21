@@ -1,6 +1,8 @@
 #pragma once
 
 #include <boost/asio.hpp>
+#include <boost/asio/socket_base.hpp>
+#include <iostream>
 #include <type_traits>
 #include "connection/IReceiver.hpp"
 #include "internal_types/CommonTypes.hpp"
@@ -22,6 +24,7 @@ public:
         socket.async_receive(
             boost::asio::buffer(buffer, 5),
             [this, successfulCallback, unsuccessfulCallback](boost::system::error_code errorCode, std::size_t size) {
+                std::cout << "RECEIVED\n";
                 if (size > 0 && !errorCode)
                 {
                     auto decoded = deserializer->decode(buffer);
@@ -45,6 +48,58 @@ public:
                     unsuccessfulCallback(errorCode);
                 }
             });
+    }
+
+    template <class T>
+    void synchronizedReceive(std::function<void(T)> successfulCallback, UnsuccessfulCallback unsuccessfulCallback)
+    {
+        if (socket.receive(boost::asio::buffer(buffer, 5)) != 5)
+        {
+            std::cout << "NOT EQUAL 5!!!!!!!!!" << std::endl;
+        }
+        auto decoded = deserializer->decode(buffer);
+
+        if (decoded)
+        {
+            std::visit(
+                internal_types::Visitor{
+                    [successfulCallback](const T& value) { successfulCallback(value); },
+                    [unsuccessfulCallback](const auto&) {},
+                },
+                decoded.value());
+        }
+        else
+        {
+            std::cout << "UNABLE TO DECODE" << std::endl;
+        }
+        //        socket.async_receive(
+        //            boost::asio::buffer(buffer, 5),
+        //            [this, successfulCallback, unsuccessfulCallback](boost::system::error_code errorCode, std::size_t
+        //            size) {
+        //                if (size > 0 && !errorCode)
+        //                {
+        //                    auto decoded = deserializer->decode(buffer);
+
+        //                    if (decoded)
+        //                    {
+        //                        std::visit(
+        //                            internal_types::Visitor{
+        //                                [successfulCallback](const T& value) { successfulCallback(value); },
+        //                                [unsuccessfulCallback, errorCode](const auto&) {
+        //                                unsuccessfulCallback(errorCode); },
+        //                            },
+        //                            decoded.value());
+        //                    }
+        //                    else
+        //                    {
+        //                        unsuccessfulCallback(errorCode);
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    unsuccessfulCallback(errorCode);
+        //                }
+        //            });
     }
 
 private:

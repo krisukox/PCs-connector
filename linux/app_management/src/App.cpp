@@ -1,5 +1,7 @@
 #include "app_management/App.hpp"
+#include <sys/types.h>
 #include <iostream>
+#include <unistd.h>
 #include "app_management/Consumer.hpp"
 #include "connection/Receiver.hpp"
 #include "connection/Sender.hpp"
@@ -26,26 +28,36 @@ App::~App()
     XCloseDisplay(display);
 }
 
-void App::listen(int argc, char* argv[])
+void App::listen(int argc, char* argv[], commons::IApp::SetScreenResolution setScreenResolution)
 {
-    auto successfullConnection = [this, argc, argv](boost::asio::ip::tcp::socket& socket) {
+    std::cout << " LISTEN1 " << pthread_self() << std::endl;
+
+    auto successfullConnection = [this, argc, argv, setScreenResolution](boost::asio::ip::tcp::socket& socket) {
+        std::cout << " LISTEN2 " << pthread_self() << std::endl;
         auto receiver =
             std::make_shared<connection::Receiver>(socket, std::make_unique<internal_types::Deserializer>(display));
 
-        auto successfullCallback = [](const internal_types::ScreenResolution& event) {
-            std::cout << "ScreenResolution received \n";
+        auto successfullCallback = [setScreenResolution](const internal_types::ScreenResolution& screenResolution) {
+            std::cout << " LISTEN3 " << pthread_self() << std::endl;
+            std::cout << "ScreenResolution received" << screenResolution.width << " " << screenResolution.height
+                      << std::endl;
+            if (setScreenResolution == nullptr)
+            {
+                std::cout << "NULL PTR" << std::endl;
+            }
+            if (setScreenResolution) setScreenResolution(screenResolution);
         };
         auto unsuccessfullCallback = [](const boost::system::error_code&) {};
-
-        //        receiver->receive<internal_types::ScreenResolution>(
-        //            std::move(successfullCallback), std::move(unsuccessfullCallback));
-
-        std::make_shared<Consumer>(
-            keyboardReceiverSelector(argc, argv),
-            std::make_shared<event_consumer::MouseReceiver>(
-                display, std::make_unique<connection::Sender>(socket), cursorGuard),
-            std::move(receiver))
-            ->start();
+        std::cout << " LISTEN4 " << pthread_self() << std::endl;
+        receiver->synchronizedReceive<internal_types::ScreenResolution>(
+            std::move(successfullCallback), std::move(unsuccessfullCallback));
+        std::cout << "FKUNAWD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+        //        std::make_shared<Consumer>(
+        //            keyboardReceiverSelector(argc, argv),
+        //            std::make_shared<event_consumer::MouseReceiver>(
+        //                display, std::make_unique<connection::Sender>(socket), cursorGuard),
+        //            std::move(receiver))
+        //            ->start();
     };
 
     socket->listen("10000", successfullConnection);
