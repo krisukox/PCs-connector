@@ -5,6 +5,7 @@
 #include "connection/IReceiver.hpp"
 #include "internal_types/CommonTypes.hpp"
 #include "internal_types/Deserializer.hpp"
+#include "internal_types/Visitor.hpp"
 #include "memory"
 
 namespace connection
@@ -23,10 +24,16 @@ public:
             [this, successfulCallback, unsuccessfulCallback](boost::system::error_code errorCode, std::size_t size) {
                 if (size > 0 && !errorCode)
                 {
-                    auto decoded = deserializer->decode<T>(buffer);
+                    auto decoded = deserializer->decode(buffer);
+
                     if (decoded)
                     {
-                        successfulCallback(decoded.value());
+                        std::visit(
+                            internal_types::Visitor{
+                                [successfulCallback](const T& value) { successfulCallback(value); },
+                                [unsuccessfulCallback, errorCode](const auto&) { unsuccessfulCallback(errorCode); },
+                            },
+                            decoded.value());
                     }
                     else
                     {

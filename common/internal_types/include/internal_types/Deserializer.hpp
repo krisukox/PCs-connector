@@ -20,13 +20,15 @@ public:
 
     ~Deserializer() = default;
 
-    template <class T>
-    std::optional<T> decode(const internal_types::Buffer& buffer);
+    std::optional<DecodedType> decode(const internal_types::Buffer& buffer) const;
 
 private:
+    DecodedType decodeInternal(const internal_types::Buffer& buffer) const;
+
     internal_types::ScreenResolution decodeScreenResolution(const internal_types::Buffer&) const;
     std::optional<internal_types::Event> decodeEvent(const internal_types::Buffer&) const;
 
+    KeyEvent decodeKeyEvent(const internal_types::Buffer& buffer) const;
     KeyCode decodeKeyCode(const std::byte&) const;
     bool decodeKeyState(const std::byte&) const;
     MouseMoveEvent decodeMouseMoveEvent(const internal_types::Buffer&) const;

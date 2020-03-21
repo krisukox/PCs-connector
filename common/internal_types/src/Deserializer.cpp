@@ -1,6 +1,7 @@
 #include "internal_types/Deserializer.hpp"
 #include <X11/keysym.h>
 #include <cstddef>
+#include "internal_types/SerializedValues.hpp"
 
 namespace
 {
@@ -70,9 +71,6 @@ constexpr std::byte WIN_DIVIDE{0x6F};
 
 constexpr std::byte WIN_Num_Lock{0x90};
 
-constexpr std::byte True_{0b00001111};
-constexpr std::byte False_{0b00000000};
-
 short toShort(const std::byte lv, const std::byte rv)
 {
     return static_cast<short>((std::to_integer<uint8_t>(lv) << 8) + std::to_integer<uint8_t>(rv));
@@ -134,13 +132,11 @@ Deserializer::Deserializer(Display* display_)
 {
 }
 
-template <>
-std::optional<internal_types::ScreenResolution> Deserializer::decode<internal_types::ScreenResolution>(
-    const internal_types::Buffer& buffer)
+std::optional<DecodedType> Deserializer::decode(const internal_types::Buffer& buffer) const
 {
     try
     {
-        return decodeScreenResolution(buffer);
+        return decodeInternal(buffer);
     }
     catch (...)
     {
@@ -148,17 +144,33 @@ std::optional<internal_types::ScreenResolution> Deserializer::decode<internal_ty
     }
 }
 
-template <>
-std::optional<internal_types::Event> Deserializer::decode<internal_types::Event>(const internal_types::Buffer& buffer)
+DecodedType Deserializer::decodeInternal(const internal_types::Buffer& buffer) const
 {
-    try
+    if (buffer[0] == serialized_values::keyEventByte)
     {
-        return decodeEvent(buffer);
+        return decodeKeyEvent(buffer);
     }
-    catch (...)
+    if (buffer[0] == serialized_values::mouseMoveByte)
     {
-        return std::nullopt;
+        return decodeMouseMoveEvent(buffer);
     }
+    if (buffer[0] == serialized_values::mouseScrollByte)
+    {
+        return decodeMouseScrollEvent(buffer);
+    }
+    if (buffer[0] == serialized_values::mouseKeyByte)
+    {
+        return decodeMouseKeyEvent(buffer);
+    }
+    if (buffer[0] == serialized_values::mouseChangePositionByte)
+    {
+        return decodeMouseChangePositionEvent(buffer);
+    }
+    if (buffer[0] == serialized_values::screenResolutionByte)
+    {
+        return decodeScreenResolution(buffer);
+    }
+    throw std::runtime_error("Cannot decode Event");
 }
 
 internal_types::ScreenResolution Deserializer::decodeScreenResolution(const internal_types::Buffer& buffer) const
@@ -170,29 +182,9 @@ internal_types::ScreenResolution Deserializer::decodeScreenResolution(const inte
     throw std::runtime_error("Cannot decode ScreenResolution");
 }
 
-std::optional<internal_types::Event> Deserializer::decodeEvent(const internal_types::Buffer& buffer) const
+KeyEvent Deserializer::decodeKeyEvent(const internal_types::Buffer& buffer) const
 {
-    if (buffer[0] == std::byte{0b00000001}) // Keyboard Click
-    {
-        return KeyEvent{decodeKeyCode(buffer[1]), decodeKeyState(buffer[2])};
-    }
-    if (buffer[0] == std::byte{0b00000010}) // Mouse Move
-    {
-        return decodeMouseMoveEvent(buffer);
-    }
-    if (buffer[0] == std::byte{0b00000100}) // Mouse Scroll
-    {
-        return decodeMouseScrollEvent(buffer);
-    }
-    if (buffer[0] == std::byte{0b00001000}) // Mouse Click
-    {
-        return decodeMouseKeyEvent(buffer);
-    }
-    if (buffer[0] == std::byte{0b00010000}) // Mouse Change Position
-    {
-        return MouseChangePositionEvent{decodeMouseChangePositionEvent(buffer)};
-    }
-    throw std::runtime_error("Cannot decode Event");
+    return {decodeKeyCode(buffer[1]), decodeKeyState(buffer[2])};
 }
 
 KeyCode Deserializer::decodeKeyCode(const std::byte& keyId) const
@@ -232,11 +224,11 @@ KeyCode Deserializer::decodeKeyCode(const std::byte& keyId) const
 
 bool Deserializer::decodeKeyState(const std::byte& state) const
 {
-    if (state == True_)
+    if (state == serialized_values::trueValue)
     {
         return true;
     }
-    if (state == False_)
+    if (state == serialized_values::falseValue)
     {
         return false;
     }
@@ -250,11 +242,11 @@ MouseMoveEvent Deserializer::decodeMouseMoveEvent(const internal_types::Buffer& 
 
 MouseScrollEvent Deserializer::decodeMouseScrollEvent(const internal_types::Buffer& buffer) const
 {
-    if (buffer.at(1) == std::byte{0b11110000})
+    if (buffer.at(1) == serialized_values::scrollForwardByte)
     {
         return MouseScrollEvent::Forward;
     }
-    if (buffer.at(1) == std::byte{0b00001111})
+    if (buffer.at(1) == serialized_values::scrollBackwardByte)
     {
         return MouseScrollEvent::Backward;
     }
