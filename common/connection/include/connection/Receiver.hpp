@@ -24,13 +24,13 @@ public:
                 if (size > 0 && !errorCode)
                 {
                     auto decoded = deserializer->decode<T>(buffer);
-                    if (dynamic_cast<T*>(&decoded) != nullptr)
+                    if (decoded)
                     {
-                        successfulCallback(decoded);
+                        successfulCallback(decoded.value());
                     }
                     else
                     {
-                        unsuccessfulCallback(errorCode); // TODO handle properly "wrong type received"
+                        unsuccessfulCallback(errorCode);
                     }
                 }
                 else
