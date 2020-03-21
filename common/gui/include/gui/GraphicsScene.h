@@ -2,6 +2,7 @@
 
 #include <QGraphicsScene>
 #include <functional>
+#include <optional>
 #include <vector>
 #include "GraphicsRectItem.h"
 
