@@ -27,7 +27,7 @@ enum class DispatchState
 class MouseReceiver : public IMouseReceiver
 {
 public:
-    MouseReceiver(Display*, std::unique_ptr<connection::Sender>, std::shared_ptr<commons::CursorGuard>);
+    MouseReceiver(Display*, std::shared_ptr<connection::Sender>, std::shared_ptr<commons::CursorGuard>);
     ~MouseReceiver() override;
 
     void onEvent(const internal_types::MouseEvent&) override;
@@ -42,7 +42,7 @@ private:
 
     Display* display;
     Window window;
-    std::unique_ptr<connection::Sender> sender;
+    std::shared_ptr<connection::Sender> sender;
     std::shared_ptr<commons::CursorGuard> cursorGuard;
 
     DispatchState dispatchState;

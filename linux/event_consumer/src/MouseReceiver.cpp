@@ -34,7 +34,7 @@ namespace event_consumer
 {
 MouseReceiver::MouseReceiver(
     Display* _display,
-    std::unique_ptr<connection::Sender> _sender,
+    std::shared_ptr<connection::Sender> _sender,
     std::shared_ptr<commons::CursorGuard> _cursorGuard)
     : display{_display}
     , window{XRootWindow(display, 0)}

@@ -32,25 +32,26 @@ void App::listen(
     int argc,
     char* argv[],
     commons::IApp::SetScreenResolution setScreenResolution,
-    const internal_types::ScreenResolution& screenResolution)
+    const internal_types::ScreenResolution& masterScreenResolution)
 {
     auto successfullConnection =
-        [this, argc, argv, setScreenResolution, screenResolution](boost::asio::ip::tcp::socket& socket) {
+        [this, argc, argv, setScreenResolution, masterScreenResolution](boost::asio::ip::tcp::socket& socket) {
             auto receiver =
                 std::make_shared<connection::Receiver>(socket, std::make_unique<internal_types::Deserializer>(display));
 
-            auto successfullCallback = [setScreenResolution,
-                                        screenResolution](const internal_types::ScreenResolution& screenResolution) {
-                setScreenResolution(screenResolution);
+            auto sender = std::make_shared<connection::Sender>(socket);
+
+            auto successfullCallback = [setScreenResolution, masterScreenResolution, sender](
+                                           const internal_types::ScreenResolution& slaveScreenResolution) {
+                setScreenResolution(slaveScreenResolution);
+                //                sender->send(masterScreenResolution);
             };
             auto unsuccessfullCallback = [](const boost::system::error_code&) {};
-            receiver->receive<internal_types::ScreenResolution>(
+            receiver->synchronizedReceive<internal_types::ScreenResolution>(
                 std::move(successfullCallback), std::move(unsuccessfullCallback));
-            std::cout << "PO RECEIVE" << std::endl;
             std::make_shared<Consumer>(
                 keyboardReceiverSelector(argc, argv),
-                std::make_shared<event_consumer::MouseReceiver>(
-                    display, std::make_unique<connection::Sender>(socket), cursorGuard),
+                std::make_shared<event_consumer::MouseReceiver>(display, sender, cursorGuard),
                 std::move(receiver))
                 ->start();
         };
