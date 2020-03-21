@@ -5,6 +5,8 @@
 #include <memory>
 #include <thread>
 #include "commons/IApp.hpp"
+#include "gui/MsgSender.h"
+#include "gui/ScreenResolutionMsg.h"
 
 class Thread : public QThread
 {
@@ -45,12 +47,14 @@ public:
 private slots:
     void handleConnectButton();
     void handleStartButton();
+    void handleScreenResolutionSet(const ScreenResolutionMsg&);
 
 private:
     void addScreensToScene(const QSize&);
 
     std::thread appThread;
     Thread* thread;
+    MsgSender* msgSender;
 
     const QSize MASTER_SIZE;
     const QSize SLAVE_SIZE;

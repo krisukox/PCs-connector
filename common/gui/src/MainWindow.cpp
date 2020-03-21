@@ -84,7 +84,14 @@ MainWindow::MainWindow(QWidget* parent)
     , app{createAppPtr()}
     , MASTER_SIZE{getMasterSize()}
     , SLAVE_SIZE{getSlaveSize()}
+    , msgSender{new MsgSender()}
 {
+    connect(
+        msgSender,
+        SIGNAL(messageSent(ScreenResolutionMsg)),
+        this,
+        SLOT(handleScreenResolutionSet(ScreenResolutionMsg)));
+
     ui->setupUi(this);
     connect(ui->connectButton, SIGNAL(released()), this, SLOT(handleConnectButton()));
     connect(ui->startButton, SIGNAL(released()), this, SLOT(handleStartButton()));
@@ -175,6 +182,11 @@ void MainWindow::handleStartButton()
         addScreensToScene(QSize(screenResolution.width, screenResolution.height));
     };
     app->listen(qApp->arguments().size(), convertToArgv(qApp->arguments()), std::move(setSlaveScreenResolution));
+}
+
+void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg&)
+{
+    //
 }
 
 MainWindow::~MainWindow()
