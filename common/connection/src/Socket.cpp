@@ -25,8 +25,9 @@ void Socket::listen(const std::string& port, std::function<void(boost::asio::ip:
                 successfulConnection(socket.value());
             }
         });
-
+    std::cout << "Przed io context run\n";
     ioContext.run();
+    std::cout << "Po io context run\n";
 }
 
 boost::asio::ip::tcp::socket& Socket::value()

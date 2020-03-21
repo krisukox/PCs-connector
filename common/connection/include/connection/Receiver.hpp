@@ -23,7 +23,7 @@ public:
             [this, successfulCallback, unsuccessfulCallback](boost::system::error_code errorCode, std::size_t size) {
                 if (size > 0 && !errorCode)
                 {
-                    auto decoded = deserializer->decode(buffer);
+                    auto decoded = deserializer->decode<T>(buffer);
                     if (dynamic_cast<T*>(&decoded) != nullptr)
                     {
                         successfulCallback(decoded);

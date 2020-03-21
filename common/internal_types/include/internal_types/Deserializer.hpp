@@ -1,6 +1,7 @@
 #pragma once
 
 #include <X11/Xlib.h>
+#include <optional>
 #include <stdexcept>
 #include <type_traits>
 #include <unordered_map>
@@ -20,11 +21,11 @@ public:
     ~Deserializer() = default;
 
     template <class T>
-    T decode(const internal_types::Buffer& buffer);
+    std::optional<T> decode(const internal_types::Buffer& buffer);
 
 private:
-    internal_types::Event decodeEvent(const internal_types::Buffer&) const;
     internal_types::ScreenResolution decodeScreenResolution(const internal_types::Buffer&) const;
+    std::optional<internal_types::Event> decodeEvent(const internal_types::Buffer&) const;
 
     KeyCode decodeKeyCode(const std::byte&) const;
     bool decodeKeyState(const std::byte&) const;

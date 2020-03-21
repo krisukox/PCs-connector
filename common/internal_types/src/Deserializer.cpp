@@ -70,6 +70,9 @@ constexpr std::byte WIN_DIVIDE{0x6F};
 
 constexpr std::byte WIN_Num_Lock{0x90};
 
+constexpr std::byte True_{0b00001111};
+constexpr std::byte False_{0b00000000};
+
 short toShort(const std::byte lv, const std::byte rv)
 {
     return static_cast<short>((std::to_integer<uint8_t>(lv) << 8) + std::to_integer<uint8_t>(rv));
@@ -132,28 +135,42 @@ Deserializer::Deserializer(Display* display_)
 }
 
 template <>
-internal_types::ScreenResolution Deserializer::decode<internal_types::ScreenResolution>(
+std::optional<internal_types::ScreenResolution> Deserializer::decode<internal_types::ScreenResolution>(
     const internal_types::Buffer& buffer)
 {
-    return decodeScreenResolution(buffer);
+    try
+    {
+        return decodeScreenResolution(buffer);
+    }
+    catch (...)
+    {
+        return std::nullopt;
+    }
 }
 
 template <>
-internal_types::Event Deserializer::decode<internal_types::Event>(const internal_types::Buffer& buffer)
+std::optional<internal_types::Event> Deserializer::decode<internal_types::Event>(const internal_types::Buffer& buffer)
 {
-    return decodeEvent(buffer);
+    try
+    {
+        return decodeEvent(buffer);
+    }
+    catch (...)
+    {
+        return std::nullopt;
+    }
 }
 
 internal_types::ScreenResolution Deserializer::decodeScreenResolution(const internal_types::Buffer& buffer) const
 {
     if (buffer[0] == screenResolutionByte)
     {
-        return {toUInt(buffer[1], buffer[2]), toUInt(buffer[3], buffer[4])};
+        return internal_types::ScreenResolution{toUInt(buffer[1], buffer[2]), toUInt(buffer[3], buffer[4])};
     }
-    return {};
+    throw std::runtime_error("Cannot decode ScreenResolution");
 }
 
-internal_types::Event Deserializer::decodeEvent(const internal_types::Buffer& buffer) const try
+std::optional<internal_types::Event> Deserializer::decodeEvent(const internal_types::Buffer& buffer) const
 {
     if (buffer[0] == std::byte{0b00000001}) // Keyboard Click
     {
@@ -175,15 +192,7 @@ internal_types::Event Deserializer::decodeEvent(const internal_types::Buffer& bu
     {
         return MouseChangePositionEvent{decodeMouseChangePositionEvent(buffer)};
     }
-    throw std::runtime_error("Unexpected first byte receive");
-}
-catch (const std::out_of_range&)
-{
-    throw std::invalid_argument("Key not supported");
-}
-catch (...)
-{
-    throw std::runtime_error("Unexpected exception");
+    throw std::runtime_error("Cannot decode Event");
 }
 
 KeyCode Deserializer::decodeKeyCode(const std::byte& keyId) const
@@ -223,7 +232,15 @@ KeyCode Deserializer::decodeKeyCode(const std::byte& keyId) const
 
 bool Deserializer::decodeKeyState(const std::byte& state) const
 {
-    return bool(state);
+    if (state == True_)
+    {
+        return true;
+    }
+    if (state == False_)
+    {
+        return false;
+    }
+    throw std::runtime_error("Cannot decode KeyState");
 }
 
 MouseMoveEvent Deserializer::decodeMouseMoveEvent(const internal_types::Buffer& buffer) const
