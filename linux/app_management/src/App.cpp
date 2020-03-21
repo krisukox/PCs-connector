@@ -28,31 +28,32 @@ App::~App()
     XCloseDisplay(display);
 }
 
-void App::listen(int argc, char* argv[], commons::IApp::SetScreenResolution setScreenResolution)
+void App::listen(
+    int argc,
+    char* argv[],
+    commons::IApp::SetScreenResolution setScreenResolution,
+    const internal_types::ScreenResolution& screenResolution)
 {
-    std::cout << " LISTEN1 " << pthread_self() << std::endl;
+    auto successfullConnection =
+        [this, argc, argv, setScreenResolution, screenResolution](boost::asio::ip::tcp::socket& socket) {
+            auto receiver =
+                std::make_shared<connection::Receiver>(socket, std::make_unique<internal_types::Deserializer>(display));
 
-    auto successfullConnection = [this, argc, argv, setScreenResolution](boost::asio::ip::tcp::socket& socket) {
-        std::cout << " LISTEN2 " << pthread_self() << std::endl;
-        auto receiver =
-            std::make_shared<connection::Receiver>(socket, std::make_unique<internal_types::Deserializer>(display));
-
-        auto successfullCallback = [setScreenResolution](const internal_types::ScreenResolution& screenResolution) {
-            std::cout << " LISTEN3 " << pthread_self() << std::endl;
-            std::cout << "ScreenResolution received" << screenResolution.width << " " << screenResolution.height
-                      << std::endl;
-            if (setScreenResolution == nullptr)
-            {
-                std::cout << "NULL PTR" << std::endl;
-            }
-            if (setScreenResolution) setScreenResolution(screenResolution);
+            auto successfullCallback = [setScreenResolution,
+                                        screenResolution](const internal_types::ScreenResolution& screenResolution) {
+                setScreenResolution(screenResolution);
+            };
+            auto unsuccessfullCallback = [](const boost::system::error_code&) {};
+            receiver->receive<internal_types::ScreenResolution>(
+                std::move(successfullCallback), std::move(unsuccessfullCallback));
+            std::cout << "PO RECEIVE" << std::endl;
+            std::make_shared<Consumer>(
+                keyboardReceiverSelector(argc, argv),
+                std::make_shared<event_consumer::MouseReceiver>(
+                    display, std::make_unique<connection::Sender>(socket), cursorGuard),
+                std::move(receiver))
+                ->start();
         };
-        auto unsuccessfullCallback = [](const boost::system::error_code&) {};
-        std::cout << " LISTEN4 " << pthread_self() << std::endl;
-        receiver->receive<internal_types::ScreenResolution>(
-            std::move(successfullCallback), std::move(unsuccessfullCallback));
-        std::cout << "FKUNAWD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-    };
 
     socket->listen("10000", successfullConnection);
 }

@@ -18,7 +18,7 @@ public:
     IApp(std::shared_ptr<commons::CursorGuard>&&);
 
     virtual void connect(const boost::asio::ip::address&);
-    virtual void listen(int, char* [], SetScreenResolution);
+    virtual void listen(int, char* [], SetScreenResolution, const internal_types::ScreenResolution&);
     void setContactPoints(const std::pair<internal_types::Point, internal_types::Point>&, const internal_types::Point&);
 
 protected:

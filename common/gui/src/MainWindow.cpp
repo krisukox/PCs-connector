@@ -17,16 +17,6 @@
 #include "gui/ScreenResolutionMsg.h"
 #include "internal_types/ScreenResolution.hpp"
 
-Thread::Thread(commons::IApp& _app, int _argc, char** _argv, commons::IApp::SetScreenResolution _setScreenResolution)
-    : app{_app}, argc{_argc}, argv{_argv}, setScreenResolution{_setScreenResolution}
-{
-}
-
-void Thread::run()
-{
-    app.listen(argc, argv, setScreenResolution);
-}
-
 namespace
 {
 char** convertToArgv(QStringList commandArgs)
@@ -145,10 +135,6 @@ void MainWindow::addScreensToScene(const QSize& slaveSize)
         QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
         QCoreApplication::sendEvent(scene, &event);
     }
-
-    //    ui->graphicsView->scene()->update();
-
-    qDebug() << "QT addScreensToScene END";
 }
 
 void MainWindow::handleConnectButton()
@@ -183,18 +169,18 @@ void MainWindow::handleStartButton()
         qDebug() << "QT setSlaveScreenResolution " << screenResolutionMsg.width << " " << screenResolutionMsg.height;
         msgSender->send(screenResolutionMsg);
     };
-    //    app->listen(qApp->arguments().size(), convertToArgv(qApp->arguments()), std::move(setSlaveScreenResolution));
     appThread = std::thread(
         &commons::IApp::listen,
         app.get(),
         qApp->arguments().size(),
         convertToArgv(qApp->arguments()),
-        std::move(setSlaveScreenResolution));
+        std::move(setSlaveScreenResolution),
+        internal_types::ScreenResolution{static_cast<std::uint16_t>(MASTER_SIZE.width()),
+                                         static_cast<std::uint16_t>(MASTER_SIZE.height())});
 }
 
 void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenResolutionMsg)
 {
-    qDebug() << "QT handleScreenResolutionSet";
     addScreensToScene(QSize(screenResolutionMsg.width, screenResolutionMsg.height));
 }
 

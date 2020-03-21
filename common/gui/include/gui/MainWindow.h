@@ -8,23 +8,10 @@
 #include "gui/MsgSender.h"
 #include "gui/ScreenResolutionMsg.h"
 
-class Thread : public QThread
+namespace commons
 {
-public:
-    Thread(commons::IApp&, int argc, char** argv, commons::IApp::SetScreenResolution);
-    Q_OBJECT
-    void run() override;
-
-    commons::IApp& app;
-    int argc;
-    char** argv;
-    commons::IApp::SetScreenResolution setScreenResolution;
-};
-
-// namespace commons
-//{
-// class IApp;
-//}
+class IApp;
+}
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -53,7 +40,6 @@ private:
     void addScreensToScene(const QSize&);
 
     std::thread appThread;
-    Thread* thread;
     MsgSender* msgSender;
 
     const QSize MASTER_SIZE;
