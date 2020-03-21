@@ -9,8 +9,7 @@ class MsgSender : public QWidget
 public:
     MsgSender();
 
-    //    send();
-
+    void send(const ScreenResolutionMsg&);
 signals:
     void messageSent(const ScreenResolutionMsg&);
 };

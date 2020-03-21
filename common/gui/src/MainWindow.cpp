@@ -116,13 +116,13 @@ void MainWindow::addScreensToScene(const QSize& slaveSize)
     auto masterSize = getMasterSize();
 
     GraphicsRectItem* item = new GraphicsRectItem(
-        QRectF(0, 0, MASTER_SIZE.width() / SCREEN_SIZE_MULTIPLIER, MASTER_SIZE.height() / SCREEN_SIZE_MULTIPLIER),
+        QRectF(0, 0, masterSize.width() / SCREEN_SIZE_MULTIPLIER, masterSize.height() / SCREEN_SIZE_MULTIPLIER),
         GraphicsRectItem::ScreenType::master);
     item->setBrush(QBrush(Qt::green));
     item->setFlags(QGraphicsItem::ItemIsMovable);
 
     GraphicsRectItem* item2 = new GraphicsRectItem(
-        QRectF(0, 0, SLAVE_SIZE.width() / SCREEN_SIZE_MULTIPLIER, SLAVE_SIZE.height() / SCREEN_SIZE_MULTIPLIER),
+        QRectF(0, 0, slaveSize.width() / SCREEN_SIZE_MULTIPLIER, slaveSize.height() / SCREEN_SIZE_MULTIPLIER),
         GraphicsRectItem::ScreenType::slave);
     item2->setBrush(QBrush(Qt::blue));
     item2->setFlags(QGraphicsItem::ItemIsMovable);
@@ -177,16 +177,25 @@ void MainWindow::handleConnectButton()
 void MainWindow::handleStartButton()
 {
     auto setSlaveScreenResolution = [this](const internal_types::ScreenResolution& screenResolution) {
-        std::cout << "giouajwidujawd" << std::endl;
-        qDebug() << "QT setSlaveScreenResolution";
-        addScreensToScene(QSize(screenResolution.width, screenResolution.height));
+        ScreenResolutionMsg screenResolutionMsg;
+        screenResolutionMsg.width = screenResolution.width;
+        screenResolutionMsg.height = screenResolution.height;
+        qDebug() << "QT setSlaveScreenResolution " << screenResolutionMsg.width << " " << screenResolutionMsg.height;
+        msgSender->send(screenResolutionMsg);
     };
-    app->listen(qApp->arguments().size(), convertToArgv(qApp->arguments()), std::move(setSlaveScreenResolution));
+    //    app->listen(qApp->arguments().size(), convertToArgv(qApp->arguments()), std::move(setSlaveScreenResolution));
+    appThread = std::thread(
+        &commons::IApp::listen,
+        app.get(),
+        qApp->arguments().size(),
+        convertToArgv(qApp->arguments()),
+        std::move(setSlaveScreenResolution));
 }
 
-void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg&)
+void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenResolutionMsg)
 {
-    //
+    qDebug() << "QT handleScreenResolutionSet";
+    addScreensToScene(QSize(screenResolutionMsg.width, screenResolutionMsg.height));
 }
 
 MainWindow::~MainWindow()

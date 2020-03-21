@@ -49,15 +49,9 @@ void App::listen(int argc, char* argv[], commons::IApp::SetScreenResolution setS
         };
         auto unsuccessfullCallback = [](const boost::system::error_code&) {};
         std::cout << " LISTEN4 " << pthread_self() << std::endl;
-        receiver->synchronizedReceive<internal_types::ScreenResolution>(
+        receiver->receive<internal_types::ScreenResolution>(
             std::move(successfullCallback), std::move(unsuccessfullCallback));
         std::cout << "FKUNAWD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-        //        std::make_shared<Consumer>(
-        //            keyboardReceiverSelector(argc, argv),
-        //            std::make_shared<event_consumer::MouseReceiver>(
-        //                display, std::make_unique<connection::Sender>(socket), cursorGuard),
-        //            std::move(receiver))
-        //            ->start();
     };
 
     socket->listen("10000", successfullConnection);

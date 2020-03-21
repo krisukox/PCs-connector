@@ -21,6 +21,7 @@ public:
     std::vector<GraphicsRectItem*> rectList;
 
 private:
+    std::optional<QLineF> intersectLine(const QRectF& rect, const QLineF& line);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent*) override;
     std::function<void(std::pair<QPointF, QPointF>, QPointF)> setContactPoints;
 };
