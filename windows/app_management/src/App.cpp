@@ -14,8 +14,11 @@ namespace app_management
 {
 App::~App() = default;
 
-App::App(std::shared_ptr<commons::CursorGuard>&& cursorGuard, SetScreenResolution&& setScreenResolution)
-    : commons::IApp(std::move(cursorGuard), std::move(setScreenResolution))
+App::App(
+    std::shared_ptr<commons::CursorGuard>&& cursorGuard,
+    SetScreenResolution&& setScreenResolution,
+    const internal_types::ScreenResolution& masterScreenResolution)
+    : commons::IApp(std::move(cursorGuard), std::move(setScreenResolution), masterScreenResolution)
     , socket{std::make_unique<connection::Socket>()}
 {
 }

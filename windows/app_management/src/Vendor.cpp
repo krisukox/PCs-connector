@@ -23,7 +23,7 @@ void Vendor::startReceivingEvents()
 void Vendor::receiveEvent()
 {
     receiver->receive<internal_types::Event>(
-        [this](internal_types::Event event) {
+        [this](const internal_types::Event& event) {
             keyboard->changeState();
             mouse->changeMouseState(
                 std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));

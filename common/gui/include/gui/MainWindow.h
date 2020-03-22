@@ -38,12 +38,10 @@ signals:
 
 private:
     std::unique_ptr<commons::IApp> createAppPtr();
-
     void addScreensToScene(const QSize&);
 
-    std::thread appThread;
+    const QSize MASTER_SIZE;
     std::unique_ptr<commons::IApp> app;
 
-    const QSize MASTER_SIZE;
-    const QSize SLAVE_SIZE;
+    std::thread appThread;
 };

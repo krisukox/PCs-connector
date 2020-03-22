@@ -47,18 +47,6 @@ QSize getMasterSize()
 {
     return qApp->screens().at(0)->size();
 }
-
-QSize getSlaveSize()
-{
-    if (qApp->screens().at(0)->size().width() == SCREEN_WIDTH_1)
-    {
-        return QSize{SCREEN_WIDTH_2, SCREEN_HEIGHT_2};
-    }
-    else
-    {
-        return QSize{SCREEN_WIDTH_1, SCREEN_HEIGHT_1};
-    }
-}
 } // namespace
 
 std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
@@ -66,15 +54,13 @@ std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
     auto screenGeometry = QGuiApplication::screens().at(0)->geometry();
     return std::make_unique<app_management::App>(
         std::make_shared<commons::CursorGuard>(screenGeometry.x(), screenGeometry.y()),
-        [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); });
+        [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); },
+        internal_types::ScreenResolution{static_cast<std::uint16_t>(MASTER_SIZE.width()),
+                                         static_cast<std::uint16_t>(MASTER_SIZE.height())});
 }
 
 MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow{parent}
-    , ui{new Ui::MainWindow}
-    , app{createAppPtr()}
-    , MASTER_SIZE{getMasterSize()}
-    , SLAVE_SIZE{getSlaveSize()}
+    : QMainWindow{parent}, ui{new Ui::MainWindow}, MASTER_SIZE{getMasterSize()}, app{createAppPtr()}
 {
     connect(this, SIGNAL(messageSent(ScreenResolutionMsg)), this, SLOT(handleScreenResolutionSet(ScreenResolutionMsg)));
 
@@ -99,10 +85,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 void MainWindow::addScreensToScene(const QSize& slaveSize)
 {
-    auto masterSize = getMasterSize();
-
     GraphicsRectItem* item = new GraphicsRectItem(
-        QRectF(0, 0, masterSize.width() / SCREEN_SIZE_MULTIPLIER, masterSize.height() / SCREEN_SIZE_MULTIPLIER),
+        QRectF(0, 0, MASTER_SIZE.width() / SCREEN_SIZE_MULTIPLIER, MASTER_SIZE.height() / SCREEN_SIZE_MULTIPLIER),
         GraphicsRectItem::ScreenType::master);
     item->setBrush(QBrush(Qt::green));
     item->setFlags(QGraphicsItem::ItemIsMovable);
@@ -135,36 +119,61 @@ void MainWindow::addScreensToScene(const QSize& slaveSize)
 
 void MainWindow::handleConnectButton()
 {
+    boost::asio::ip::address address;
+    boost::system::error_code errorCode;
     if (qApp->arguments().size() == 2)
     {
-        auto address = boost::asio::ip::make_address(convertToArgv(qApp->arguments())[1]);
-        appThread = std::thread(&commons::IApp::connect, app.get(), address);
+        address = boost::asio::ip::make_address(convertToArgv(qApp->arguments())[1], errorCode);
     }
     else
     {
-        boost::system::error_code errorCode;
-        auto address = boost::asio::ip::make_address(ui->inputIpAddress->text().toStdString(), errorCode);
-        if (!errorCode.failed())
-        {
-            appThread = std::thread(&commons::IApp::connect, app.get(), address);
-            ui->infoLabel->setText("");
-        }
-        else
-        {
-            ui->infoLabel->setText("Ip address not correct");
-        }
+        address = boost::asio::ip::make_address(ui->inputIpAddress->text().toStdString(), errorCode);
     }
+    if (!errorCode.failed())
+    {
+        appThread = std::thread(&commons::IApp::connect, app.get(), address);
+        ui->infoLabel->setText("");
+    }
+    else
+    {
+        ui->infoLabel->setText("Ip address not correct");
+    }
+
+    //    if (qApp->arguments().size() == 2)
+    //    {
+    //        auto address = boost::asio::ip::make_address(convertToArgv(qApp->arguments())[1]);
+    //        appThread = std::thread(
+    //            &commons::IApp::connect,
+    //            app.get(),
+    //            address,
+    //            internal_types::ScreenResolution{static_cast<std::uint16_t>(MASTER_SIZE.width()),
+    //                                             static_cast<std::uint16_t>(MASTER_SIZE.height())});
+    //    }
+    //    else
+    //    {
+    //        boost::system::error_code errorCode;
+    //        auto address = boost::asio::ip::make_address(ui->inputIpAddress->text().toStdString(), errorCode);
+    //        if (!errorCode.failed())
+    //        {
+    //            appThread = std::thread(
+    //                &commons::IApp::connect,
+    //                app.get(),
+    //                address,
+    //                internal_types::ScreenResolution{static_cast<std::uint16_t>(MASTER_SIZE.width()),
+    //                                                 static_cast<std::uint16_t>(MASTER_SIZE.height())});
+    //            ui->infoLabel->setText("");
+    //        }
+    //        else
+    //        {
+    //            ui->infoLabel->setText("Ip address not correct");
+    //        }
+    //    }
 }
 
 void MainWindow::handleStartButton()
 {
-    appThread = std::thread(
-        &commons::IApp::listen,
-        app.get(),
-        qApp->arguments().size(),
-        convertToArgv(qApp->arguments()),
-        internal_types::ScreenResolution{static_cast<std::uint16_t>(MASTER_SIZE.width()),
-                                         static_cast<std::uint16_t>(MASTER_SIZE.height())});
+    appThread =
+        std::thread(&commons::IApp::listen, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
 }
 
 void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenResolutionMsg)
