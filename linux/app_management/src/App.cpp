@@ -28,11 +28,7 @@ App::~App()
     XCloseDisplay(display);
 }
 
-void App::listen(
-    int argc,
-    char* argv[],
-    commons::IApp::SetScreenResolution _,
-    const internal_types::ScreenResolution& masterScreenResolution)
+void App::listen(int argc, char* argv[], const internal_types::ScreenResolution& masterScreenResolution)
 {
     auto successfullConnection = [this, argc, argv, masterScreenResolution](boost::asio::ip::tcp::socket& socket) {
         auto receiver =

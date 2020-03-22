@@ -172,7 +172,6 @@ void MainWindow::handleStartButton()
         app.get(),
         qApp->arguments().size(),
         convertToArgv(qApp->arguments()),
-        std::move(setSlaveScreenResolution),
         internal_types::ScreenResolution{static_cast<std::uint16_t>(MASTER_SIZE.width()),
                                          static_cast<std::uint16_t>(MASTER_SIZE.height())});
 }

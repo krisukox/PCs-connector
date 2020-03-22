@@ -8,7 +8,7 @@ IApp::IApp(std::shared_ptr<commons::CursorGuard>&& _cursorGuard, SetScreenResolu
 {
 }
 
-void IApp::listen(int, char*[], SetScreenResolution, const internal_types::ScreenResolution&)
+void IApp::listen(int, char* [], const internal_types::ScreenResolution&)
 {
     throw std::runtime_error("IApp::listen method not implemented");
 }

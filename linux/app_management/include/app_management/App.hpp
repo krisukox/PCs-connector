@@ -29,7 +29,7 @@ class App : public commons::IApp
 public:
     App(std::shared_ptr<commons::CursorGuard>&&, SetScreenResolution&&);
     ~App() override;
-    void listen(int, char* [], commons::IApp::SetScreenResolution, const internal_types::ScreenResolution&) override;
+    void listen(int, char* [], const internal_types::ScreenResolution&) override;
 
 private:
     std::shared_ptr<event_consumer::IKeyboardReceiver> keyboardReceiverSelector(int, char* []);
