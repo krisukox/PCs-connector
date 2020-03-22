@@ -11,7 +11,6 @@
 #include <iostream>
 #include "app_management/App.hpp"
 #include "commons/CursorGuard.hpp"
-//#include "commons/IApp.hpp"
 #include "gui/GraphicsRectItem.h"
 #include "gui/GraphicsScene.h"
 #include "gui/MainWindow.h"
@@ -65,17 +64,13 @@ QSize getSlaveSize()
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow{parent}
     , ui{new Ui::MainWindow}
-    , msgSender{new MsgSender()}
     , app{createAppPtr()}
     , MASTER_SIZE{getMasterSize()}
     , SLAVE_SIZE{getSlaveSize()}
 {
-    connect(
-        msgSender,
-        SIGNAL(messageSent(ScreenResolutionMsg)),
-        this,
-        SLOT(handleScreenResolutionSet(ScreenResolutionMsg)));
+    connect(this, SIGNAL(messageSent(ScreenResolutionMsg)), this, SLOT(handleScreenResolutionSet(ScreenResolutionMsg)));
 
+    qRegisterMetaType<ScreenResolutionMsg>("ScreenResolutionMsg");
     ui->setupUi(this);
     connect(ui->connectButton, SIGNAL(released()), this, SLOT(handleConnectButton()));
     connect(ui->startButton, SIGNAL(released()), this, SLOT(handleStartButton()));
@@ -91,7 +86,6 @@ MainWindow::MainWindow(QWidget* parent)
     };
     auto scene = new GraphicsScene(0, 0, 448, 448, std::move(setContactPoints));
     ui->graphicsView->setScene(scene);
-
     ui->infoLabel->setText("");
 }
 
@@ -100,7 +94,7 @@ std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
     auto screenGeometry = QGuiApplication::screens().at(0)->geometry();
     return std::make_unique<app_management::App>(
         std::make_shared<commons::CursorGuard>(screenGeometry.x(), screenGeometry.y()),
-        [this](const internal_types::ScreenResolution& screenResolution) { msgSender->send(screenResolution); });
+        [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); });
 }
 
 void MainWindow::addScreensToScene(const QSize& slaveSize)
@@ -164,9 +158,6 @@ void MainWindow::handleConnectButton()
 
 void MainWindow::handleStartButton()
 {
-    auto setSlaveScreenResolution = [this](const internal_types::ScreenResolution& screenResolution) {
-        msgSender->send(screenResolution);
-    };
     appThread = std::thread(
         &commons::IApp::listen,
         app.get(),

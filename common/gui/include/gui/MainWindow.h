@@ -4,7 +4,6 @@
 #include <QThread>
 #include <memory>
 #include <thread>
-#include "gui/MsgSender.h"
 #include "gui/ScreenResolutionMsg.h"
 
 namespace commons
@@ -34,13 +33,15 @@ private slots:
     void handleStartButton();
     void handleScreenResolutionSet(const ScreenResolutionMsg&);
 
+signals:
+    void messageSent(const ScreenResolutionMsg&);
+
 private:
     std::unique_ptr<commons::IApp> createAppPtr();
 
     void addScreensToScene(const QSize&);
 
     std::thread appThread;
-    MsgSender* msgSender;
     std::unique_ptr<commons::IApp> app;
 
     const QSize MASTER_SIZE;
