@@ -19,6 +19,8 @@
 
 namespace
 {
+const unsigned SCREEN_SIZE_MULTIPLIER = 10;
+
 char** convertToArgv(QStringList commandArgs)
 {
     int count = 0;
@@ -36,16 +38,19 @@ char** convertToArgv(QStringList commandArgs)
     return argv;
 }
 
-const unsigned SCREEN_SIZE_MULTIPLIER = 10;
-
-const int SCREEN_WIDTH_1 = 1920;
-const int SCREEN_HEIGHT_1 = 1080;
-const int SCREEN_WIDTH_2 = 1366;
-const int SCREEN_HEIGHT_2 = 768;
-
 QSize getMasterSize()
 {
     return qApp->screens().at(0)->size();
+}
+
+short upScale(const qreal& value)
+{
+    return static_cast<short>(value * SCREEN_SIZE_MULTIPLIER);
+}
+
+int downScale(const int& value)
+{
+    return value / SCREEN_SIZE_MULTIPLIER;
 }
 } // namespace
 
@@ -71,12 +76,9 @@ MainWindow::MainWindow(QWidget* parent)
 
     auto setContactPoints = [this](const std::pair<QPointF, QPointF>& contactPoints, const QPointF& diffPoint) {
         this->app->setContactPoints(
-            {{static_cast<short>(contactPoints.first.x() * SCREEN_SIZE_MULTIPLIER),
-              static_cast<short>(contactPoints.first.y() * SCREEN_SIZE_MULTIPLIER)},
-             {static_cast<short>(contactPoints.second.x() * SCREEN_SIZE_MULTIPLIER),
-              static_cast<short>(contactPoints.second.y() * SCREEN_SIZE_MULTIPLIER)}},
-            {static_cast<short>(diffPoint.x() * SCREEN_SIZE_MULTIPLIER),
-             static_cast<short>(diffPoint.y() * SCREEN_SIZE_MULTIPLIER)});
+            {{upScale(contactPoints.first.x()), upScale(contactPoints.first.y())},
+             {upScale(contactPoints.second.x()), upScale(contactPoints.second.y())}},
+            {upScale(diffPoint.x()), upScale(diffPoint.y())});
     };
     auto scene = new GraphicsScene(0, 0, 448, 448, std::move(setContactPoints));
     ui->graphicsView->setScene(scene);
@@ -86,14 +88,13 @@ MainWindow::MainWindow(QWidget* parent)
 void MainWindow::addScreensToScene(const QSize& slaveSize)
 {
     GraphicsRectItem* item = new GraphicsRectItem(
-        QRectF(0, 0, MASTER_SIZE.width() / SCREEN_SIZE_MULTIPLIER, MASTER_SIZE.height() / SCREEN_SIZE_MULTIPLIER),
+        QRectF(0, 0, downScale(MASTER_SIZE.width()), downScale(MASTER_SIZE.height())),
         GraphicsRectItem::ScreenType::master);
     item->setBrush(QBrush(Qt::green));
     item->setFlags(QGraphicsItem::ItemIsMovable);
 
     GraphicsRectItem* item2 = new GraphicsRectItem(
-        QRectF(0, 0, slaveSize.width() / SCREEN_SIZE_MULTIPLIER, slaveSize.height() / SCREEN_SIZE_MULTIPLIER),
-        GraphicsRectItem::ScreenType::slave);
+        QRectF(0, 0, downScale(slaveSize.width()), downScale(slaveSize.height())), GraphicsRectItem::ScreenType::slave);
     item2->setBrush(QBrush(Qt::blue));
     item2->setFlags(QGraphicsItem::ItemIsMovable);
 
@@ -138,36 +139,6 @@ void MainWindow::handleConnectButton()
     {
         ui->infoLabel->setText("Ip address not correct");
     }
-
-    //    if (qApp->arguments().size() == 2)
-    //    {
-    //        auto address = boost::asio::ip::make_address(convertToArgv(qApp->arguments())[1]);
-    //        appThread = std::thread(
-    //            &commons::IApp::connect,
-    //            app.get(),
-    //            address,
-    //            internal_types::ScreenResolution{static_cast<std::uint16_t>(MASTER_SIZE.width()),
-    //                                             static_cast<std::uint16_t>(MASTER_SIZE.height())});
-    //    }
-    //    else
-    //    {
-    //        boost::system::error_code errorCode;
-    //        auto address = boost::asio::ip::make_address(ui->inputIpAddress->text().toStdString(), errorCode);
-    //        if (!errorCode.failed())
-    //        {
-    //            appThread = std::thread(
-    //                &commons::IApp::connect,
-    //                app.get(),
-    //                address,
-    //                internal_types::ScreenResolution{static_cast<std::uint16_t>(MASTER_SIZE.width()),
-    //                                                 static_cast<std::uint16_t>(MASTER_SIZE.height())});
-    //            ui->infoLabel->setText("");
-    //        }
-    //        else
-    //        {
-    //            ui->infoLabel->setText("Ip address not correct");
-    //        }
-    //    }
 }
 
 void MainWindow::handleStartButton()
