@@ -1,4 +1,4 @@
-#include "internal_types/Deserializer.hpp"
+#include "Deserializer.hpp"
 #include <X11/keysym.h>
 #include <cstddef>
 #include "internal_types/SerializedValues.hpp"

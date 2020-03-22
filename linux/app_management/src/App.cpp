@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include <iostream>
 #include <unistd.h>
+#include "Deserializer.hpp"
 #include "app_management/Consumer.hpp"
 #include "connection/Receiver.hpp"
 #include "connection/Sender.hpp"
@@ -9,13 +10,12 @@
 #include "event_consumer/KeyboardReceiver.hpp"
 #include "event_consumer/MouseReceiver.hpp"
 #include "event_consumer/TestKeyboardReceiver.hpp"
-#include "internal_types/Deserializer.hpp"
 #include "internal_types/ScreenResolution.hpp"
 
 namespace app_management
 {
-App::App(std::shared_ptr<commons::CursorGuard>&& _cursorGuard)
-    : commons::IApp(std::move(_cursorGuard))
+App::App(std::shared_ptr<commons::CursorGuard>&& _cursorGuard, SetScreenResolution&& setScreenResolution)
+    : commons::IApp(std::move(_cursorGuard), std::move(setScreenResolution))
     , display{XOpenDisplay(nullptr)}
     , socket{std::make_unique<connection::Socket>()}
 {
@@ -31,30 +31,29 @@ App::~App()
 void App::listen(
     int argc,
     char* argv[],
-    commons::IApp::SetScreenResolution setScreenResolution,
+    commons::IApp::SetScreenResolution _,
     const internal_types::ScreenResolution& masterScreenResolution)
 {
-    auto successfullConnection =
-        [this, argc, argv, setScreenResolution, masterScreenResolution](boost::asio::ip::tcp::socket& socket) {
-            auto receiver =
-                std::make_shared<connection::Receiver>(socket, std::make_unique<internal_types::Deserializer>(display));
+    auto successfullConnection = [this, argc, argv, masterScreenResolution](boost::asio::ip::tcp::socket& socket) {
+        auto receiver =
+            std::make_shared<connection::Receiver>(socket, std::make_unique<internal_types::Deserializer>(display));
 
-            auto sender = std::make_shared<connection::Sender>(socket);
+        auto sender = std::make_shared<connection::Sender>(socket);
 
-            auto successfullCallback = [setScreenResolution, masterScreenResolution, sender](
-                                           const internal_types::ScreenResolution& slaveScreenResolution) {
+        auto successfullCallback =
+            [this, masterScreenResolution, sender](const internal_types::ScreenResolution& slaveScreenResolution) {
                 setScreenResolution(slaveScreenResolution);
                 sender->send(masterScreenResolution);
             };
-            auto unsuccessfullCallback = [](const boost::system::error_code&) {};
-            receiver->synchronizedReceive<internal_types::ScreenResolution>(
-                std::move(successfullCallback), std::move(unsuccessfullCallback));
-            std::make_shared<Consumer>(
-                keyboardReceiverSelector(argc, argv),
-                std::make_shared<event_consumer::MouseReceiver>(display, sender, cursorGuard),
-                std::move(receiver))
-                ->start();
-        };
+        auto unsuccessfullCallback = [](const boost::system::error_code&) {};
+        receiver->synchronizedReceive<internal_types::ScreenResolution>(
+            std::move(successfullCallback), std::move(unsuccessfullCallback));
+        std::make_shared<Consumer>(
+            keyboardReceiverSelector(argc, argv),
+            std::make_shared<event_consumer::MouseReceiver>(display, sender, cursorGuard),
+            std::move(receiver))
+            ->start();
+    };
 
     socket->listen("10000", successfullConnection);
 }

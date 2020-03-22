@@ -3,7 +3,7 @@ set(MODULE_NAME internal_type)
 if(UNIX)
     set(HEADERS
         include/internal_types/CommonTypes.hpp
-        include/internal_types/Deserializer.hpp
+        include/internal_types/linux/Deserializer.hpp
         include/internal_types/IDeserializer.hpp
         include/internal_types/KeyEvent.hpp
         include/internal_types/MouseEvent.hpp
@@ -19,7 +19,7 @@ if(UNIX)
     )
 
     add_library(internal_types ${HEADERS} ${SOURCE_FILES})
-    target_include_directories(internal_types PUBLIC include PRIVATE src)
+    target_include_directories(internal_types PUBLIC include include/internal_types/linux PRIVATE src)
 endif(UNIX)
 
 if(WIN32)
