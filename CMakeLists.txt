@@ -12,7 +12,7 @@ if(UNIX)
 endif(UNIX)
 
 if(WIN32)
-    target_link_directories(Boost::system INTERFACE ${PREFIX_DIR}/boost-new/boost_1_70_0/stage/lib)
+    target_link_directories(Boost::system INTERFACE ${PREFIX_DIR}/boost_1_70_0/stage/lib)
 
     add_subdirectory(windows)
 endif(WIN32)
