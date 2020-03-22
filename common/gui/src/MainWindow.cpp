@@ -61,6 +61,14 @@ QSize getSlaveSize()
 }
 } // namespace
 
+std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
+{
+    auto screenGeometry = QGuiApplication::screens().at(0)->geometry();
+    return std::make_unique<app_management::App>(
+        std::make_shared<commons::CursorGuard>(screenGeometry.x(), screenGeometry.y()),
+        [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); });
+}
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow{parent}
     , ui{new Ui::MainWindow}
@@ -87,14 +95,6 @@ MainWindow::MainWindow(QWidget* parent)
     auto scene = new GraphicsScene(0, 0, 448, 448, std::move(setContactPoints));
     ui->graphicsView->setScene(scene);
     ui->infoLabel->setText("");
-}
-
-std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
-{
-    auto screenGeometry = QGuiApplication::screens().at(0)->geometry();
-    return std::make_unique<app_management::App>(
-        std::make_shared<commons::CursorGuard>(screenGeometry.x(), screenGeometry.y()),
-        [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); });
 }
 
 void MainWindow::addScreensToScene(const QSize& slaveSize)
