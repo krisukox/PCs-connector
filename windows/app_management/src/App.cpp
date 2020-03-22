@@ -14,8 +14,9 @@ namespace app_management
 {
 App::~App() = default;
 
-App::App(std::shared_ptr<commons::CursorGuard>&& _cursorGuard)
-    : commons::IApp(std::move(_cursorGuard)), socket{std::make_unique<connection::Socket>()}
+App::App(std::shared_ptr<commons::CursorGuard>&& cursorGuard, SetScreenResolution&& setScreenResolution)
+    : commons::IApp(std::move(cursorGuard), std::move(setScreenResolution))
+    , socket{std::make_unique<connection::Socket>()}
 {
 }
 
@@ -46,9 +47,7 @@ void App::initializeVendor()
 
     sender->send(internal_types::ScreenResolution{1920, 1080});
     receiver->receive<internal_types::ScreenResolution>(
-        [](internal_types::ScreenResolution) {
-
-        },
+        [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); },
         [](boost::system::error_code ec) {
 
         });

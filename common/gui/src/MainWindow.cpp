@@ -11,6 +11,7 @@
 #include <iostream>
 #include "app_management/App.hpp"
 #include "commons/CursorGuard.hpp"
+//#include "commons/IApp.hpp"
 #include "gui/GraphicsRectItem.h"
 #include "gui/GraphicsScene.h"
 #include "gui/MainWindow.h"
@@ -59,22 +60,15 @@ QSize getSlaveSize()
         return QSize{SCREEN_WIDTH_1, SCREEN_HEIGHT_1};
     }
 }
-
-std::unique_ptr<app_management::App> createAppPtr()
-{
-    auto screenGeometry = QGuiApplication::screens().at(0)->geometry();
-    return std::make_unique<app_management::App>(
-        std::make_shared<commons::CursorGuard>(screenGeometry.x(), screenGeometry.y()));
-}
 } // namespace
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow{parent}
     , ui{new Ui::MainWindow}
+    , msgSender{new MsgSender()}
     , app{createAppPtr()}
     , MASTER_SIZE{getMasterSize()}
     , SLAVE_SIZE{getSlaveSize()}
-    , msgSender{new MsgSender()}
 {
     connect(
         msgSender,
@@ -99,6 +93,19 @@ MainWindow::MainWindow(QWidget* parent)
     ui->graphicsView->setScene(scene);
 
     ui->infoLabel->setText("");
+}
+
+std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
+{
+    auto screenGeometry = QGuiApplication::screens().at(0)->geometry();
+    return std::make_unique<app_management::App>(
+        std::make_shared<commons::CursorGuard>(screenGeometry.x(), screenGeometry.y()),
+        [this](const internal_types::ScreenResolution& screenResolution) {
+            ScreenResolutionMsg screenResolutionMsg;
+            screenResolutionMsg.width = screenResolution.width;
+            screenResolutionMsg.height = screenResolution.height;
+            msgSender->send(screenResolutionMsg);
+        });
 }
 
 void MainWindow::addScreensToScene(const QSize& slaveSize)

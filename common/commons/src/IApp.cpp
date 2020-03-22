@@ -3,9 +3,12 @@
 
 namespace commons
 {
-IApp::IApp(std::shared_ptr<commons::CursorGuard>&& _cursorGuard) : cursorGuard{std::move(_cursorGuard)} {}
+IApp::IApp(std::shared_ptr<commons::CursorGuard>&& _cursorGuard, SetScreenResolution&& _setScreenResolution)
+    : cursorGuard{std::move(_cursorGuard)}, setScreenResolution{_setScreenResolution}
+{
+}
 
-void IApp::listen(int, char* [], SetScreenResolution, const internal_types::ScreenResolution&)
+void IApp::listen(int, char*[], SetScreenResolution, const internal_types::ScreenResolution&)
 {
     throw std::runtime_error("IApp::listen method not implemented");
 }

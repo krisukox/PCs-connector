@@ -4,7 +4,6 @@
 #include <QThread>
 #include <memory>
 #include <thread>
-#include "commons/IApp.hpp"
 #include "gui/MsgSender.h"
 #include "gui/ScreenResolutionMsg.h"
 
@@ -29,7 +28,6 @@ public:
     ~MainWindow();
 
     Ui::MainWindow* ui;
-    std::unique_ptr<commons::IApp> app;
 
 private slots:
     void handleConnectButton();
@@ -37,10 +35,13 @@ private slots:
     void handleScreenResolutionSet(const ScreenResolutionMsg&);
 
 private:
+    std::unique_ptr<commons::IApp> createAppPtr();
+
     void addScreensToScene(const QSize&);
 
     std::thread appThread;
     MsgSender* msgSender;
+    std::unique_ptr<commons::IApp> app;
 
     const QSize MASTER_SIZE;
     const QSize SLAVE_SIZE;

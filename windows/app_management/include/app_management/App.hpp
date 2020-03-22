@@ -22,7 +22,7 @@ class Vendor;
 class App : public commons::IApp
 {
 public:
-    App(std::shared_ptr<commons::CursorGuard>&&);
+    App(std::shared_ptr<commons::CursorGuard>&&, SetScreenResolution&&);
     ~App() override;
 
     void connect(const boost::asio::ip::address&) override;

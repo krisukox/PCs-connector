@@ -15,6 +15,7 @@ set(SOURCE_FILES
     src/GraphicsRectItem.cpp
     src/GraphicsScene.cpp
     src/MsgSender.cpp
+    src/ScreenResolutionMsg.cpp
 )
 
 if(UNIX)
