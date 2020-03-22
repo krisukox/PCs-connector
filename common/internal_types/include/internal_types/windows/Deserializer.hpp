@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IDeserializer.hpp"
 #include "internal_types/CommonTypes.hpp"
+#include "internal_types/IDeserializer.hpp"
 #include "internal_types/ScreenResolution.hpp"
 
 namespace internal_types

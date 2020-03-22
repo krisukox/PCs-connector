@@ -1,13 +1,13 @@
 #include "app_management/App.hpp"
 #include <functional>
 #include <iostream>
+#include "Deserializer.hpp"
 #include "app_management/Vendor.hpp"
 #include "connection/Receiver.hpp"
 #include "connection/Sender.hpp"
 #include "connection/Socket.hpp"
 #include "event_vendor/KeyboardSender.hpp"
 #include "event_vendor/MouseSender.hpp"
-#include "internal_types/DeserializerWin.hpp"
 #include "internal_types/ScreenResolution.hpp"
 
 namespace app_management

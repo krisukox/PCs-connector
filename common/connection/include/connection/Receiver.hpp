@@ -5,10 +5,11 @@
 #include <iostream>
 #include <memory>
 #include <type_traits>
+#include "Deserializer.hpp"
 #include "connection/IReceiver.hpp"
 #include "internal_types/CommonTypes.hpp"
-#include "internal_types/DeserializerWin.hpp"
 #include "internal_types/Visitor.hpp"
+#include "internal_types/windows/Deserializer.hpp"
 
 namespace connection
 {
