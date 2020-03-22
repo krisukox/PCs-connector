@@ -45,13 +45,13 @@ void App::initializeVendor()
     auto sender = std::make_shared<connection::Sender>(socket->value());
 
     sender->send(internal_types::ScreenResolution{1920, 1080});
-    //    receiver->receive(
-    //        [](internal_types::ScreenResolution) {
+    receiver->receive<internal_types::ScreenResolution>(
+        [](internal_types::ScreenResolution) {
 
-    //        },
-    //        [](boost::system::error_code ec) {
+        },
+        [](boost::system::error_code ec) {
 
-    //        });
+        });
 
     auto keyboard = std::make_shared<event_vendor::KeyboardSender>(sender);
     auto mouse = std::make_shared<event_vendor::MouseSender>(sender, cursorGuard);

@@ -51,25 +51,25 @@ public:
     template <class T>
     void synchronizedReceive(std::function<void(T)> successfulCallback, UnsuccessfulCallback unsuccessfulCallback)
     {
-        //        if (socket.receive(boost::asio::buffer(buffer, 5)) != 5)
-        //        {
-        //            std::cout << "NOT EQUAL 5!!!!!!!!!" << std::endl;
-        //        }
-        //        auto decoded = deserializer->decode(buffer);
+        if (socket.receive(boost::asio::buffer(buffer, 5)) != 5)
+        {
+            std::cout << "NOT EQUAL 5!!!!!!!!!" << std::endl;
+        }
+        auto decoded = deserializer->decode(buffer);
 
-        //        if (decoded)
-        //        {
-        //            std::visit(
-        //                internal_types::Visitor{
-        //                    [successfulCallback](const T& value) { successfulCallback(value); },
-        //                    [unsuccessfulCallback](const auto&) {},
-        //                },
-        //                decoded.value());
-        //        }
-        //        else
-        //        {
-        //            std::cout << "UNABLE TO DECODE" << std::endl;
-        //        }
+        if (decoded)
+        {
+            std::visit(
+                internal_types::Visitor{
+                    [successfulCallback](const T& value) { successfulCallback(value); },
+                    [unsuccessfulCallback](const auto&) {},
+                },
+                decoded.value());
+        }
+        else
+        {
+            std::cout << "UNABLE TO DECODE" << std::endl;
+        }
     }
 
 private:
