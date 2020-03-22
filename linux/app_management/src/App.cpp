@@ -44,7 +44,7 @@ void App::listen(
             auto successfullCallback = [setScreenResolution, masterScreenResolution, sender](
                                            const internal_types::ScreenResolution& slaveScreenResolution) {
                 setScreenResolution(slaveScreenResolution);
-                //                sender->send(masterScreenResolution);
+                sender->send(masterScreenResolution);
             };
             auto unsuccessfullCallback = [](const boost::system::error_code&) {};
             receiver->synchronizedReceive<internal_types::ScreenResolution>(
