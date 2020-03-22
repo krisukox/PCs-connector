@@ -21,20 +21,26 @@ namespace internal_types
 {
 Deserializer::Deserializer() {}
 
-internal_types::Event Deserializer::decode(const internal_types::Buffer& buffer) const
+std::optional<internal_types::DecodedType> Deserializer::decode(const internal_types::Buffer& buffer) const
 {
     if (buffer[0] == mouseChangePositionByte)
     {
-        return MouseChangePositionEvent{toShort(buffer[1], buffer[2]), toShort(buffer[3], buffer[4])};
+        return decodeEvent(buffer);
     }
-    return MouseChangePositionEvent{};
+    if (buffer[0] == screenResolutionByte)
+    {
+        return decodeScreenResolution(buffer);
+    }
+    return std::nullopt;
+}
+
+internal_types::Event Deserializer::decodeEvent(const internal_types::Buffer& buffer) const
+{
+    return MouseChangePositionEvent{toShort(buffer[1], buffer[2]), toShort(buffer[3], buffer[4])};
 }
 
 internal_types::ScreenResolution Deserializer::decodeScreenResolution(const internal_types::Buffer& buffer) const
 {
-    if (buffer[0] == screenResolutionByte)
-    {
-        return {toUInt(buffer[1], buffer[2]), toUInt(buffer[3], buffer[4])};
-    }
+    return {toUInt(buffer[1], buffer[2]), toUInt(buffer[3], buffer[4])};
 }
 } // namespace internal_types

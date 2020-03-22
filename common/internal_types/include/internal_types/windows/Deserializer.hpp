@@ -12,7 +12,8 @@ public:
     Deserializer();
 
     ~Deserializer() override = default;
-    internal_types::Event decode(const internal_types::Buffer&) const override;
+    std::optional<internal_types::DecodedType> decode(const internal_types::Buffer&) const override;
+    internal_types::Event decodeEvent(const internal_types::Buffer&) const;
     internal_types::ScreenResolution decodeScreenResolution(const internal_types::Buffer&) const;
 };
 } // namespace internal_types
