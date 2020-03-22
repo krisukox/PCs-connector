@@ -100,12 +100,7 @@ std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
     auto screenGeometry = QGuiApplication::screens().at(0)->geometry();
     return std::make_unique<app_management::App>(
         std::make_shared<commons::CursorGuard>(screenGeometry.x(), screenGeometry.y()),
-        [this](const internal_types::ScreenResolution& screenResolution) {
-            ScreenResolutionMsg screenResolutionMsg;
-            screenResolutionMsg.width = screenResolution.width;
-            screenResolutionMsg.height = screenResolution.height;
-            msgSender->send(screenResolutionMsg);
-        });
+        [this](const internal_types::ScreenResolution& screenResolution) { msgSender->send(screenResolution); });
 }
 
 void MainWindow::addScreensToScene(const QSize& slaveSize)
@@ -170,11 +165,7 @@ void MainWindow::handleConnectButton()
 void MainWindow::handleStartButton()
 {
     auto setSlaveScreenResolution = [this](const internal_types::ScreenResolution& screenResolution) {
-        ScreenResolutionMsg screenResolutionMsg;
-        screenResolutionMsg.width = screenResolution.width;
-        screenResolutionMsg.height = screenResolution.height;
-        qDebug() << "QT setSlaveScreenResolution " << screenResolutionMsg.width << " " << screenResolutionMsg.height;
-        msgSender->send(screenResolutionMsg);
+        msgSender->send(screenResolution);
     };
     appThread = std::thread(
         &commons::IApp::listen,

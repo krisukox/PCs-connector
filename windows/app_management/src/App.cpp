@@ -46,7 +46,7 @@ void App::initializeVendor()
     auto sender = std::make_shared<connection::Sender>(socket->value());
 
     sender->send(internal_types::ScreenResolution{1920, 1080});
-    receiver->receive<internal_types::ScreenResolution>(
+    receiver->synchronizedReceive<internal_types::ScreenResolution>(
         [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); },
         [](boost::system::error_code ec) {
 
