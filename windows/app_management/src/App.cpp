@@ -59,7 +59,7 @@ void App::exchangeScreenResolution(
     std::shared_ptr<connection::Receiver> receiver,
     std::shared_ptr<connection::Sender> sender)
 {
-    sender->send(internal_types::ScreenResolution{1920, 1080});
+    sender->send(masterScreenResolution);
 
     connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
         [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
