@@ -3,7 +3,6 @@
 #include <iostream>
 #include "Deserializer.hpp"
 #include "app_management/Vendor.hpp"
-#include "connection/Receiver.hpp"
 #include "connection/Sender.hpp"
 #include "connection/Socket.hpp"
 #include "event_vendor/KeyboardSender.hpp"
@@ -48,6 +47,18 @@ void App::initializeVendor()
         std::make_shared<connection::Receiver>(socket->value(), std::make_unique<internal_types::Deserializer>());
     auto sender = std::make_shared<connection::Sender>(socket->value());
 
+    exchangeScreenResolution(receiver, sender);
+
+    auto keyboard = std::make_shared<event_vendor::KeyboardSender>(sender);
+    auto mouse = std::make_shared<event_vendor::MouseSender>(sender, cursorGuard);
+
+    vendor = std::make_shared<app_management::Vendor>(keyboard, mouse, receiver, stopAppCallback);
+}
+
+void App::exchangeScreenResolution(
+    std::shared_ptr<connection::Receiver> receiver,
+    std::shared_ptr<connection::Sender> sender)
+{
     sender->send(internal_types::ScreenResolution{1920, 1080});
 
     connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
@@ -55,10 +66,5 @@ void App::initializeVendor()
     connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
 
     receiver->synchronizedReceive(successfulCallback, unsuccessfulCallback);
-
-    auto keyboard = std::make_shared<event_vendor::KeyboardSender>(sender);
-    auto mouse = std::make_shared<event_vendor::MouseSender>(sender, cursorGuard);
-
-    vendor = std::make_shared<app_management::Vendor>(keyboard, mouse, receiver, stopAppCallback);
 }
 } // namespace app_management

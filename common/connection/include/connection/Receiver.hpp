@@ -17,7 +17,6 @@ class Receiver
 public:
     template <class T>
     using SuccessfulCallback = std::function<void(T)>;
-
     using UnsuccessfulCallback = std::function<void(boost::system::error_code)>;
 
     Receiver(boost::asio::ip::tcp::socket&, std::unique_ptr<internal_types::Deserializer>);
@@ -61,7 +60,7 @@ private:
                 internal_types::Visitor{
                     [successfulCallback](const T& value) { successfulCallback(value); },
                     [unsuccessfulCallback](const auto&) {
-                        // TODO check if decoded value type is converted to T type
+                        // TODO check if decoded value type is convertable to T type
                         unsuccessfulCallback(boost::system::error_code());
                     },
                 },

@@ -3,6 +3,7 @@
 #include <memory>
 #include "app_management/Console.hpp"
 #include "commons/IApp.hpp"
+#include "connection/Receiver.hpp"
 
 namespace commons
 {
@@ -29,6 +30,7 @@ public:
 
 private:
     void initializeVendor();
+    void exchangeScreenResolution(std::shared_ptr<connection::Receiver>, std::shared_ptr<connection::Sender>);
 
     std::unique_ptr<connection::Socket> socket;
     std::shared_ptr<Vendor> vendor;
