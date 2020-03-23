@@ -67,7 +67,7 @@ public:
             std::visit(
                 internal_types::Visitor{
                     [successfulCallback](const T& value) { successfulCallback(value); },
-                    [unsuccessfulCallback](const auto&) {},
+                    [unsuccessfulCallback](const auto&) { /*check if decoded value type is converted to T type*/ },
                 },
                 decoded.value());
         }

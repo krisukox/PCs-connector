@@ -49,11 +49,12 @@ void App::initializeVendor()
     auto sender = std::make_shared<connection::Sender>(socket->value());
 
     sender->send(internal_types::ScreenResolution{1920, 1080});
-    receiver->synchronizedReceive<internal_types::ScreenResolution>(
-        [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); },
-        [](boost::system::error_code ec) {
 
-        });
+    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+        [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
+    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
+
+    receiver->synchronizedReceive(successfulCallback, unsuccessfulCallback);
 
     auto keyboard = std::make_shared<event_vendor::KeyboardSender>(sender);
     auto mouse = std::make_shared<event_vendor::MouseSender>(sender, cursorGuard);
