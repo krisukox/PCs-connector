@@ -30,21 +30,7 @@ public:
             [this, successfulCallback, unsuccessfulCallback](boost::system::error_code errorCode, std::size_t size) {
                 if (size > 0 && !errorCode)
                 {
-                    auto decoded = deserializer->decode(buffer);
-
-                    if (decoded)
-                    {
-                        std::visit(
-                            internal_types::Visitor{
-                                [successfulCallback](const T& value) { successfulCallback(value); },
-                                [unsuccessfulCallback, errorCode](const auto&) { unsuccessfulCallback(errorCode); },
-                            },
-                            decoded.value());
-                    }
-                    else
-                    {
-                        unsuccessfulCallback(errorCode);
-                    }
+                    handleReceivedData(successfulCallback, unsuccessfulCallback);
                 }
                 else
                 {
@@ -58,8 +44,15 @@ public:
     {
         if (socket.receive(boost::asio::buffer(buffer, 5)) != 5)
         {
-            std::cout << "NOT EQUAL 5!!!!!!!!!" << std::endl;
+            unsuccessfulCallback(boost::system::error_code());
         }
+        handleReceivedData(successfulCallback, unsuccessfulCallback);
+    }
+
+private:
+    template <class T>
+    void handleReceivedData(SuccessfulCallback<T> successfulCallback, UnsuccessfulCallback unsuccessfulCallback)
+    {
         auto decoded = deserializer->decode(buffer);
 
         if (decoded)
@@ -67,17 +60,19 @@ public:
             std::visit(
                 internal_types::Visitor{
                     [successfulCallback](const T& value) { successfulCallback(value); },
-                    [unsuccessfulCallback](const auto&) { /*check if decoded value type is converted to T type*/ },
+                    [unsuccessfulCallback](const auto&) {
+                        // TODO check if decoded value type is converted to T type
+                        unsuccessfulCallback(boost::system::error_code());
+                    },
                 },
                 decoded.value());
         }
         else
         {
-            std::cout << "UNABLE TO DECODE" << std::endl;
+            unsuccessfulCallback(boost::system::error_code());
         }
     }
 
-private:
     boost::asio::ip::tcp::socket& socket;
     std::unique_ptr<internal_types::Deserializer> deserializer;
 
