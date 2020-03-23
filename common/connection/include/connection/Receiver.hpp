@@ -15,10 +15,15 @@ namespace connection
 class Receiver
 {
 public:
+    template <class T>
+    using SuccessfulCallback = std::function<void(T)>;
+
+    using UnsuccessfulCallback = std::function<void(boost::system::error_code)>;
+
     Receiver(boost::asio::ip::tcp::socket&, std::unique_ptr<internal_types::Deserializer>);
 
     template <class T>
-    void receive(std::function<void(T)> successfulCallback, UnsuccessfulCallback unsuccessfulCallback)
+    void receive(SuccessfulCallback<T> successfulCallback, UnsuccessfulCallback unsuccessfulCallback)
     {
         socket.async_receive(
             boost::asio::buffer(buffer, 5),
@@ -49,7 +54,7 @@ public:
     }
 
     template <class T>
-    void synchronizedReceive(std::function<void(T)> successfulCallback, UnsuccessfulCallback unsuccessfulCallback)
+    void synchronizedReceive(SuccessfulCallback<T> successfulCallback, UnsuccessfulCallback unsuccessfulCallback)
     {
         if (socket.receive(boost::asio::buffer(buffer, 5)) != 5)
         {

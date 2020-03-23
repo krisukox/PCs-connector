@@ -22,17 +22,18 @@ void Vendor::startReceivingEvents()
 
 void Vendor::receiveEvent()
 {
-    receiver->receive<internal_types::Event>(
+    connection::Receiver::SuccessfulCallback<internal_types::Event> successfulCallback =
         [this](const internal_types::Event& event) {
             keyboard->changeState();
             mouse->changeMouseState(
                 std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));
             startReceivingEvents();
-        },
-        [this](boost::system::error_code) {
-            std::cerr << "Unsuccessful event receive" << std::endl;
-            stopApp();
-        });
+        };
+    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [this](boost::system::error_code) {
+        std::cerr << "Unsuccessful event receive" << std::endl;
+        stopApp();
+    };
+    receiver->receive(successfulCallback, unsuccessfulCallback);
 }
 
 void Vendor::startCatchingEvents()
