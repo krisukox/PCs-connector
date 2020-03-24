@@ -46,7 +46,4 @@ if(WIN32)
     target_include_directories(internal_types PUBLIC include include/internal_types/windows PRIVATE src src/windows)
 endif(WIN32)
 
-#add_library(internal_types ${HEADERS} ${SOURCE_FILES})
-#target_include_directories(internal_types PUBLIC include PRIVATE src)
-
 add_subdirectory(tests)

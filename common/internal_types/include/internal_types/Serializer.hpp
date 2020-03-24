@@ -1,24 +1,24 @@
 #pragma once
 
-#include "ISerializer.hpp"
+#include "internal_types/CommonTypes.hpp"
 #include "internal_types/ScreenResolution.hpp"
 
 namespace internal_types
 {
-class Serializer : public ISerializer
+class Serializer
 {
 public:
     Serializer() = default;
 
-    ~Serializer() override = default;
+    ~Serializer() = default;
     template <class T>
     Buffer encode(const T& event) const
     {
         return encode(event);
     }
-    Buffer encode(const Event&) const override;
 
 private:
+    Buffer encode(const Event&) const;
     Buffer encode(const ScreenResolution&) const;
     Buffer encode(const MouseEvent&) const;
     Buffer encode(const KeyEvent&) const;

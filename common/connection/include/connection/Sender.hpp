@@ -10,13 +10,12 @@ class Sender
 public:
     Sender(boost::asio::ip::tcp::socket&);
 
-    //    void send(internal_types::Event) const;
     template <class T>
-    void send(T event) const
+    void send(T msgToSend) const
     {
         boost::asio::async_write(
             socket,
-            boost::asio::buffer(serializer.encode<T>(event), 5),
+            boost::asio::buffer(serializer.encode<T>(msgToSend), 5),
             [this](boost::system::error_code ec, std::size_t) {
                 if (!ec)
                 {
