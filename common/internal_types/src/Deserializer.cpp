@@ -146,27 +146,27 @@ std::optional<DecodedType> Deserializer::decode(const internal_types::Buffer& bu
 
 DecodedType Deserializer::decodeInternal(const internal_types::Buffer& buffer) const
 {
-    if (buffer[0] == serialized_values::keyEventByte)
+    if (buffer[0] == serialized_values::keyEvent)
     {
         return decodeKeyEvent(buffer);
     }
-    if (buffer[0] == serialized_values::mouseMoveByte)
+    if (buffer[0] == serialized_values::mouseMove)
     {
         return decodeMouseMoveEvent(buffer);
     }
-    if (buffer[0] == serialized_values::mouseScrollByte)
+    if (buffer[0] == serialized_values::mouseScroll)
     {
         return decodeMouseScrollEvent(buffer);
     }
-    if (buffer[0] == serialized_values::mouseKeyByte)
+    if (buffer[0] == serialized_values::mouseKey)
     {
         return decodeMouseKeyEvent(buffer);
     }
-    if (buffer[0] == serialized_values::mouseChangePositionByte)
+    if (buffer[0] == serialized_values::mouseChangePosition)
     {
         return decodeMouseChangePositionEvent(buffer);
     }
-    if (buffer[0] == serialized_values::screenResolutionByte)
+    if (buffer[0] == serialized_values::screenResolution)
     {
         return decodeScreenResolution(buffer);
     }
@@ -242,11 +242,11 @@ MouseMoveEvent Deserializer::decodeMouseMoveEvent(const internal_types::Buffer& 
 
 MouseScrollEvent Deserializer::decodeMouseScrollEvent(const internal_types::Buffer& buffer) const
 {
-    if (buffer.at(1) == serialized_values::scrollForwardByte)
+    if (buffer.at(1) == serialized_values::scrollForward)
     {
         return MouseScrollEvent::Forward;
     }
-    if (buffer.at(1) == serialized_values::scrollBackwardByte)
+    if (buffer.at(1) == serialized_values::scrollBackward)
     {
         return MouseScrollEvent::Backward;
     }
