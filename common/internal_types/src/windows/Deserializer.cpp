@@ -1,11 +1,8 @@
 #include "Deserializer.hpp"
-#include <iostream>
+#include "internal_types/SerializedValues.hpp"
 
 namespace
 {
-constexpr std::byte mouseChangePositionByte{0b00010000};
-constexpr std::byte screenResolutionByte{0b00100000};
-
 short toShort(const std::byte lv, const std::byte rv)
 {
     return static_cast<short>((std::to_integer<uint8_t>(lv) << 8) + std::to_integer<uint8_t>(rv));
@@ -23,11 +20,11 @@ Deserializer::Deserializer() {}
 
 std::optional<internal_types::DecodedType> Deserializer::decode(const internal_types::Buffer& buffer) const
 {
-    if (buffer[0] == mouseChangePositionByte)
+    if (buffer[0] == serialized_values::mouseChangePosition)
     {
         return decodeEvent(buffer);
     }
-    if (buffer[0] == screenResolutionByte)
+    if (buffer[0] == serialized_values::screenResolution)
     {
         return decodeScreenResolution(buffer);
     }
