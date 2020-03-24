@@ -15,10 +15,10 @@ std::optional<internal_types::MouseChangePositionEvent> CursorGuard::checkIfCurs
         return std::nullopt;
     }
     // HARDCODE
-    //    return internal_types::MouseChangePositionEvent{1919, static_cast<short>(cursor.y + diffPoint.y)};
+    return internal_types::MouseChangePositionEvent{1919, static_cast<short>(cursor.y + diffPoint.y)};
     // END HARDCODE
-    return internal_types::MouseChangePositionEvent{static_cast<short>(cursor.x + diffPoint.x),
-                                                    static_cast<short>(cursor.y + diffPoint.y)};
+    //    return internal_types::MouseChangePositionEvent{static_cast<short>(cursor.x + diffPoint.x),
+    //                                                    static_cast<short>(cursor.y + diffPoint.y)};
 }
 
 void CursorGuard::setContactPoints(

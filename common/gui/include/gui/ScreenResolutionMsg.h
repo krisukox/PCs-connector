@@ -1,4 +1,5 @@
 #pragma once
+
 #include <QMetaType>
 #include "internal_types/ScreenResolution.hpp"
 

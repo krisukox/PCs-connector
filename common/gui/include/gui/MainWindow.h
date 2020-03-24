@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QMainWindow>
-#include <QThread>
 #include <memory>
 #include <thread>
 #include "gui/ScreenResolutionMsg.h"

@@ -2,6 +2,7 @@
 #include <array>
 #include <cstddef>
 #include <variant>
+#include "internal_types/SerializedValues.hpp"
 
 namespace
 {

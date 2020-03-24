@@ -1,5 +1,4 @@
 #include "gui/GraphicsScene.h"
-#include <QDebug>
 #include <QLineF>
 #include <optional>
 #include <set>
@@ -140,6 +139,19 @@ QPointF diffPointAlignedToMasterScreen(const std::vector<GraphicsRectItem*>& rec
     }
     return rectList.at(1)->pos() - rectList.at(0)->pos();
 }
+
+std::optional<QLineF> intersectLine(const QRectF& rect, const QLineF& line)
+{
+    auto point1 =
+        intersect({QLineF(rect.topLeft(), rect.topRight()), QLineF(rect.topRight(), rect.bottomRight())}, line);
+    auto point2 =
+        intersect({QLineF(rect.bottomRight(), rect.bottomLeft()), QLineF(rect.bottomLeft(), rect.topLeft())}, line);
+    if (point1 && point2)
+    {
+        return QLineF(point1.value(), point2.value());
+    }
+    return std::nullopt;
+}
 } // namespace
 
 GraphicsScene::GraphicsScene(
@@ -150,31 +162,6 @@ GraphicsScene::GraphicsScene(
     std::function<void(std::pair<QPointF, QPointF>, QPointF)>&& setContactPoints_)
     : QGraphicsScene{x, y, width, height}, setContactPoints{setContactPoints_}
 {
-}
-
-std::optional<QLineF> GraphicsScene::intersectLine(const QRectF& rect, const QLineF& line)
-{
-    qDebug() << "intersect line" << line.p1() << " " << line.p2();
-    qDebug() << "intersected lines " << rect.topLeft() << " " << rect.topRight() << " " << rect.topRight() << " "
-             << rect.bottomRight();
-    //    QGraphicsScene::addItem(new QGraphicsLineItem(line));
-    auto point1 =
-        intersect({QLineF(rect.topLeft(), rect.topRight()), QLineF(rect.topRight(), rect.bottomRight())}, line);
-    auto point2 =
-        intersect({QLineF(rect.bottomRight(), rect.bottomLeft()), QLineF(rect.bottomLeft(), rect.topLeft())}, line);
-    if (point1)
-    {
-        qDebug() << "point1 exist";
-    }
-    if (point2)
-    {
-        qDebug() << "point2 exist";
-    }
-    if (point1 && point2)
-    {
-        return QLineF(point1.value(), point2.value());
-    }
-    return std::nullopt;
 }
 
 void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
@@ -188,7 +175,6 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
     if (rect1.intersects(rect2))
     {
-        qDebug() << "intersect";
         auto intersectedRect = rect1.intersected(rect2);
         auto normalLine = normalizeLine(lineBetweenCenters);
 
@@ -196,7 +182,6 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
         if (diffLine)
         {
-            qDebug() << "diff Line " << diffLine.value().length();
             if (QLineF(rect1.center() + QPointF(diffLine->dx(), diffLine->dy()), rect2.center()).length() <
                 QLineF(rect1.center() - QPointF(diffLine->dx(), diffLine->dy()), rect2.center()).length())
             {
@@ -210,7 +195,6 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     }
     else
     {
-        qDebug() << "not intersect";
         auto point1 = intersectPoint(rect1, lineBetweenCenters);
         auto point2 = intersectPoint(rect2, lineBetweenCenters);
         if (point1 && point2)

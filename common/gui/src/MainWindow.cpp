@@ -4,17 +4,14 @@
 #include <QDebug>
 #include <QGuiApplication>
 #include <QLabel>
-#include <QLineEdit>
 #include <QMouseEvent>
 #include <QScreen>
 #include <boost/asio.hpp>
-#include <iostream>
 #include "app_management/App.hpp"
 #include "commons/CursorGuard.hpp"
 #include "gui/GraphicsRectItem.h"
 #include "gui/GraphicsScene.h"
 #include "gui/MainWindow.h"
-#include "gui/ScreenResolutionMsg.h"
 #include "internal_types/ScreenResolution.hpp"
 
 namespace

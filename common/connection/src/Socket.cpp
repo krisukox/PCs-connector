@@ -19,16 +19,13 @@ void Socket::listen(const std::string& port, std::function<void(boost::asio::ip:
     auto socketAcceptor = boost::asio::ip::tcp::acceptor{ioContext, endpoint};
     socketAcceptor.async_accept(
         [this, successfulConnection](boost::system::error_code ec, boost::asio::ip::tcp::socket socket_) mutable {
-            std::cout << "ASYNC ACCEPT\n";
             if (!ec)
             {
                 socket = std::make_optional(std::move(socket_));
                 successfulConnection(socket.value());
             }
         });
-    std::cout << "Przed io context run\n";
     ioContext.run();
-    std::cout << "Po io context run\n";
 }
 
 boost::asio::ip::tcp::socket& Socket::value()

@@ -19,10 +19,8 @@ public:
         std::function<void(std::pair<QPointF, QPointF>, QPointF)>&&);
     void addItem(QGraphicsItem* item);
 
-    std::vector<GraphicsRectItem*> rectList;
-
 private:
-    std::optional<QLineF> intersectLine(const QRectF& rect, const QLineF& line);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent*) override;
+    std::vector<GraphicsRectItem*> rectList;
     std::function<void(std::pair<QPointF, QPointF>, QPointF)> setContactPoints;
 };

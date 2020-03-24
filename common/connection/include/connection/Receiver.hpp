@@ -2,9 +2,7 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/socket_base.hpp>
-#include <iostream>
 #include <memory>
-#include <type_traits>
 #include "Deserializer.hpp"
 #include "connection/IReceiver.hpp"
 #include "internal_types/CommonTypes.hpp"
