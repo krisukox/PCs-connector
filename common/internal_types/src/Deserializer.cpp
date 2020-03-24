@@ -80,15 +80,6 @@ std::uint16_t toUInt(const std::byte lv, const std::byte rv)
 {
     return (std::to_integer<uint8_t>(lv) << 8) + std::to_integer<uint8_t>(rv);
 }
-
-constexpr auto leftButtonPressed{std::to_integer<std::uint8_t>(std::byte{0b00000001})};
-constexpr auto leftButtonUnpressed{std::to_integer<std::uint8_t>(std::byte{0b00000010})};
-constexpr auto rightButtonPressed{std::to_integer<std::uint8_t>(std::byte{0b00000100})};
-constexpr auto rightButtonUnpressed{std::to_integer<std::uint8_t>(std::byte{0b00001000})};
-constexpr auto middleButtonPressed{std::to_integer<std::uint8_t>(std::byte{0b00010000})};
-constexpr auto middleButtonUnpressed{std::to_integer<std::uint8_t>(std::byte{0b00100000})};
-
-constexpr std::byte screenResolutionByte{0b00100000};
 } // namespace
 
 namespace internal_types
@@ -175,7 +166,7 @@ DecodedType Deserializer::decodeInternal(const internal_types::Buffer& buffer) c
 
 internal_types::ScreenResolution Deserializer::decodeScreenResolution(const internal_types::Buffer& buffer) const
 {
-    if (buffer[0] == screenResolutionByte)
+    if (buffer[0] == serialized_values::screenResolution)
     {
         return internal_types::ScreenResolution{toUInt(buffer[1], buffer[2]), toUInt(buffer[3], buffer[4])};
     }
@@ -255,20 +246,20 @@ MouseScrollEvent Deserializer::decodeMouseScrollEvent(const internal_types::Buff
 
 MouseKeyEvent Deserializer::decodeMouseKeyEvent(const internal_types::Buffer& buffer) const
 {
-    switch (std::to_integer<uint8_t>(buffer.at(1)))
+    switch (buffer.at(1))
     {
-        case leftButtonPressed:
+        case serialized_values::leftButtonPressed:
             return MouseKeyEvent::LeftButtonPressed;
-        case leftButtonUnpressed:
-            return MouseKeyEvent::LeftButtonUnpressed;
-        case rightButtonPressed:
+        case serialized_values::leftButtonReleased:
+            return MouseKeyEvent::LeftButtonReleased;
+        case serialized_values::rightButtonPressed:
             return MouseKeyEvent::RightButtonPressed;
-        case rightButtonUnpressed:
-            return MouseKeyEvent::RightButtonUnpressed;
-        case middleButtonPressed:
+        case serialized_values::rightButtonReleased:
+            return MouseKeyEvent::RightButtonReleased;
+        case serialized_values::middleButtonPressed:
             return MouseKeyEvent::MiddleButtonPressed;
-        case middleButtonUnpressed:
-            return MouseKeyEvent::MiddleButtonUnpressed;
+        case serialized_values::middleButtonReleased:
+            return MouseKeyEvent::MiddleButtonReleased;
     }
     throw std::runtime_error("Unexpected Mouse Key Event value");
 }

@@ -19,11 +19,11 @@ enum class MouseScrollEvent
 enum class MouseKeyEvent
 {
     LeftButtonPressed,
-    LeftButtonUnpressed,
+    LeftButtonReleased,
     RightButtonPressed,
-    RightButtonUnpressed,
+    RightButtonReleased,
     MiddleButtonPressed,
-    MiddleButtonUnpressed
+    MiddleButtonReleased
 };
 
 struct MouseChangePositionEvent

@@ -95,19 +95,19 @@ void MouseReceiver::onEvent(const internal_types::MouseKeyEvent& mouseKeyEvent)
         case internal_types::MouseKeyEvent::LeftButtonPressed:
             XTestFakeButtonEvent(display, leftButton, True, CurrentTime);
             break;
-        case internal_types::MouseKeyEvent::LeftButtonUnpressed:
+        case internal_types::MouseKeyEvent::LeftButtonReleased:
             XTestFakeButtonEvent(display, leftButton, False, CurrentTime);
             break;
         case internal_types::MouseKeyEvent::MiddleButtonPressed:
             XTestFakeButtonEvent(display, middleButton, True, CurrentTime);
             break;
-        case internal_types::MouseKeyEvent::MiddleButtonUnpressed:
+        case internal_types::MouseKeyEvent::MiddleButtonReleased:
             XTestFakeButtonEvent(display, middleButton, False, CurrentTime);
             break;
         case internal_types::MouseKeyEvent::RightButtonPressed:
             XTestFakeButtonEvent(display, rightButton, True, CurrentTime);
             break;
-        case internal_types::MouseKeyEvent::RightButtonUnpressed:
+        case internal_types::MouseKeyEvent::RightButtonReleased:
             XTestFakeButtonEvent(display, rightButton, False, CurrentTime);
             break;
     }

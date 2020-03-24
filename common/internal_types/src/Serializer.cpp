@@ -65,15 +65,15 @@ Buffer Serializer::encode(const MouseKeyEvent& mouseKeyEvent) const
     {
         case MouseKeyEvent::LeftButtonPressed:
             return {serialized_values::mouseKey, serialized_values::leftButtonPressed};
-        case MouseKeyEvent::LeftButtonUnpressed:
+        case MouseKeyEvent::LeftButtonReleased:
             return {serialized_values::mouseKey, serialized_values::leftButtonReleased};
         case MouseKeyEvent::RightButtonPressed:
             return {serialized_values::mouseKey, serialized_values::rightButtonPressed};
-        case MouseKeyEvent::RightButtonUnpressed:
+        case MouseKeyEvent::RightButtonReleased:
             return {serialized_values::mouseKey, serialized_values::rightButtonReleased};
         case MouseKeyEvent::MiddleButtonPressed:
             return {serialized_values::mouseKey, serialized_values::middleButtonPressed};
-        case MouseKeyEvent::MiddleButtonUnpressed:
+        case MouseKeyEvent::MiddleButtonReleased:
             return {serialized_values::mouseKey, serialized_values::middleButtonReleased};
     }
     throw std::runtime_error("Unexpected MouseKeyEvent value");
