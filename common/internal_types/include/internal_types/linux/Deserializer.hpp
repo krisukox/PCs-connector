@@ -2,10 +2,7 @@
 
 #include <X11/Xlib.h>
 #include <optional>
-#include <stdexcept>
-#include <type_traits>
 #include <unordered_map>
-#include <variant>
 #include "internal_types/CommonTypes.hpp"
 #include "internal_types/KeyEvent.hpp"
 #include "internal_types/MouseEvent.hpp"

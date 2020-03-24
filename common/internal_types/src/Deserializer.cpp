@@ -1,6 +1,7 @@
 #include "Deserializer.hpp"
 #include <X11/keysym.h>
 #include <cstddef>
+#include <stdexcept>
 #include "internal_types/SerializedValues.hpp"
 
 namespace
