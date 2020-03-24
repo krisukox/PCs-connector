@@ -1,7 +1,5 @@
 #include "app_management/App.hpp"
-#include <sys/types.h>
 #include <iostream>
-#include <unistd.h>
 #include "Deserializer.hpp"
 #include "app_management/Consumer.hpp"
 #include "connection/Receiver.hpp"
