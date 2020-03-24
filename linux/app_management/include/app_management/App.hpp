@@ -27,7 +27,7 @@ class Consumer;
 class App : public commons::IApp
 {
 public:
-    App(std::shared_ptr<commons::CursorGuard>&&);
+    App(std::shared_ptr<commons::CursorGuard>&&, SetScreenResolution&&, const internal_types::ScreenResolution&);
     ~App() override;
     void listen(int, char* []) override;
 

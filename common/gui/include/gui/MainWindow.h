@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <memory>
 #include <thread>
+#include "gui/ScreenResolutionMsg.h"
 
 namespace commons
 {
@@ -25,15 +26,21 @@ public:
     ~MainWindow();
 
     Ui::MainWindow* ui;
-    std::unique_ptr<commons::IApp> app;
 
 private slots:
     void handleConnectButton();
     void handleStartButton();
+    void handleScreenResolutionSet(const ScreenResolutionMsg&);
+
+signals:
+    void messageSent(const ScreenResolutionMsg&);
 
 private:
-    std::thread appThread;
+    std::unique_ptr<commons::IApp> createAppPtr();
+    void addScreensToScene(const QSize&);
 
     const QSize MASTER_SIZE;
-    const QSize SLAVE_SIZE;
+    std::unique_ptr<commons::IApp> app;
+
+    std::thread appThread;
 };

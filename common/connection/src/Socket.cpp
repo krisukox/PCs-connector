@@ -25,7 +25,6 @@ void Socket::listen(const std::string& port, std::function<void(boost::asio::ip:
                 successfulConnection(socket.value());
             }
         });
-
     ioContext.run();
 }
 

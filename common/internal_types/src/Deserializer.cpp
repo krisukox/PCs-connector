@@ -1,6 +1,8 @@
-#include "internal_types/Deserializer.hpp"
+#include "Deserializer.hpp"
 #include <X11/keysym.h>
 #include <cstddef>
+#include <stdexcept>
+#include "internal_types/SerializedValues.hpp"
 
 namespace
 {
@@ -75,12 +77,10 @@ short toShort(const std::byte lv, const std::byte rv)
     return static_cast<short>((std::to_integer<uint8_t>(lv) << 8) + std::to_integer<uint8_t>(rv));
 }
 
-constexpr auto leftButtonPressed{std::to_integer<std::uint8_t>(std::byte{0b00000001})};
-constexpr auto leftButtonUnpressed{std::to_integer<std::uint8_t>(std::byte{0b00000010})};
-constexpr auto rightButtonPressed{std::to_integer<std::uint8_t>(std::byte{0b00000100})};
-constexpr auto rightButtonUnpressed{std::to_integer<std::uint8_t>(std::byte{0b00001000})};
-constexpr auto middleButtonPressed{std::to_integer<std::uint8_t>(std::byte{0b00010000})};
-constexpr auto middleButtonUnpressed{std::to_integer<std::uint8_t>(std::byte{0b00100000})};
+std::uint16_t toUInt(const std::byte lv, const std::byte rv)
+{
+    return (std::to_integer<uint8_t>(lv) << 8) + std::to_integer<uint8_t>(rv);
+}
 } // namespace
 
 namespace internal_types
@@ -124,37 +124,59 @@ Deserializer::Deserializer(Display* display_)
 {
 }
 
-std::variant<KeyEvent, MouseEvent> Deserializer::decode(const internal_types::Buffer& buffer) const try
+std::optional<DecodedType> Deserializer::decode(const internal_types::Buffer& buffer) const
 {
-    if (buffer[0] == std::byte{0b00000001}) // Keyboard Click
+    try
     {
-        return KeyEvent{decodeKeyCode(buffer[1]), decodeKeyState(buffer[2])};
+        return decodeInternal(buffer);
     }
-    if (buffer[0] == std::byte{0b00000010}) // Mouse Move
+    catch (...)
+    {
+        return std::nullopt;
+    }
+}
+
+DecodedType Deserializer::decodeInternal(const internal_types::Buffer& buffer) const
+{
+    if (buffer[0] == serialized_values::keyEvent)
+    {
+        return decodeKeyEvent(buffer);
+    }
+    if (buffer[0] == serialized_values::mouseMove)
     {
         return decodeMouseMoveEvent(buffer);
     }
-    if (buffer[0] == std::byte{0b00000100}) // Mouse Scroll
+    if (buffer[0] == serialized_values::mouseScroll)
     {
         return decodeMouseScrollEvent(buffer);
     }
-    if (buffer[0] == std::byte{0b00001000}) // Mouse Click
+    if (buffer[0] == serialized_values::mouseKey)
     {
         return decodeMouseKeyEvent(buffer);
     }
-    if (buffer[0] == std::byte{0b00010000}) // Mouse Change Position
+    if (buffer[0] == serialized_values::mouseChangePosition)
     {
-        return MouseChangePositionEvent{decodeMouseChangePositionEvent(buffer)};
+        return decodeMouseChangePositionEvent(buffer);
     }
-    throw std::runtime_error("Unexpected first byte receive");
+    if (buffer[0] == serialized_values::screenResolution)
+    {
+        return decodeScreenResolution(buffer);
+    }
+    throw std::runtime_error("Cannot decode Event");
 }
-catch (const std::out_of_range&)
+
+internal_types::ScreenResolution Deserializer::decodeScreenResolution(const internal_types::Buffer& buffer) const
 {
-    throw std::invalid_argument("Key not supported");
+    if (buffer[0] == serialized_values::screenResolution)
+    {
+        return internal_types::ScreenResolution{toUInt(buffer[1], buffer[2]), toUInt(buffer[3], buffer[4])};
+    }
+    throw std::runtime_error("Cannot decode ScreenResolution");
 }
-catch (...)
+
+KeyEvent Deserializer::decodeKeyEvent(const internal_types::Buffer& buffer) const
 {
-    throw std::runtime_error("Unexpected exception");
+    return {decodeKeyCode(buffer[1]), decodeKeyState(buffer[2])};
 }
 
 KeyCode Deserializer::decodeKeyCode(const std::byte& keyId) const
@@ -194,7 +216,15 @@ KeyCode Deserializer::decodeKeyCode(const std::byte& keyId) const
 
 bool Deserializer::decodeKeyState(const std::byte& state) const
 {
-    return bool(state);
+    if (state == serialized_values::trueValue)
+    {
+        return true;
+    }
+    if (state == serialized_values::falseValue)
+    {
+        return false;
+    }
+    throw std::runtime_error("Cannot decode KeyState");
 }
 
 MouseMoveEvent Deserializer::decodeMouseMoveEvent(const internal_types::Buffer& buffer) const
@@ -204,11 +234,11 @@ MouseMoveEvent Deserializer::decodeMouseMoveEvent(const internal_types::Buffer& 
 
 MouseScrollEvent Deserializer::decodeMouseScrollEvent(const internal_types::Buffer& buffer) const
 {
-    if (buffer.at(1) == std::byte{0b11110000})
+    if (buffer.at(1) == serialized_values::scrollForward)
     {
         return MouseScrollEvent::Forward;
     }
-    if (buffer.at(1) == std::byte{0b00001111})
+    if (buffer.at(1) == serialized_values::scrollBackward)
     {
         return MouseScrollEvent::Backward;
     }
@@ -217,20 +247,20 @@ MouseScrollEvent Deserializer::decodeMouseScrollEvent(const internal_types::Buff
 
 MouseKeyEvent Deserializer::decodeMouseKeyEvent(const internal_types::Buffer& buffer) const
 {
-    switch (std::to_integer<uint8_t>(buffer.at(1)))
+    switch (buffer.at(1))
     {
-        case leftButtonPressed:
+        case serialized_values::leftButtonPressed:
             return MouseKeyEvent::LeftButtonPressed;
-        case leftButtonUnpressed:
-            return MouseKeyEvent::LeftButtonUnpressed;
-        case rightButtonPressed:
+        case serialized_values::leftButtonReleased:
+            return MouseKeyEvent::LeftButtonReleased;
+        case serialized_values::rightButtonPressed:
             return MouseKeyEvent::RightButtonPressed;
-        case rightButtonUnpressed:
-            return MouseKeyEvent::RightButtonUnpressed;
-        case middleButtonPressed:
+        case serialized_values::rightButtonReleased:
+            return MouseKeyEvent::RightButtonReleased;
+        case serialized_values::middleButtonPressed:
             return MouseKeyEvent::MiddleButtonPressed;
-        case middleButtonUnpressed:
-            return MouseKeyEvent::MiddleButtonUnpressed;
+        case serialized_values::middleButtonReleased:
+            return MouseKeyEvent::MiddleButtonReleased;
     }
     throw std::runtime_error("Unexpected Mouse Key Event value");
 }

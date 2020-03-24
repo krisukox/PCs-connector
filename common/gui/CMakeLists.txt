@@ -6,12 +6,14 @@ set(HEADERS
     include/gui/MainWindow.h
     include/gui/GraphicsRectItem.h
     include/gui/GraphicsScene.h
+    include/gui/ScreenResolutionMsg.h
 )
 
 set(SOURCE_FILES
     src/MainWindow.cpp
     src/GraphicsRectItem.cpp
     src/GraphicsScene.cpp
+    src/ScreenResolutionMsg.cpp
 )
 
 if(UNIX)

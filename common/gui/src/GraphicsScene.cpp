@@ -28,19 +28,6 @@ std::optional<QPointF> intersect(std::vector<QLineF> lines, const QLineF& inters
     return std::nullopt;
 }
 
-std::optional<QLineF> intersectLine(const QRectF& rect, const QLineF& line)
-{
-    auto point1 =
-        intersect({QLineF(rect.topLeft(), rect.topRight()), QLineF(rect.topRight(), rect.bottomRight())}, line);
-    auto point2 =
-        intersect({QLineF(rect.bottomRight(), rect.bottomLeft()), QLineF(rect.bottomLeft(), rect.topLeft())}, line);
-    if (point1 && point2)
-    {
-        return QLineF(point1.value(), point2.value());
-    }
-    return std::nullopt;
-}
-
 std::optional<QPointF> intersectPoint(const QRectF& rect, const QLineF& line)
 {
     return intersect(
@@ -152,6 +139,19 @@ QPointF diffPointAlignedToMasterScreen(const std::vector<GraphicsRectItem*>& rec
     }
     return rectList.at(1)->pos() - rectList.at(0)->pos();
 }
+
+std::optional<QLineF> intersectLine(const QRectF& rect, const QLineF& line)
+{
+    auto point1 =
+        intersect({QLineF(rect.topLeft(), rect.topRight()), QLineF(rect.topRight(), rect.bottomRight())}, line);
+    auto point2 =
+        intersect({QLineF(rect.bottomRight(), rect.bottomLeft()), QLineF(rect.bottomLeft(), rect.topLeft())}, line);
+    if (point1 && point2)
+    {
+        return QLineF(point1.value(), point2.value());
+    }
+    return std::nullopt;
+}
 } // namespace
 
 GraphicsScene::GraphicsScene(
@@ -179,6 +179,7 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         auto normalLine = normalizeLine(lineBetweenCenters);
 
         auto diffLine = intersectLine(intersectedRect, normalLine);
+
         if (diffLine)
         {
             if (QLineF(rect1.center() + QPointF(diffLine->dx(), diffLine->dy()), rect2.center()).length() <

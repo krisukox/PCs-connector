@@ -6,7 +6,7 @@
 
 namespace connection
 {
-class IReceiver;
+class Receiver;
 }
 
 namespace event_vendor
@@ -23,7 +23,7 @@ public:
     Vendor(
         std::shared_ptr<event_vendor::KeyboardSender>,
         std::shared_ptr<event_vendor::MouseSender>,
-        std::shared_ptr<connection::IReceiver>,
+        std::shared_ptr<connection::Receiver>,
         std::function<void()> stopAppCallback_);
 
     void startReceivingEvents();
@@ -36,7 +36,7 @@ private:
 
     std::shared_ptr<event_vendor::KeyboardSender> keyboard;
     std::shared_ptr<event_vendor::MouseSender> mouse;
-    std::shared_ptr<connection::IReceiver> receiver;
+    std::shared_ptr<connection::Receiver> receiver;
     std::function<void()> stopAppCallback;
 };
 } // namespace app_management

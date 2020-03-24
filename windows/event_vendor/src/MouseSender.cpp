@@ -120,15 +120,15 @@ LRESULT MouseSender::forwardEvent(int nCode, WPARAM wParam, LPARAM lParam)
                 case WM_LBUTTONDOWN:
                     return sendEvent(internal_types::MouseKeyEvent::LeftButtonPressed);
                 case WM_LBUTTONUP:
-                    return sendEvent(internal_types::MouseKeyEvent::LeftButtonUnpressed);
+                    return sendEvent(internal_types::MouseKeyEvent::LeftButtonReleased);
                 case WM_MBUTTONDOWN:
                     return sendEvent(internal_types::MouseKeyEvent::MiddleButtonPressed);
                 case WM_MBUTTONUP:
-                    return sendEvent(internal_types::MouseKeyEvent::MiddleButtonUnpressed);
+                    return sendEvent(internal_types::MouseKeyEvent::MiddleButtonReleased);
                 case WM_RBUTTONDOWN:
                     return sendEvent(internal_types::MouseKeyEvent::RightButtonPressed);
                 case WM_RBUTTONUP:
-                    return sendEvent(internal_types::MouseKeyEvent::RightButtonUnpressed);
+                    return sendEvent(internal_types::MouseKeyEvent::RightButtonReleased);
                 case WM_MOUSEWHEEL:
                     if (static_cast<std::make_signed_t<WORD>>(HIWORD(mouseStruct->mouseData)) < 0)
                     {

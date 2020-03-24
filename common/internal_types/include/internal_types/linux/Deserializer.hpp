@@ -1,23 +1,31 @@
 #pragma once
 
 #include <X11/Xlib.h>
+#include <optional>
 #include <unordered_map>
-#include <variant>
-#include "IDeserializer.hpp"
-#include "KeyEvent.hpp"
-#include "MouseEvent.hpp"
+#include "internal_types/CommonTypes.hpp"
+#include "internal_types/KeyEvent.hpp"
+#include "internal_types/MouseEvent.hpp"
+#include "internal_types/ScreenResolution.hpp"
 
 namespace internal_types
 {
-class Deserializer : public IDeserializer
+class Deserializer
 {
 public:
     Deserializer(Display*);
 
-    ~Deserializer() override = default;
-    internal_types::Event decode(const internal_types::Buffer&) const override;
+    ~Deserializer() = default;
+
+    std::optional<DecodedType> decode(const internal_types::Buffer& buffer) const;
 
 private:
+    DecodedType decodeInternal(const internal_types::Buffer& buffer) const;
+
+    internal_types::ScreenResolution decodeScreenResolution(const internal_types::Buffer&) const;
+    std::optional<internal_types::Event> decodeEvent(const internal_types::Buffer&) const;
+
+    KeyEvent decodeKeyEvent(const internal_types::Buffer& buffer) const;
     KeyCode decodeKeyCode(const std::byte&) const;
     bool decodeKeyState(const std::byte&) const;
     MouseMoveEvent decodeMouseMoveEvent(const internal_types::Buffer&) const;

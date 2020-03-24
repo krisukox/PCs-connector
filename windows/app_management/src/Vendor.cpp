@@ -1,6 +1,6 @@
 #include "app_management/Vendor.hpp"
 #include <iostream>
-#include "connection/IReceiver.hpp"
+#include "connection/Receiver.hpp"
 #include "event_vendor/KeyboardSender.hpp"
 #include "event_vendor/MouseSender.hpp"
 
@@ -9,7 +9,7 @@ namespace app_management
 Vendor::Vendor(
     std::shared_ptr<event_vendor::KeyboardSender> keyboardSender,
     std::shared_ptr<event_vendor::MouseSender> mouseSender,
-    std::shared_ptr<connection::IReceiver> receiver_,
+    std::shared_ptr<connection::Receiver> receiver_,
     std::function<void()> stopAppCallback_)
     : keyboard{keyboardSender}, mouse{mouseSender}, receiver{receiver_}, stopAppCallback{stopAppCallback_}
 {
@@ -22,17 +22,18 @@ void Vendor::startReceivingEvents()
 
 void Vendor::receiveEvent()
 {
-    receiver->receive(
+    connection::Receiver::SuccessfulCallback<internal_types::Event> successfulCallback =
         [this](const internal_types::Event& event) {
             keyboard->changeState();
             mouse->changeMouseState(
                 std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));
             startReceivingEvents();
-        },
-        [this](boost::system::error_code) {
-            std::cerr << "Unsuccessful event receive" << std::endl;
-            stopApp();
-        });
+        };
+    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [this](boost::system::error_code) {
+        std::cerr << "Unsuccessful event receive" << std::endl;
+        stopApp();
+    };
+    receiver->receive(successfulCallback, unsuccessfulCallback);
 }
 
 void Vendor::startCatchingEvents()

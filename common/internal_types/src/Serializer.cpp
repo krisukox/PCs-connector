@@ -2,7 +2,10 @@
 #include <array>
 #include <cstddef>
 #include <variant>
+#include "internal_types/SerializedValues.hpp"
 
+namespace internal_types
+{
 namespace
 {
 std::array<std::byte, 2> toBytes(const short& val)
@@ -14,14 +17,12 @@ std::byte toByte(const bool isPressed)
 {
     if (isPressed)
     {
-        return std::byte(0b00001111);
+        return serialized_values::trueValue;
     }
-    return std::byte(0b00000000);
+    return serialized_values::falseValue;
 }
 } // namespace
 
-namespace internal_types
-{
 Buffer Serializer::encode(const Event& event) const
 {
     return std::visit([this](const auto& event) -> Buffer { return encode(event); }, event);
@@ -29,7 +30,7 @@ Buffer Serializer::encode(const Event& event) const
 
 Buffer Serializer::encode(const KeyEvent& keyEvent) const
 {
-    return {std::byte(0b00000001), std::byte(keyEvent.keyCode), toByte(keyEvent.isPressed)};
+    return {serialized_values::keyEvent, std::byte(keyEvent.keyCode), toByte(keyEvent.isPressed)};
 }
 
 Buffer Serializer::encode(const MouseEvent& mouseEvent) const
@@ -39,56 +40,58 @@ Buffer Serializer::encode(const MouseEvent& mouseEvent) const
 
 Buffer Serializer::encode(const MouseMoveEvent& mouseMoveEvent) const
 {
-    std::byte mouseMoveByte{0b00000010};
-
     auto [xPart1, xPart2] = toBytes(mouseMoveEvent.deltaX);
     auto [yPart1, yPart2] = toBytes(mouseMoveEvent.deltaY);
 
-    return {mouseMoveByte, xPart1, xPart2, yPart1, yPart2};
+    return {serialized_values::mouseMove, xPart1, xPart2, yPart1, yPart2};
 }
 
 Buffer Serializer::encode(const MouseScrollEvent& mouseScrollEvent) const
 {
-    std::byte mouseScrollByte{0b00000100};
     if (mouseScrollEvent == MouseScrollEvent::Forward)
     {
-        return {mouseScrollByte, std::byte{0b11110000}};
+        return {serialized_values::mouseScroll, serialized_values::scrollForward};
     }
     if (mouseScrollEvent == MouseScrollEvent::Backward)
     {
-        return {mouseScrollByte, std::byte{0b00001111}};
+        return {serialized_values::mouseScroll, serialized_values::scrollBackward};
     }
     throw std::runtime_error("Unexpected MouseScrollEvent value");
 }
 
 Buffer Serializer::encode(const MouseKeyEvent& mouseKeyEvent) const
 {
-    std::byte mouseKeyByte{0b00001000};
     switch (mouseKeyEvent)
     {
         case MouseKeyEvent::LeftButtonPressed:
-            return {mouseKeyByte, std::byte{0b00000001}};
-        case MouseKeyEvent::LeftButtonUnpressed:
-            return {mouseKeyByte, std::byte{0b00000010}};
+            return {serialized_values::mouseKey, serialized_values::leftButtonPressed};
+        case MouseKeyEvent::LeftButtonReleased:
+            return {serialized_values::mouseKey, serialized_values::leftButtonReleased};
         case MouseKeyEvent::RightButtonPressed:
-            return {mouseKeyByte, std::byte{0b00000100}};
-        case MouseKeyEvent::RightButtonUnpressed:
-            return {mouseKeyByte, std::byte{0b00001000}};
+            return {serialized_values::mouseKey, serialized_values::rightButtonPressed};
+        case MouseKeyEvent::RightButtonReleased:
+            return {serialized_values::mouseKey, serialized_values::rightButtonReleased};
         case MouseKeyEvent::MiddleButtonPressed:
-            return {mouseKeyByte, std::byte{0b00010000}};
-        case MouseKeyEvent::MiddleButtonUnpressed:
-            return {mouseKeyByte, std::byte{0b00100000}};
+            return {serialized_values::mouseKey, serialized_values::middleButtonPressed};
+        case MouseKeyEvent::MiddleButtonReleased:
+            return {serialized_values::mouseKey, serialized_values::middleButtonReleased};
     }
     throw std::runtime_error("Unexpected MouseKeyEvent value");
 }
 
 Buffer Serializer::encode(const MouseChangePositionEvent& event) const
 {
-    std::byte mouseChangePositionByte{0b00010000};
-
     auto [xPart1, xPart2] = toBytes(event.x);
     auto [yPart1, yPart2] = toBytes(event.y);
 
-    return {mouseChangePositionByte, xPart1, xPart2, yPart1, yPart2};
+    return {serialized_values::mouseChangePosition, xPart1, xPart2, yPart1, yPart2};
+}
+
+Buffer Serializer::encode(const ScreenResolution& screenResolution) const
+{
+    auto [widthPart1, widthPart2] = toBytes(screenResolution.width);
+    auto [heightPart1, heightPart2] = toBytes(screenResolution.height);
+
+    return {serialized_values::screenResolution, widthPart1, widthPart2, heightPart1, heightPart2};
 }
 } // namespace internal_types

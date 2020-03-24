@@ -1,20 +1,24 @@
 #include "app_management/App.hpp"
 #include <functional>
 #include <iostream>
+#include "Deserializer.hpp"
 #include "app_management/Vendor.hpp"
-#include "connection/Receiver.hpp"
 #include "connection/Sender.hpp"
 #include "connection/Socket.hpp"
 #include "event_vendor/KeyboardSender.hpp"
 #include "event_vendor/MouseSender.hpp"
-#include "internal_types/DeserializerWin.hpp"
+#include "internal_types/ScreenResolution.hpp"
 
 namespace app_management
 {
 App::~App() = default;
 
-App::App(std::shared_ptr<commons::CursorGuard>&& _cursorGuard)
-    : commons::IApp(std::move(_cursorGuard)), socket{std::make_unique<connection::Socket>()}
+App::App(
+    std::shared_ptr<commons::CursorGuard>&& cursorGuard,
+    SetScreenResolution&& setScreenResolution,
+    const internal_types::ScreenResolution& masterScreenResolution)
+    : commons::IApp(std::move(cursorGuard), std::move(setScreenResolution), masterScreenResolution)
+    , socket{std::make_unique<connection::Socket>()}
 {
 }
 
@@ -43,9 +47,24 @@ void App::initializeVendor()
         std::make_shared<connection::Receiver>(socket->value(), std::make_unique<internal_types::Deserializer>());
     auto sender = std::make_shared<connection::Sender>(socket->value());
 
+    exchangeScreenResolution(receiver, sender);
+
     auto keyboard = std::make_shared<event_vendor::KeyboardSender>(sender);
     auto mouse = std::make_shared<event_vendor::MouseSender>(sender, cursorGuard);
 
     vendor = std::make_shared<app_management::Vendor>(keyboard, mouse, receiver, stopAppCallback);
+}
+
+void App::exchangeScreenResolution(
+    std::shared_ptr<connection::Receiver> receiver,
+    std::shared_ptr<connection::Sender> sender)
+{
+    sender->send(masterScreenResolution);
+
+    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+        [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
+    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
+
+    receiver->synchronizedReceive(successfulCallback, unsuccessfulCallback);
 }
 } // namespace app_management

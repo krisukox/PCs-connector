@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <variant>
 #include "KeyEvent.hpp"
 #include "MouseEvent.hpp"
@@ -12,6 +13,6 @@ class IDeserializer
 public:
     virtual ~IDeserializer() = default;
 
-    virtual std::variant<KeyEvent, MouseEvent> decode(const internal_types::Buffer&) const = 0;
+    virtual std::optional<internal_types::DecodedType> decode(const internal_types::Buffer&) const = 0;
 };
 } // namespace internal_types
