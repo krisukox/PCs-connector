@@ -14,8 +14,11 @@
 
 namespace app_management
 {
-App::App(std::shared_ptr<commons::CursorGuard>&& _cursorGuard, SetScreenResolution&& setScreenResolution)
-    : commons::IApp(std::move(_cursorGuard), std::move(setScreenResolution))
+App::App(
+    std::shared_ptr<commons::CursorGuard>&& _cursorGuard,
+    SetScreenResolution&& setScreenResolution,
+    const internal_types::ScreenResolution& masterScreenResolution)
+    : commons::IApp(std::move(_cursorGuard), std::move(setScreenResolution), masterScreenResolution)
     , display{XOpenDisplay(nullptr)}
     , socket{std::make_unique<connection::Socket>()}
 {
@@ -28,19 +31,18 @@ App::~App()
     XCloseDisplay(display);
 }
 
-void App::listen(int argc, char* argv[], const internal_types::ScreenResolution& masterScreenResolution)
+void App::listen(int argc, char* argv[])
 {
-    auto successfullConnection = [this, argc, argv, masterScreenResolution](boost::asio::ip::tcp::socket& socket) {
+    auto successfullConnection = [this, argc, argv](boost::asio::ip::tcp::socket& socket) {
         auto receiver =
             std::make_shared<connection::Receiver>(socket, std::make_unique<internal_types::Deserializer>(display));
 
         auto sender = std::make_shared<connection::Sender>(socket);
 
-        auto successfullCallback =
-            [this, masterScreenResolution, sender](const internal_types::ScreenResolution& slaveScreenResolution) {
-                setScreenResolution(slaveScreenResolution);
-                sender->send(masterScreenResolution);
-            };
+        auto successfullCallback = [this, sender](const internal_types::ScreenResolution& slaveScreenResolution) {
+            setScreenResolution(slaveScreenResolution);
+            sender->send(masterScreenResolution);
+        };
         auto unsuccessfullCallback = [](const boost::system::error_code&) {};
         receiver->synchronizedReceive<internal_types::ScreenResolution>(
             std::move(successfullCallback), std::move(unsuccessfullCallback));
