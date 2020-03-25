@@ -23,7 +23,7 @@
       <x>460</x>
       <y>10</y>
       <width>231</width>
-      <height>451</height>
+      <height>201</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -103,6 +103,32 @@
       <width>450</width>
       <height>450</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="availableMonitors">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>250</y>
+      <width>211</width>
+      <height>27</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>220</y>
+      <width>211</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Available screens</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>

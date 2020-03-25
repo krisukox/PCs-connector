@@ -37,6 +37,7 @@ signals:
 
 private:
     std::unique_ptr<commons::IApp> createAppPtr();
+    void fillAvailableMonitors();
     void addScreensToScene(const QSize&);
 
     const QSize MASTER_SIZE;

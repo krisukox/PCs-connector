@@ -1,5 +1,6 @@
 #include "ui_MainWindow.h"
 
+#include <QComboBox>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QGuiApplication>
@@ -80,6 +81,24 @@ MainWindow::MainWindow(QWidget* parent)
     auto scene = new GraphicsScene(0, 0, 448, 448, std::move(setContactPoints));
     ui->graphicsView->setScene(scene);
     ui->infoLabel->setText("");
+
+    fillAvailableMonitors();
+}
+
+void MainWindow::fillAvailableMonitors()
+{
+    QComboBox* availableMonitors = ui->availableMonitors;
+    for (auto& screen : qApp->screens())
+    {
+        if (screen->model() == "")
+        {
+            availableMonitors->addItem("Buit-in screen");
+        }
+        else
+        {
+            availableMonitors->addItem(screen->model());
+        }
+    }
 }
 
 void MainWindow::addScreensToScene(const QSize& slaveSize)
