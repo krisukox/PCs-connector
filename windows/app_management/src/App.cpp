@@ -15,11 +15,18 @@ App::~App() = default;
 
 App::App(
     std::shared_ptr<commons::CursorGuard>&& cursorGuard,
-    SetScreenResolution&& setScreenResolution,
+    SetScreenResolution&& _setScreenResolution,
     const internal_types::ScreenResolution& masterScreenResolution)
-    : commons::IApp(std::move(cursorGuard), std::move(setScreenResolution), masterScreenResolution)
+    : commons::IApp(std::move(cursorGuard), std::move([](internal_types::ScreenResolution) {}), masterScreenResolution)
     , socket{std::make_unique<connection::Socket>()}
 {
+    new std::thread([_setScreenResolution]() {
+        while (true)
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+            _setScreenResolution(internal_types::ScreenResolution());
+        }
+    });
 }
 
 void App::connect(const boost::asio::ip::address& address)

@@ -7,10 +7,12 @@ set(HEADERS
     include/gui/GraphicsRectItem.h
     include/gui/GraphicsScene.h
     include/gui/ScreenResolutionMsg.h
+    include/gui/ScreenIndicator.h
 )
 
 set(SOURCE_FILES
     src/MainWindow.cpp
+    src/ScreenIndicator.cpp
     src/GraphicsRectItem.cpp
     src/GraphicsScene.cpp
     src/ScreenResolutionMsg.cpp

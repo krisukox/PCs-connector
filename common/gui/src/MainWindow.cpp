@@ -2,11 +2,14 @@
 
 #include <QComboBox>
 #include <QCoreApplication>
+#include <QCursor>
 #include <QDebug>
 #include <QGuiApplication>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QScreen>
+#include <QThread>
+#include <QTimer>
 #include <boost/asio.hpp>
 #include "app_management/App.hpp"
 #include "commons/CursorGuard.hpp"
@@ -52,19 +55,60 @@ int downScale(const int& value)
 }
 } // namespace
 
+unsigned MyIndex = 0;
+
 std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
 {
     auto screenGeometry = QGuiApplication::screens().at(0)->geometry();
     return std::make_unique<app_management::App>(
         std::make_shared<commons::CursorGuard>(screenGeometry.x(), screenGeometry.y()),
-        [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); },
+        [this](const internal_types::ScreenResolution& screenResolution) {
+            if (MyIndex % 2 == 0)
+            {
+                QCursor::setPos(100, 100);
+            }
+            else
+            {
+                qDebug() << "POZYCJA: " << QCursor::pos();
+            }
+            MyIndex++;
+            /* emit messageSent(screenResolution);*/
+        },
         internal_types::ScreenResolution{static_cast<std::uint16_t>(MASTER_SIZE.width()),
                                          static_cast<std::uint16_t>(MASTER_SIZE.height())});
 }
 
+unsigned MainWindow::index = 0;
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow{parent}, ui{new Ui::MainWindow}, MASTER_SIZE{getMasterSize()}, app{createAppPtr()}
 {
+    //    QThread::sleep(5);
+    //    QCursor::setPos(100, 100);
+    //    qDebug() << QCursor::pos();
+    qDebug() << "MAIN WINDOW";
+    if (index == 0)
+    {
+        qDebug() << "MAIN WINDOW 2";
+        index++;
+        //        mainWindow = std::make_unique<MainWindow>();
+        //        mainWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+        //        mainWindow->show();
+        qDebug() << qApp->screens().at(0)->geometry().topLeft() + QPoint(100, 100);
+        indicator1 = std::make_unique<Indicator>(1);
+        indicator1->setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+        indicator1->setFocusPolicy(Qt::FocusPolicy::NoFocus);
+        indicator1->setWindowOpacity(0.5);
+        indicator1->move(qApp->screens().at(0)->geometry().topLeft() + QPoint(100, 100));
+        indicator1->show();
+
+        indicator2 = std::make_unique<Indicator>(2);
+        indicator2->setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+        indicator2->setFocusPolicy(Qt::FocusPolicy::NoFocus);
+        indicator2->setWindowOpacity(0.5);
+        indicator2->move(qApp->screens().at(1)->geometry().topLeft() + QPoint(100, 100));
+        indicator2->show();
+    }
     connect(this, SIGNAL(messageSent(ScreenResolutionMsg)), this, SLOT(handleScreenResolutionSet(ScreenResolutionMsg)));
 
     qRegisterMetaType<ScreenResolutionMsg>("ScreenResolutionMsg");
@@ -83,22 +127,26 @@ MainWindow::MainWindow(QWidget* parent)
     ui->infoLabel->setText("");
 
     fillAvailableMonitors();
+    //    qDebug() << "POZYCJA: " << QCursor::pos();
 }
 
 void MainWindow::fillAvailableMonitors()
 {
-    QComboBox* availableMonitors = ui->availableMonitors;
-    for (auto& screen : qApp->screens())
-    {
-        if (screen->model() == "")
-        {
-            availableMonitors->addItem("Buit-in screen");
-        }
-        else
-        {
-            availableMonitors->addItem(screen->model());
-        }
-    }
+    //    QComboBox* availableMonitors = ui->availableMonitors;
+    //    for (auto& screen : qApp->screens())
+    //    {
+    //        qDebug() << screen->model();
+    //        qDebug() << screen->name();
+    //        qDebug() << screen->manufacturer();
+    //        if (screen->model() == "")
+    //        {
+    //            availableMonitors->addItem("Buit-in screen");
+    //        }
+    //        else
+    //        {
+    //            availableMonitors->addItem(screen->model());
+    //        }
+    //    }
 }
 
 void MainWindow::addScreensToScene(const QSize& slaveSize)

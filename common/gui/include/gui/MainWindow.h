@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <memory>
 #include <thread>
+#include "gui/ScreenIndicator.h"
 #include "gui/ScreenResolutionMsg.h"
 
 namespace commons
@@ -42,6 +43,10 @@ private:
 
     const QSize MASTER_SIZE;
     std::unique_ptr<commons::IApp> app;
+    std::unique_ptr<MainWindow> mainWindow;
+    std::unique_ptr<Indicator> indicator1;
+    std::unique_ptr<Indicator> indicator2;
+    static unsigned index;
 
     std::thread appThread;
 };
