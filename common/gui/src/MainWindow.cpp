@@ -62,59 +62,22 @@ std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
     auto screenGeometry = QGuiApplication::screens().at(0)->geometry();
     return std::make_unique<app_management::App>(
         std::make_shared<commons::CursorGuard>(screenGeometry.x(), screenGeometry.y()),
-        [this](const internal_types::ScreenResolution& screenResolution) {
-            if (MyIndex % 2 == 0)
-            {
-                QCursor::setPos(100, 100);
-            }
-            else
-            {
-                qDebug() << "POZYCJA: " << QCursor::pos();
-            }
-            MyIndex++;
-            /* emit messageSent(screenResolution);*/
-        },
+        [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); },
         internal_types::ScreenResolution{static_cast<std::uint16_t>(MASTER_SIZE.width()),
                                          static_cast<std::uint16_t>(MASTER_SIZE.height())});
 }
 
-unsigned MainWindow::index = 0;
-
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow{parent}, ui{new Ui::MainWindow}, MASTER_SIZE{getMasterSize()}, app{createAppPtr()}
 {
-    //    QThread::sleep(5);
-    //    QCursor::setPos(100, 100);
-    //    qDebug() << QCursor::pos();
-    qDebug() << "MAIN WINDOW";
-    if (index == 0)
-    {
-        qDebug() << "MAIN WINDOW 2";
-        index++;
-        //        mainWindow = std::make_unique<MainWindow>();
-        //        mainWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-        //        mainWindow->show();
-        qDebug() << qApp->screens().at(0)->geometry().topLeft() + QPoint(100, 100);
-        indicator1 = std::make_unique<Indicator>(1);
-        indicator1->setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-        indicator1->setFocusPolicy(Qt::FocusPolicy::NoFocus);
-        indicator1->setWindowOpacity(0.5);
-        indicator1->move(qApp->screens().at(0)->geometry().topLeft() + QPoint(100, 100));
-        indicator1->show();
-
-        indicator2 = std::make_unique<Indicator>(2);
-        indicator2->setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-        indicator2->setFocusPolicy(Qt::FocusPolicy::NoFocus);
-        indicator2->setWindowOpacity(0.5);
-        indicator2->move(qApp->screens().at(1)->geometry().topLeft() + QPoint(100, 100));
-        indicator2->show();
-    }
     connect(this, SIGNAL(messageSent(ScreenResolutionMsg)), this, SLOT(handleScreenResolutionSet(ScreenResolutionMsg)));
 
     qRegisterMetaType<ScreenResolutionMsg>("ScreenResolutionMsg");
     ui->setupUi(this);
+    timer = new QTimer(this);
     connect(ui->connectButton, SIGNAL(released()), this, SLOT(handleConnectButton()));
     connect(ui->startButton, SIGNAL(released()), this, SLOT(handleStartButton()));
+    connect(ui->identifyScreens, SIGNAL(released()), this, SLOT(handleIdetifyScreensButton()));
 
     auto setContactPoints = [this](const std::pair<QPointF, QPointF>& contactPoints, const QPointF& diffPoint) {
         this->app->setContactPoints(
@@ -127,26 +90,49 @@ MainWindow::MainWindow(QWidget* parent)
     ui->infoLabel->setText("");
 
     fillAvailableMonitors();
-    //    qDebug() << "POZYCJA: " << QCursor::pos();
+
+    timer->callOnTimeout([this]() {
+        indicators.clear();
+        timer->stop();
+    });
 }
 
 void MainWindow::fillAvailableMonitors()
 {
-    //    QComboBox* availableMonitors = ui->availableMonitors;
-    //    for (auto& screen : qApp->screens())
-    //    {
-    //        qDebug() << screen->model();
-    //        qDebug() << screen->name();
-    //        qDebug() << screen->manufacturer();
-    //        if (screen->model() == "")
-    //        {
-    //            availableMonitors->addItem("Buit-in screen");
-    //        }
-    //        else
-    //        {
-    //            availableMonitors->addItem(screen->model());
-    //        }
-    //    }
+    QComboBox* availableMonitors = ui->availableMonitors;
+    auto size = qApp->screens().size();
+    for (int i = 0; i < size; i++)
+    {
+        availableMonitors->addItem(QString::number(i + 1), i + 1);
+    }
+}
+
+void MainWindow::showIndicators()
+{
+    QComboBox* availableMonitors = ui->availableMonitors;
+
+    auto size = qApp->screens().size();
+
+    indicators.clear();
+    for (int i = 0; i < size; i++)
+    {
+        auto indicator = std::make_unique<Indicator>();
+        if (i + 1 == availableMonitors->currentData().toInt())
+        {
+            indicator->setAppearance(i + 1, Qt::red);
+        }
+        else
+        {
+            indicator->setAppearance(i + 1, Qt::black);
+        }
+        indicator->setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+        indicator->setFocusPolicy(Qt::FocusPolicy::NoFocus);
+        indicator->setWindowOpacity(0.7);
+        indicator->move(qApp->screens().at(i)->geometry().topLeft() + QPoint(100, 100));
+        indicator->show();
+        indicators.push_back(std::move(indicator));
+    }
+    timer->start(5000);
 }
 
 void MainWindow::addScreensToScene(const QSize& slaveSize)
@@ -207,13 +193,23 @@ void MainWindow::handleConnectButton()
 
 void MainWindow::handleStartButton()
 {
-    appThread =
-        std::thread(&commons::IApp::listen, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
+    //    appThread =
+    //        std::thread(&commons::IApp::listen, app.get(), qApp->arguments().size(),
+    //        convertToArgv(qApp->arguments()));
+    qDebug() << "TAK";
+    timer->stop();
+
+    timer->setSingleShot(false);
 }
 
 void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenResolutionMsg)
 {
     addScreensToScene(QSize(screenResolutionMsg.width, screenResolutionMsg.height));
+}
+
+void MainWindow::handleIdetifyScreensButton()
+{
+    showIndicators();
 }
 
 MainWindow::~MainWindow()

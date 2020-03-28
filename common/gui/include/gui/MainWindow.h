@@ -32,6 +32,7 @@ private slots:
     void handleConnectButton();
     void handleStartButton();
     void handleScreenResolutionSet(const ScreenResolutionMsg&);
+    void handleIdetifyScreensButton();
 
 signals:
     void messageSent(const ScreenResolutionMsg&);
@@ -39,6 +40,7 @@ signals:
 private:
     std::unique_ptr<commons::IApp> createAppPtr();
     void fillAvailableMonitors();
+    void showIndicators();
     void addScreensToScene(const QSize&);
 
     const QSize MASTER_SIZE;
@@ -49,4 +51,6 @@ private:
     static unsigned index;
 
     std::thread appThread;
+    std::vector<std::unique_ptr<Indicator>> indicators;
+    QTimer* timer;
 };
