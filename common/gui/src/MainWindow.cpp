@@ -13,13 +13,28 @@
 #include <boost/asio.hpp>
 #include "app_management/App.hpp"
 #include "commons/CursorGuard.hpp"
+#include "gui/CursorManagement.h"
 #include "gui/GraphicsRectItem.h"
 #include "gui/GraphicsScene.h"
 #include "gui/MainWindow.h"
+#include "internal_types/Point.hpp"
 #include "internal_types/ScreenResolution.hpp"
 
 namespace
 {
+std::list<QRect> getRectSetOfScreens()
+{
+    std::list<QRect> rects;
+    for (auto screen : qApp->screens())
+    {
+        qDebug() << "getRectSetOfScreens 111";
+        rects.push_back(screen->geometry());
+    }
+    return rects;
+}
+
+const auto screens = getRectSetOfScreens();
+
 const unsigned SCREEN_SIZE_MULTIPLIER = 10;
 
 char** convertToArgv(QStringList commandArgs)
@@ -49,9 +64,28 @@ short upScale(const qreal& value)
     return static_cast<short>(value * SCREEN_SIZE_MULTIPLIER);
 }
 
-int downScale(const int& value)
+void upScale(QPointF& value)
 {
-    return value / SCREEN_SIZE_MULTIPLIER;
+    value.setX(value.x() * SCREEN_SIZE_MULTIPLIER);
+    value.setY(value.y() * SCREEN_SIZE_MULTIPLIER);
+}
+
+void upScale(std::pair<QPointF, QPointF>& value)
+{
+    value.first.setX(value.first.x() * SCREEN_SIZE_MULTIPLIER);
+    value.first.setY(value.first.y() * SCREEN_SIZE_MULTIPLIER);
+    value.second.setX(value.second.x() * SCREEN_SIZE_MULTIPLIER);
+    value.second.setY(value.second.y() * SCREEN_SIZE_MULTIPLIER);
+}
+
+internal_types::Point toPoint(const QPointF& point)
+{
+    return {static_cast<short>(point.x()), static_cast<short>(point.y())};
+}
+
+qreal downScale(const int& value)
+{
+    return static_cast<qreal>(value) / SCREEN_SIZE_MULTIPLIER;
 }
 } // namespace
 
@@ -75,15 +109,27 @@ MainWindow::MainWindow(QWidget* parent)
     qRegisterMetaType<ScreenResolutionMsg>("ScreenResolutionMsg");
     ui->setupUi(this);
     timer = new QTimer(this);
-    connect(ui->connectButton, SIGNAL(released()), this, SLOT(handleConnectButton()));
-    connect(ui->startButton, SIGNAL(released()), this, SLOT(handleStartButton()));
-    connect(ui->identifyScreens, SIGNAL(released()), this, SLOT(handleIdetifyScreensButton()));
 
-    auto setContactPoints = [this](const std::pair<QPointF, QPointF>& contactPoints, const QPointF& diffPoint) {
+    auto setContactPoints = [this](std::pair<QPointF, QPointF>& contactPoints, QPointF& diffPoint) {
+        upScale(contactPoints);
+        upScale(diffPoint);
+
+        QComboBox* availableMonitors = ui->availableMonitors;
+        auto screenGeometry = qApp->screens().at(availableMonitors->currentIndex())->geometry();
+
+        QPointF diffPointForSend = getDiffPointForSend(diffPoint, screenGeometry);
+
+        alignContactPoints(contactPoints, screenGeometry);
+        auto diffPointForReceive =
+            screenGeometry.topLeft(); /* getDiffPointForReceive(diffPointForSend, screenGeometry);*/
+
+        //        qDebug() << "contact points " << contactPoints.first << " " << contactPoints.second;
+        qDebug() << "diff point for send " << diffPoint;
+        //        qDebug() << "diff point for receive " << diffPointForReceive;
         this->app->setContactPoints(
-            {{upScale(contactPoints.first.x()), upScale(contactPoints.first.y())},
-             {upScale(contactPoints.second.x()), upScale(contactPoints.second.y())}},
-            {upScale(diffPoint.x()), upScale(diffPoint.y())});
+            {toPoint(contactPoints.first), toPoint(contactPoints.second)},
+            toPoint(diffPointForSend),
+            toPoint(diffPointForReceive));
     };
     auto scene = new GraphicsScene(0, 0, 448, 448, std::move(setContactPoints));
     ui->graphicsView->setScene(scene);
@@ -95,6 +141,23 @@ MainWindow::MainWindow(QWidget* parent)
         indicators.clear();
         timer->stop();
     });
+
+    connect(ui->connectButton, SIGNAL(released()), this, SLOT(handleConnectButton()));
+    connect(ui->startButton, SIGNAL(released()), this, SLOT(handleStartButton()));
+    connect(ui->identifyScreens, SIGNAL(released()), this, SLOT(handleIdetifyScreensButton()));
+    connect(ui->availableMonitors, SIGNAL(currentIndexChanged(int)), this, SLOT(borderScreenChanged(int)));
+}
+
+void MainWindow::alignContactPoints(std::pair<QPointF, QPointF>& contactPoints, const QRect& screenRect)
+{
+    qDebug() << screenRect.topLeft();
+    contactPoints.first += screenRect.topLeft();
+    contactPoints.second += screenRect.topLeft();
+}
+
+QPointF MainWindow::getDiffPointForSend(const QPointF& diffPoint, const QRect& screenGeometry)
+{
+    return diffPoint - screenGeometry.topLeft();
 }
 
 void MainWindow::fillAvailableMonitors()
@@ -137,15 +200,17 @@ void MainWindow::showIndicators()
 
 void MainWindow::addScreensToScene(const QSize& slaveSize)
 {
+    QComboBox* availableMonitors = ui->availableMonitors;
+    auto masterSize = qApp->screens().at(availableMonitors->currentIndex())->size();
     GraphicsRectItem* item = new GraphicsRectItem(
-        QRectF(0, 0, downScale(MASTER_SIZE.width()), downScale(MASTER_SIZE.height())),
+        QRectF(0, 0, downScale(masterSize.width()), downScale(masterSize.height())),
         GraphicsRectItem::ScreenType::master);
-    item->setBrush(QBrush(Qt::green));
+    item->setBrush(QBrush(Qt::red));
     item->setFlags(QGraphicsItem::ItemIsMovable);
 
     GraphicsRectItem* item2 = new GraphicsRectItem(
         QRectF(0, 0, downScale(slaveSize.width()), downScale(slaveSize.height())), GraphicsRectItem::ScreenType::slave);
-    item2->setBrush(QBrush(Qt::blue));
+    item2->setBrush(QBrush(Qt::cyan));
     item2->setFlags(QGraphicsItem::ItemIsMovable);
 
     item->setCallback([item2]() { item2->setZValue(0); });
@@ -170,6 +235,7 @@ void MainWindow::addScreensToScene(const QSize& slaveSize)
 
 void MainWindow::handleConnectButton()
 {
+    CursorManagement::initialize();
     boost::asio::ip::address address;
     boost::system::error_code errorCode;
     if (qApp->arguments().size() == 2)
@@ -193,6 +259,7 @@ void MainWindow::handleConnectButton()
 
 void MainWindow::handleStartButton()
 {
+    CursorManagement::initialize();
     appThread =
         std::thread(&commons::IApp::listen, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
 }
@@ -205,6 +272,17 @@ void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenReso
 void MainWindow::handleIdetifyScreensButton()
 {
     showIndicators();
+}
+
+void MainWindow::borderScreenChanged(const int&)
+{
+    GraphicsScene* scene = dynamic_cast<GraphicsScene*>(ui->graphicsView->scene());
+    if (scene)
+    {
+        QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
+        QCoreApplication::sendEvent(scene, &event);
+    }
+    qDebug() << "borderScreenChanged";
 }
 
 MainWindow::~MainWindow()

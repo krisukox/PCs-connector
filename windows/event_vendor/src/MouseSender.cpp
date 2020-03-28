@@ -85,6 +85,7 @@ void MouseSender::start(std::function<void()>&& _changeKeyboardState)
 {
     This = this;
     changeKeyboardState = std::move(_changeKeyboardState);
+    cursorGuard->initialize();
 
     mouseHook = SetWindowsHookEx(WH_MOUSE_LL, resultCallback, nullptr, NULL);
 }
@@ -94,9 +95,11 @@ LRESULT MouseSender::forwardEvent(int nCode, WPARAM wParam, LPARAM lParam)
     if (nCode == HC_ACTION)
     {
         auto mouseStruct = reinterpret_cast<PMSLLHOOKSTRUCT>(lParam);
+        POINT cursor = mouseStruct->pt;
         if (!isEventSending && wParam == WM_MOUSEMOVE)
         {
-            auto mouseChangePositionEvent = cursorGuard->checkIfCursorOutOfScreen();
+            auto mouseChangePositionEvent =
+                cursorGuard->checkIfCursorOutOfScreen({static_cast<short>(cursor.x), static_cast<short>(cursor.y)});
             if (mouseChangePositionEvent)
             {
                 changeMouseState(std::nullopt);
@@ -159,5 +162,15 @@ LRESULT MouseSender::sendEvent(internal_types::MouseEvent&& mouseEvent)
 void MouseSender::changeMouseState(const std::optional<internal_types::MouseChangePositionEvent>& mouseEvent)
 {
     isEventSending = !cursorGuard->setPosition(mouseEvent);
+    //    if (mouseEvent)
+    //    {
+    //        isEventSending = false;
+    //        SetCursorPos(mouseEvent->x, mouseEvent->y);
+    //    }
+    //    else
+    //    {
+    //        isEventSending = true;
+    //        SetCursorPos(0, 0);
+    //    }
 }
 } // namespace event_vendor

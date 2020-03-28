@@ -9,10 +9,15 @@ class CursorGuard
 {
 public:
     CursorGuard(const int widthOfScreen, const int heightOfScreen);
-    std::optional<internal_types::MouseChangePositionEvent> checkIfCursorOutOfScreen();
+    void initialize();
+
+    std::optional<internal_types::MouseChangePositionEvent> checkIfCursorOutOfScreen(const internal_types::Point&);
     bool setPosition(const std::optional<internal_types::MouseChangePositionEvent>& mouseEvent);
 
-    void setContactPoints(const std::pair<internal_types::Point, internal_types::Point>&, const internal_types::Point&);
+    void setContactPoints(
+        const std::pair<internal_types::Point, internal_types::Point>&,
+        const internal_types::Point&,
+        const internal_types::Point&);
 
 private:
     bool isCursorInsideScreen(const internal_types::Point&);
@@ -22,6 +27,9 @@ private:
     const int heightOfScreen;
 
     std::pair<internal_types::Point, internal_types::Point> contactPoints;
-    internal_types::Point diffPoint;
+    internal_types::Point diffPointForSend;
+    internal_types::Point diffPointForReceive;
+
+    internal_types::Point lastCursorPosition;
 };
 } // namespace commons

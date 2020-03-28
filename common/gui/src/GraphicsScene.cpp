@@ -1,5 +1,6 @@
 #include "gui/GraphicsScene.h"
 #include <QLineF>
+#include <QtDebug>
 #include <optional>
 #include <set>
 #include "gui/GraphicsRectItem.h"
@@ -166,10 +167,18 @@ GraphicsScene::GraphicsScene(
 
 void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-    if (rectList.size() != 2) return;
+    if (items().size() != 2) return;
 
-    auto rect1 = rectList.at(0)->rectPlaced();
-    auto rect2 = rectList.at(1)->rectPlaced();
+    //    auto rect1 = rectList.at(0)->rectPlaced();
+    //    auto rect2 = rectList.at(1)->rectPlaced();
+
+    auto rect1_ = dynamic_cast<GraphicsRectItem*>(items().at(0));
+    auto rect2_ = dynamic_cast<GraphicsRectItem*>(items().at(1));
+
+    if (!rect1_ || !rect2_) return;
+
+    auto rect1 = rect1_->rectPlaced();
+    auto rect2 = rect2_->rectPlaced();
 
     auto lineBetweenCenters = QLineF(rect1.center(), rect2.center());
 
@@ -185,11 +194,11 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
             if (QLineF(rect1.center() + QPointF(diffLine->dx(), diffLine->dy()), rect2.center()).length() <
                 QLineF(rect1.center() - QPointF(diffLine->dx(), diffLine->dy()), rect2.center()).length())
             {
-                rectList.at(0)->moveBy(-diffLine->dx(), -diffLine->dy());
+                items().at(0)->moveBy(-diffLine->dx(), -diffLine->dy());
             }
             else
             {
-                rectList.at(0)->moveBy(diffLine->dx(), diffLine->dy());
+                items().at(0)->moveBy(diffLine->dx(), diffLine->dy());
             }
         }
     }
@@ -200,11 +209,11 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         if (point1 && point2)
         {
             QLineF diffLine(point1.value(), point2.value());
-            rectList.at(0)->moveBy(diffLine.dx(), diffLine.dy());
+            items().at(0)->moveBy(diffLine.dx(), diffLine.dy());
         }
     }
-    rect1 = rectList.at(0)->rectPlaced();
-    rect2 = rectList.at(1)->rectPlaced();
+    rect1 = rect1_->rectPlaced();
+    rect2 = rect2_->rectPlaced();
 
     if (rect1.intersects(rect2))
     {
@@ -213,6 +222,7 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     }
 
     auto contactPoints = getContactPoints(rect1, rect2);
+    qDebug() << contactPoints.first << " " << contactPoints.second;
     alignPointsToMasterScreen(contactPoints, rectList);
 
     auto diffPoint = diffPointAlignedToMasterScreen(rectList);

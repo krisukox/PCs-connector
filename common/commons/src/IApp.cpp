@@ -25,12 +25,13 @@ void IApp::connect(const boost::asio::ip::address&)
 
 void IApp::setContactPoints(
     const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
-    const internal_types::Point& diffPoint)
+    const internal_types::Point& diffPointForSend,
+    const internal_types::Point& diffPointForReceive)
 {
     if (!cursorGuard)
     {
         throw std::runtime_error("IApp::setContactPoints - cursorGuard is uninitialized");
     }
-    cursorGuard->setContactPoints(contactPoints, diffPoint);
+    cursorGuard->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
 }
 } // namespace commons

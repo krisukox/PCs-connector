@@ -33,6 +33,9 @@ private slots:
     void handleStartButton();
     void handleScreenResolutionSet(const ScreenResolutionMsg&);
     void handleIdetifyScreensButton();
+    void borderScreenChanged(const int&);
+    void alignContactPoints(std::pair<QPointF, QPointF>&, const QRect&);
+    QPointF getDiffPointForSend(const QPointF&, const QRect&);
 
 signals:
     void messageSent(const ScreenResolutionMsg&);
@@ -46,8 +49,6 @@ private:
     const QSize MASTER_SIZE;
     std::unique_ptr<commons::IApp> app;
     std::unique_ptr<MainWindow> mainWindow;
-    std::unique_ptr<Indicator> indicator1;
-    std::unique_ptr<Indicator> indicator2;
     static unsigned index;
 
     std::thread appThread;
