@@ -17,7 +17,7 @@ App::App(
     std::shared_ptr<commons::CursorGuard>&& cursorGuard,
     SetScreenResolution&& _setScreenResolution,
     const internal_types::ScreenResolution& masterScreenResolution)
-    : commons::IApp(std::move(cursorGuard), std::move([](internal_types::ScreenResolution) {}), masterScreenResolution)
+    : commons::IApp(std::move(cursorGuard), std::move(_setScreenResolution), masterScreenResolution)
     , socket{std::make_unique<connection::Socket>()}
 {
 }
@@ -60,7 +60,6 @@ void App::exchangeScreenResolution(
     std::shared_ptr<connection::Sender> sender)
 {
     sender->send(masterScreenResolution);
-    std::cout << "exchangeScreenResolution" << std::endl;
     connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
         [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
     connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};

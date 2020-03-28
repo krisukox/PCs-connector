@@ -199,7 +199,6 @@ void MainWindow::handleStartButton()
 
 void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenResolutionMsg)
 {
-    qDebug() << "handleScreenResolutionSet";
     addScreensToScene(QSize(screenResolutionMsg.width, screenResolutionMsg.height));
 }
 
