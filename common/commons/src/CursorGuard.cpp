@@ -1,4 +1,5 @@
 #include "commons/CursorGuard.hpp"
+#include "gui/CursorManagement.h"
 
 namespace commons
 {
@@ -7,9 +8,9 @@ CursorGuard::CursorGuard(const int _widthOfScreen, const int _heightOfScreen)
 {
 }
 
-std::optional<internal_types::MouseChangePositionEvent> CursorGuard::checkIfCursorOutOfScreen(
-    const internal_types::Point& cursor)
+std::optional<internal_types::MouseChangePositionEvent> CursorGuard::checkIfCursorOutOfScreen()
 {
+    auto cursor = CursorManagement::getPosition();
     if (isCursorInsideScreen(cursor) || isCursorOutOfContactArea(cursor))
     {
         return std::nullopt;
@@ -19,6 +20,20 @@ std::optional<internal_types::MouseChangePositionEvent> CursorGuard::checkIfCurs
     // END HARDCODE
     //    return internal_types::MouseChangePositionEvent{static_cast<short>(cursor.x + diffPoint.x),
     //                                                    static_cast<short>(cursor.y + diffPoint.y)};
+}
+
+bool CursorGuard::setPosition(const std::optional<internal_types::MouseChangePositionEvent>& mouseEvent)
+{
+    if (mouseEvent)
+    {
+        CursorManagement::setPosition({mouseEvent->x, mouseEvent->y});
+        return true;
+    }
+    else
+    {
+        CursorManagement::setPosition({0, 0});
+        return false;
+    }
 }
 
 void CursorGuard::setContactPoints(

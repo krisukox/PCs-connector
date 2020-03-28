@@ -3,6 +3,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(HEADERS
+    include/gui/CursorManagement.h
     include/gui/MainWindow.h
     include/gui/GraphicsRectItem.h
     include/gui/GraphicsScene.h
@@ -11,6 +12,7 @@ set(HEADERS
 )
 
 set(SOURCE_FILES
+    src/CursorManagement.cpp
     src/MainWindow.cpp
     src/ScreenIndicator.cpp
     src/GraphicsRectItem.cpp

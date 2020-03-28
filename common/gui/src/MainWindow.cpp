@@ -193,17 +193,13 @@ void MainWindow::handleConnectButton()
 
 void MainWindow::handleStartButton()
 {
-    //    appThread =
-    //        std::thread(&commons::IApp::listen, app.get(), qApp->arguments().size(),
-    //        convertToArgv(qApp->arguments()));
-    qDebug() << "TAK";
-    timer->stop();
-
-    timer->setSingleShot(false);
+    appThread =
+        std::thread(&commons::IApp::listen, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
 }
 
 void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenResolutionMsg)
 {
+    qDebug() << "handleScreenResolutionSet";
     addScreensToScene(QSize(screenResolutionMsg.width, screenResolutionMsg.height));
 }
 

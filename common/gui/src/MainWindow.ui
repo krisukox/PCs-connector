@@ -125,7 +125,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Available screens</string>
+     <string>Border screen</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

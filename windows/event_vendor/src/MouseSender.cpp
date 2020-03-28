@@ -94,11 +94,9 @@ LRESULT MouseSender::forwardEvent(int nCode, WPARAM wParam, LPARAM lParam)
     if (nCode == HC_ACTION)
     {
         auto mouseStruct = reinterpret_cast<PMSLLHOOKSTRUCT>(lParam);
-        POINT cursor = mouseStruct->pt;
         if (!isEventSending && wParam == WM_MOUSEMOVE)
         {
-            auto mouseChangePositionEvent =
-                cursorGuard->checkIfCursorOutOfScreen({static_cast<short>(cursor.x), static_cast<short>(cursor.y)});
+            auto mouseChangePositionEvent = cursorGuard->checkIfCursorOutOfScreen();
             if (mouseChangePositionEvent)
             {
                 changeMouseState(std::nullopt);
@@ -160,15 +158,6 @@ LRESULT MouseSender::sendEvent(internal_types::MouseEvent&& mouseEvent)
 
 void MouseSender::changeMouseState(const std::optional<internal_types::MouseChangePositionEvent>& mouseEvent)
 {
-    if (mouseEvent)
-    {
-        isEventSending = false;
-        SetCursorPos(mouseEvent->x, mouseEvent->y);
-    }
-    else
-    {
-        isEventSending = true;
-        SetCursorPos(0, 0);
-    }
+    isEventSending = !cursorGuard->setPosition(mouseEvent);
 }
 } // namespace event_vendor

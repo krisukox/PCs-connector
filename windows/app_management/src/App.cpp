@@ -60,7 +60,7 @@ void App::exchangeScreenResolution(
     std::shared_ptr<connection::Sender> sender)
 {
     sender->send(masterScreenResolution);
-
+    std::cout << "exchangeScreenResolution" << std::endl;
     connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
         [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
     connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
