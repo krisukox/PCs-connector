@@ -15,11 +15,11 @@ public:
         qreal y,
         qreal width,
         qreal height,
-        std::function<void(std::pair<QPointF, QPointF>, QPointF)>&&);
+        std::function<void(std::pair<QPointF, QPointF>&, QPointF&)>&&);
     void addItem(QGraphicsItem* item);
 
 private:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent*) override;
     std::vector<GraphicsRectItem*> rectList;
-    std::function<void(std::pair<QPointF, QPointF>, QPointF)> setContactPoints;
+    std::function<void(std::pair<QPointF, QPointF>&, QPointF&)> setContactPoints;
 };

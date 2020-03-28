@@ -160,7 +160,7 @@ GraphicsScene::GraphicsScene(
     qreal y,
     qreal width,
     qreal height,
-    std::function<void(std::pair<QPointF, QPointF>, QPointF)>&& setContactPoints_)
+    std::function<void(std::pair<QPointF, QPointF>&, QPointF&)>&& setContactPoints_)
     : QGraphicsScene{x, y, width, height}, setContactPoints{setContactPoints_}
 {
 }
