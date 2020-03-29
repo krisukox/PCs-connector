@@ -4,10 +4,7 @@
 
 namespace commons
 {
-CursorGuard::CursorGuard(const int _widthOfScreen, const int _heightOfScreen)
-    : widthOfScreen{_widthOfScreen}, heightOfScreen{_heightOfScreen}
-{
-}
+CursorGuard::CursorGuard() {}
 
 void CursorGuard::initialize()
 {
@@ -51,11 +48,6 @@ void CursorGuard::setContactPoints(
     contactPoints = contactPoints_;
     diffPointForSend = diffPointForSend_;
     diffPointForReceive = diffPointForReceive_;
-}
-
-bool CursorGuard::isCursorInsideScreen(const internal_types::Point& cursor)
-{
-    return cursor.x < widthOfScreen && cursor.x >= 0 && cursor.y < heightOfScreen && cursor.y >= 0;
 }
 
 bool CursorGuard::isCursorOutOfContactArea(const internal_types::Point& newCursorPosition)

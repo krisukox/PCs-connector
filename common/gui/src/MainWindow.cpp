@@ -100,7 +100,7 @@ std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
 {
     auto screenGeometry = QGuiApplication::screens().at(0)->geometry();
     return std::make_unique<app_management::App>(
-        std::make_shared<commons::CursorGuard>(screenGeometry.x(), screenGeometry.y()),
+        std::make_shared<commons::CursorGuard>(),
         [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); },
         internal_types::ScreenResolution{static_cast<std::uint16_t>(MASTER_SIZE.width()),
                                          static_cast<std::uint16_t>(MASTER_SIZE.height())});

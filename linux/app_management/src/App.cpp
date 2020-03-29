@@ -20,8 +20,6 @@ App::App(
     , display{XOpenDisplay(nullptr)}
     , socket{std::make_unique<connection::Socket>()}
 {
-    cursorGuard = std::make_shared<commons::CursorGuard>(
-        XWidthOfScreen(XDefaultScreenOfDisplay(display)), XHeightOfScreen(XDefaultScreenOfDisplay(display)));
 }
 
 App::~App()
