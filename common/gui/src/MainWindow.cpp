@@ -96,23 +96,24 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow{parent}, ui{new Ui::MainWi
     ui->setupUi(this);
     timer = new QTimer(this);
 
-    auto setContactPoints = [this](std::pair<QPointF, QPointF>& contactPoints, QPointF& diffPoint) {
-        upScale(contactPoints);
-        upScale(diffPoint);
+    GraphicsScene::SetContactPoints setContactPoints =
+        [this](std::pair<QPointF, QPointF>& contactPoints, QPointF& diffPoint) {
+            upScale(contactPoints);
+            upScale(diffPoint);
 
-        QComboBox* availableMonitors = ui->availableMonitors;
-        auto screenGeometry = qApp->screens().at(availableMonitors->currentIndex())->geometry();
+            QComboBox* availableMonitors = ui->availableMonitors;
+            auto screenGeometry = qApp->screens().at(availableMonitors->currentIndex())->geometry();
 
-        QPointF diffPointForSend = getDiffPointForSend(diffPoint, screenGeometry);
+            QPointF diffPointForSend = getDiffPointForSend(diffPoint, screenGeometry);
 
-        alignContactPoints(contactPoints, screenGeometry);
-        auto diffPointForReceive = screenGeometry.topLeft();
+            alignContactPoints(contactPoints, screenGeometry);
+            auto diffPointForReceive = screenGeometry.topLeft();
 
-        this->app->setContactPoints(
-            {toInternalType(contactPoints.first), toInternalType(contactPoints.second)},
-            toInternalType(diffPointForSend),
-            toInternalType(diffPointForReceive));
-    };
+            this->app->setContactPoints(
+                {toInternalType(contactPoints.first), toInternalType(contactPoints.second)},
+                toInternalType(diffPointForSend),
+                toInternalType(diffPointForReceive));
+        };
     auto scene = new GraphicsScene(0, 0, 448, 448, std::move(setContactPoints));
     ui->graphicsView->setScene(scene);
     ui->infoLabel->setText("");

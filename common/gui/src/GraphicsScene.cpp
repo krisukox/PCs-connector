@@ -162,12 +162,7 @@ std::optional<QLineF> intersectLine(const QRectF& rect, const QLineF& line)
 }
 } // namespace
 
-GraphicsScene::GraphicsScene(
-    qreal x,
-    qreal y,
-    qreal width,
-    qreal height,
-    std::function<void(std::pair<QPointF, QPointF>&, QPointF&)>&& setContactPoints_)
+GraphicsScene::GraphicsScene(qreal x, qreal y, qreal width, qreal height, SetContactPoints&& setContactPoints_)
     : QGraphicsScene{x, y, width, height}, setContactPoints{setContactPoints_}
 {
 }
