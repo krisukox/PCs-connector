@@ -12,7 +12,7 @@ public:
     void initialize();
 
     std::optional<internal_types::MouseChangePositionEvent> checkIfCursorOutOfScreen(const internal_types::Point&);
-    bool setPosition(const std::optional<internal_types::MouseChangePositionEvent>& mouseEvent);
+    void setPosition(const std::optional<internal_types::MouseChangePositionEvent>& mouseEvent);
 
     void setContactPoints(
         const std::pair<internal_types::Point, internal_types::Point>&,

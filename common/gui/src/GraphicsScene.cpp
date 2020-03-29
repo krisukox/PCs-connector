@@ -117,8 +117,6 @@ std::vector<QPointF> getSamePoints(const std::vector<QPointF>& rect1Points, cons
 
 std::pair<QPointF, QPointF> getContactPoints(const QRectF& rect1, const QRectF& rect2)
 {
-    qDebug() << rect1.topLeft() << " " << rect1.topRight() << " " << rect1.bottomLeft() << " " << rect1.bottomRight();
-    qDebug() << rect2.topLeft() << " " << rect2.topRight() << " " << rect2.bottomLeft() << " " << rect2.bottomRight();
     std::vector<QPointF> rect1Points{rect1.topLeft(), rect1.topRight(), rect1.bottomLeft(), rect1.bottomRight()};
     std::vector<QPointF> rect2Points{rect2.topLeft(), rect2.topRight(), rect2.bottomLeft(), rect2.bottomRight()};
 
@@ -140,29 +138,15 @@ std::pair<QPointF, QPointF> getContactPoints(const QRectF& rect1, const QRectF& 
     return {*pointIt1, *pointIt2};
 }
 
-void alignPointsToMasterScreen(
-    std::pair<QPointF, QPointF>& contactPoints,
-    const std::vector<GraphicsRectItem*>& rectList)
+void alignPointsToScreen(std::pair<QPointF, QPointF>& contactPoints, const GraphicsRectItem* masterRect)
 {
-    for (const auto& rect : rectList)
-    {
-        if (rect->type() == GraphicsRectItem::ScreenType::master)
-        {
-            contactPoints.first -= rect->rectPlaced().topLeft();
-            contactPoints.second -= rect->rectPlaced().topLeft();
-            return;
-        }
-    }
-    throw std::runtime_error("alignPointsToMasterScreen - rectList doesn't have master screen");
+    contactPoints.first -= masterRect->rectPlaced().topLeft();
+    contactPoints.second -= masterRect->rectPlaced().topLeft();
 }
 
-QPointF diffPointAlignedToMasterScreen(const std::vector<GraphicsRectItem*>& rectList)
+QPointF diffPointAlignedToScreen(const GraphicsRectItem* masterScreen, const GraphicsRectItem* slaveScreen)
 {
-    if (rectList.at(0)->type() == GraphicsRectItem::ScreenType::master)
-    {
-        return rectList.at(0)->pos() - rectList.at(1)->pos();
-    }
-    return rectList.at(1)->pos() - rectList.at(0)->pos();
+    return masterScreen->pos() - slaveScreen->pos();
 }
 
 std::optional<QLineF> intersectLine(const QRectF& rect, const QLineF& line)
@@ -192,9 +176,6 @@ GraphicsScene::GraphicsScene(
 void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
     if (items().size() != 2) return;
-
-    //    auto rect1 = rectList.at(0)->rectPlaced();
-    //    auto rect2 = rectList.at(1)->rectPlaced();
 
     auto rect1_ = dynamic_cast<GraphicsRectItem*>(items().at(0));
     auto rect2_ = dynamic_cast<GraphicsRectItem*>(items().at(1));
@@ -246,10 +227,18 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     }
 
     auto contactPoints = getContactPoints(rect1, rect2);
-    qDebug() << contactPoints.first << " " << contactPoints.second;
-    alignPointsToMasterScreen(contactPoints, rectList);
+    QPointF diffPoint;
 
-    auto diffPoint = diffPointAlignedToMasterScreen(rectList);
+    if (rect1_->type() == GraphicsRectItem::ScreenType::master)
+    {
+        alignPointsToScreen(contactPoints, rect1_);
+        diffPoint = diffPointAlignedToScreen(rect1_, rect2_);
+    }
+    else
+    {
+        alignPointsToScreen(contactPoints, rect2_);
+        diffPoint = diffPointAlignedToScreen(rect2_, rect1_);
+    }
 
     setContactPoints(contactPoints, diffPoint);
     QGraphicsScene::mouseReleaseEvent(event);

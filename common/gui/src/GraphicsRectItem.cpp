@@ -12,7 +12,7 @@ void GraphicsRectItem::setCallback(std::function<void()>&& callback)
     callbackSetSecondItemDown = std::move(callback);
 }
 
-QRectF GraphicsRectItem::rectPlaced()
+QRectF GraphicsRectItem::rectPlaced() const
 {
     auto ownRect = rect();
     ownRect.moveTo(pos());

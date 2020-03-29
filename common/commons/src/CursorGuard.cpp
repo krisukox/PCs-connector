@@ -26,21 +26,21 @@ std::optional<internal_types::MouseChangePositionEvent> CursorGuard::checkIfCurs
     {
         return std::nullopt;
     }
-    std::cout << "TO SEND: cursor " << cursor << " diffPointForSend " << diffPointForSend << std::endl;
     return internal_types::MouseChangePositionEvent{static_cast<short>(cursor.x + diffPointForSend.x),
                                                     static_cast<short>(cursor.y + diffPointForSend.y)};
 }
 
-bool CursorGuard::setPosition(const std::optional<internal_types::MouseChangePositionEvent>& mouseEvent)
+void CursorGuard::setPosition(const std::optional<internal_types::MouseChangePositionEvent>& mouseEvent)
 {
     if (mouseEvent)
     {
         lastCursorPosition = internal_types::Point{mouseEvent->x, mouseEvent->y} + diffPointForReceive;
         CursorManagement::setPosition(internal_types::Point{mouseEvent->x, mouseEvent->y} + diffPointForReceive);
-        return true;
     }
-    CursorManagement::setPosition({0, 0});
-    return false;
+    else
+    {
+        CursorManagement::setPosition({0, 0});
+    }
 }
 
 void CursorGuard::setContactPoints(

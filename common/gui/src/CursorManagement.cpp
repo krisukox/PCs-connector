@@ -10,11 +10,9 @@ namespace
 {
 std::list<QRect> getRectSetOfScreens()
 {
-    qDebug() << "getRectSetOfScreens size" << qApp->screens().size();
     std::list<QRect> rects;
     for (auto screen : qApp->screens())
     {
-        qDebug() << "getRectSetOfScreens 111";
         rects.push_back(screen->geometry());
     }
     return rects;

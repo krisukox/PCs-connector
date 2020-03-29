@@ -161,16 +161,14 @@ LRESULT MouseSender::sendEvent(internal_types::MouseEvent&& mouseEvent)
 
 void MouseSender::changeMouseState(const std::optional<internal_types::MouseChangePositionEvent>& mouseEvent)
 {
-    isEventSending = !cursorGuard->setPosition(mouseEvent);
-    //    if (mouseEvent)
-    //    {
-    //        isEventSending = false;
-    //        SetCursorPos(mouseEvent->x, mouseEvent->y);
-    //    }
-    //    else
-    //    {
-    //        isEventSending = true;
-    //        SetCursorPos(0, 0);
-    //    }
+    if (mouseEvent)
+    {
+        isEventSending = false;
+    }
+    else
+    {
+        isEventSending = true;
+    }
+    cursorGuard->setPosition(mouseEvent);
 }
 } // namespace event_vendor
