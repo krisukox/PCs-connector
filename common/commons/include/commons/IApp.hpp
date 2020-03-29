@@ -20,9 +20,9 @@ public:
     virtual void connect(const boost::asio::ip::address&, const internal_types::ScreenResolution&);
     virtual void listen(int, char*[], const internal_types::ScreenResolution&);
     void setContactPoints(
-        const std::pair<internal_types::Point, internal_types::Point>&,
-        const internal_types::Point&,
-        const internal_types::Point&);
+        const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
+        const internal_types::Point& diffPointForSend,
+        const internal_types::Point& diffPointForReceive);
 
 protected:
     std::shared_ptr<CursorGuard> cursorGuard;

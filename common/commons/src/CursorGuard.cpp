@@ -1,5 +1,4 @@
 #include "commons/CursorGuard.hpp"
-#include <iostream>
 #include "gui/CursorManagement.h"
 
 namespace commons
