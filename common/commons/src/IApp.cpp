@@ -13,7 +13,7 @@ IApp::IApp(
 {
 }
 
-void IApp::listen(int, char*[])
+void IApp::listen(int, char* [], const internal_types::ScreenResolution&)
 {
     throw std::runtime_error("IApp::listen method not implemented");
 }

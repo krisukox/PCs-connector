@@ -29,18 +29,19 @@ App::~App()
     XCloseDisplay(display);
 }
 
-void App::listen(int argc, char* argv[])
+void App::listen(int argc, char* argv[], const internal_types::ScreenResolution& screenResolution)
 {
-    auto successfullConnection = [this, argc, argv](boost::asio::ip::tcp::socket& socket) {
+    auto successfullConnection = [this, argc, argv, screenResolution](boost::asio::ip::tcp::socket& socket) {
         auto receiver =
             std::make_shared<connection::Receiver>(socket, std::make_unique<internal_types::Deserializer>(display));
 
         auto sender = std::make_shared<connection::Sender>(socket);
 
-        auto successfullCallback = [this, sender](const internal_types::ScreenResolution& slaveScreenResolution) {
-            setScreenResolution(slaveScreenResolution);
-            sender->send(masterScreenResolution);
-        };
+        auto successfullCallback =
+            [this, sender, screenResolution](const internal_types::ScreenResolution& slaveScreenResolution) {
+                setScreenResolution(slaveScreenResolution);
+                sender->send(screenResolution);
+            };
         auto unsuccessfullCallback = [](const boost::system::error_code&) {};
         receiver->synchronizedReceive<internal_types::ScreenResolution>(
             std::move(successfullCallback), std::move(unsuccessfullCallback));

@@ -50,8 +50,6 @@ bool intersects(
     QLineF lineA(a_.x, a_.y, b_.x, b_.y);
     QLineF lineB(c_.x, c_.y, d_.x, d_.y);
 
-    //    qDebug() << "Cursor out of the screens " << lineA << " " << lineB;
-
     return lineA.intersects(lineB, nullptr) == QLineF::IntersectionType::BoundedIntersection;
 }
 
@@ -59,7 +57,6 @@ bool isCursorInsideScreens(const internal_types::Point& cursor)
 {
     for (auto screen : screens)
     {
-        qDebug() << QPoint(cursor.x, cursor.y) << " " << screen;
         if (screen.contains(QPoint(cursor.x, cursor.y)))
         {
             return true;

@@ -36,10 +36,6 @@ bool CursorGuard::setPosition(const std::optional<internal_types::MouseChangePos
     if (mouseEvent)
     {
         lastCursorPosition = internal_types::Point{mouseEvent->x, mouseEvent->y} + diffPointForReceive;
-        std::cout << "Received " << internal_types::Point{mouseEvent->x, mouseEvent->y} << std::endl;
-        std::cout << "diffPointForReceive " << diffPointForReceive << std::endl;
-        std::cout << "computed " << internal_types::Point{mouseEvent->x, mouseEvent->y} + diffPointForReceive
-                  << std::endl;
         CursorManagement::setPosition(internal_types::Point{mouseEvent->x, mouseEvent->y} + diffPointForReceive);
         return true;
     }
@@ -66,40 +62,5 @@ bool CursorGuard::isCursorOutOfContactArea(const internal_types::Point& newCurso
 {
     return !CursorManagement::intersects(
         contactPoints.first, contactPoints.second, lastCursorPosition, newCursorPosition);
-    //    if (contactPoints.first.x == contactPoints.second.x)
-    //    {
-    //        if (contactPoints.first.x == 0)
-    //        {
-    //            if (cursor.x > 0)
-    //            {
-    //                return true;
-    //            }
-    //        }
-    //        else if (cursor.x < 0)
-    //        {
-    //            return true;
-    //        }
-    //        if (contactPoints.first.y < contactPoints.second.y)
-    //        {
-    //            return cursor.y < contactPoints.first.y || cursor.y > contactPoints.second.y;
-    //        }
-    //        return cursor.y > contactPoints.first.y || cursor.y < contactPoints.second.y;
-    //    }
-    //    if (contactPoints.first.y == 0)
-    //    {
-    //        if (cursor.y > 0)
-    //        {
-    //            return true;
-    //        }
-    //    }
-    //    else if (cursor.y < 0)
-    //    {
-    //        return true;
-    //    }
-    //    if (contactPoints.first.x < contactPoints.second.x)
-    //    {
-    //        return cursor.x < contactPoints.first.x || cursor.x > contactPoints.second.x;
-    //    }
-    //    return cursor.x > contactPoints.first.x || cursor.x < contactPoints.second.x;
 }
 } // namespace commons

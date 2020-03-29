@@ -99,10 +99,34 @@ void addLinearPoint(const std::vector<QPointF>& rectPoints, std::set<QPointF, QP
     }
 }
 
+std::vector<QPointF> getSamePoints(const std::vector<QPointF>& rect1Points, const std::vector<QPointF>& rect2Points)
+{
+    std::vector<QPointF> retVal;
+    for (auto point1 = rect1Points.begin(); point1 != rect1Points.end(); point1++)
+    {
+        for (auto point2 = rect2Points.begin(); point2 != rect2Points.end(); point2++)
+        {
+            if (*point1 == *point2)
+            {
+                retVal.push_back(*point1);
+            }
+        }
+    }
+    return retVal;
+}
+
 std::pair<QPointF, QPointF> getContactPoints(const QRectF& rect1, const QRectF& rect2)
 {
+    qDebug() << rect1.topLeft() << " " << rect1.topRight() << " " << rect1.bottomLeft() << " " << rect1.bottomRight();
+    qDebug() << rect2.topLeft() << " " << rect2.topRight() << " " << rect2.bottomLeft() << " " << rect2.bottomRight();
     std::vector<QPointF> rect1Points{rect1.topLeft(), rect1.topRight(), rect1.bottomLeft(), rect1.bottomRight()};
     std::vector<QPointF> rect2Points{rect2.topLeft(), rect2.topRight(), rect2.bottomLeft(), rect2.bottomRight()};
+
+    auto samePoints = getSamePoints(rect1Points, rect2Points);
+    if (samePoints.size() == 2)
+    {
+        return {samePoints.at(0), samePoints.at(1)};
+    }
 
     auto linearPoints = getTwoLinearPoints(rect1Points, rect2Points);
 

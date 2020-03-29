@@ -87,6 +87,11 @@ qreal downScale(const int& value)
 {
     return static_cast<qreal>(value) / SCREEN_SIZE_MULTIPLIER;
 }
+
+internal_types::ScreenResolution toInternalType(const QSize& resolution)
+{
+    return {static_cast<uint16_t>(resolution.width()), static_cast<uint16_t>(resolution.height())};
+}
 } // namespace
 
 unsigned MyIndex = 0;
@@ -120,12 +125,8 @@ MainWindow::MainWindow(QWidget* parent)
         QPointF diffPointForSend = getDiffPointForSend(diffPoint, screenGeometry);
 
         alignContactPoints(contactPoints, screenGeometry);
-        auto diffPointForReceive =
-            screenGeometry.topLeft(); /* getDiffPointForReceive(diffPointForSend, screenGeometry);*/
+        auto diffPointForReceive = screenGeometry.topLeft();
 
-        //        qDebug() << "contact points " << contactPoints.first << " " << contactPoints.second;
-        qDebug() << "diff point for send " << diffPoint;
-        //        qDebug() << "diff point for receive " << diffPointForReceive;
         this->app->setContactPoints(
             {toPoint(contactPoints.first), toPoint(contactPoints.second)},
             toPoint(diffPointForSend),
@@ -150,7 +151,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 void MainWindow::alignContactPoints(std::pair<QPointF, QPointF>& contactPoints, const QRect& screenRect)
 {
-    qDebug() << screenRect.topLeft();
+    //    qDebug() << screenRect.topLeft();
     contactPoints.first += screenRect.topLeft();
     contactPoints.second += screenRect.topLeft();
 }
@@ -259,9 +260,14 @@ void MainWindow::handleConnectButton()
 
 void MainWindow::handleStartButton()
 {
+    QComboBox* availableMonitors = ui->availableMonitors;
     CursorManagement::initialize();
-    appThread =
-        std::thread(&commons::IApp::listen, app.get(), qApp->arguments().size(), convertToArgv(qApp->arguments()));
+    appThread = std::thread(
+        &commons::IApp::listen,
+        app.get(),
+        qApp->arguments().size(),
+        convertToArgv(qApp->arguments()),
+        toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()));
 }
 
 void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenResolutionMsg)
