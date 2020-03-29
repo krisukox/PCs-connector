@@ -20,7 +20,6 @@ public:
         const internal_types::Point& diffPointForReceive);
 
 private:
-    bool isCursorInsideScreen(const internal_types::Point&);
     bool isCursorOutOfContactArea(const internal_types::Point&);
 
     std::pair<internal_types::Point, internal_types::Point> contactPoints;
