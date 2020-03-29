@@ -46,7 +46,6 @@ private:
     void showIndicators();
     void addScreensToScene(const QSize&);
 
-    const QSize MASTER_SIZE;
     std::unique_ptr<commons::IApp> app;
     std::unique_ptr<MainWindow> mainWindow;
     static unsigned index;

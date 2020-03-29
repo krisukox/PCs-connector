@@ -54,11 +54,6 @@ char** convertToArgv(QStringList commandArgs)
     return argv;
 }
 
-QSize getMasterSize()
-{
-    return qApp->screens().at(0)->size();
-}
-
 short upScale(const qreal& value)
 {
     return static_cast<short>(value * SCREEN_SIZE_MULTIPLIER);
@@ -98,16 +93,12 @@ unsigned MyIndex = 0;
 
 std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
 {
-    auto screenGeometry = QGuiApplication::screens().at(0)->geometry();
     return std::make_unique<app_management::App>(
         std::make_shared<commons::CursorGuard>(),
-        [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); },
-        internal_types::ScreenResolution{static_cast<std::uint16_t>(MASTER_SIZE.width()),
-                                         static_cast<std::uint16_t>(MASTER_SIZE.height())});
+        [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); });
 }
 
-MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow{parent}, ui{new Ui::MainWindow}, MASTER_SIZE{getMasterSize()}, app{createAppPtr()}
+MainWindow::MainWindow(QWidget* parent) : QMainWindow{parent}, ui{new Ui::MainWindow}, app{createAppPtr()}
 {
     connect(this, SIGNAL(messageSent(ScreenResolutionMsg)), this, SLOT(handleScreenResolutionSet(ScreenResolutionMsg)));
 
@@ -249,7 +240,12 @@ void MainWindow::handleConnectButton()
     }
     if (!errorCode.failed())
     {
-        appThread = std::thread(&commons::IApp::connect, app.get(), address);
+        QComboBox* availableMonitors = ui->availableMonitors;
+        appThread = std::thread(
+            &commons::IApp::connect,
+            app.get(),
+            address,
+            toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()));
         ui->infoLabel->setText("");
     }
     else
@@ -288,7 +284,6 @@ void MainWindow::borderScreenChanged(const int&)
         QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
         QCoreApplication::sendEvent(scene, &event);
     }
-    qDebug() << "borderScreenChanged";
 }
 
 MainWindow::~MainWindow()

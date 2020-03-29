@@ -23,14 +23,17 @@ class Vendor;
 class App : public commons::IApp
 {
 public:
-    App(std::shared_ptr<commons::CursorGuard>&&, SetScreenResolution&&, const internal_types::ScreenResolution&);
+    App(std::shared_ptr<commons::CursorGuard>&&, SetScreenResolution&&);
     ~App() override;
 
-    void connect(const boost::asio::ip::address&) override;
+    void connect(const boost::asio::ip::address&, const internal_types::ScreenResolution&) override;
 
 private:
-    void initializeVendor();
-    void exchangeScreenResolution(std::shared_ptr<connection::Receiver>, std::shared_ptr<connection::Sender>);
+    void initializeVendor(const internal_types::ScreenResolution&);
+    void exchangeScreenResolution(
+        std::shared_ptr<connection::Receiver>,
+        std::shared_ptr<connection::Sender>,
+        const internal_types::ScreenResolution&);
 
     std::unique_ptr<connection::Socket> socket;
     std::shared_ptr<Vendor> vendor;

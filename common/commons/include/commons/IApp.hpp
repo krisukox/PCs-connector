@@ -15,10 +15,10 @@ public:
     using SetScreenResolution = std::function<void(internal_types::ScreenResolution)>;
 
     virtual ~IApp() = default;
-    IApp(std::shared_ptr<commons::CursorGuard>&&, SetScreenResolution&&, const internal_types::ScreenResolution&);
+    IApp(std::shared_ptr<commons::CursorGuard>&&, SetScreenResolution&&);
 
-    virtual void connect(const boost::asio::ip::address&);
-    virtual void listen(int, char* [], const internal_types::ScreenResolution&);
+    virtual void connect(const boost::asio::ip::address&, const internal_types::ScreenResolution&);
+    virtual void listen(int, char*[], const internal_types::ScreenResolution&);
     void setContactPoints(
         const std::pair<internal_types::Point, internal_types::Point>&,
         const internal_types::Point&,
@@ -27,6 +27,5 @@ public:
 protected:
     std::shared_ptr<CursorGuard> cursorGuard;
     SetScreenResolution setScreenResolution;
-    internal_types::ScreenResolution masterScreenResolution;
 };
 } // namespace commons

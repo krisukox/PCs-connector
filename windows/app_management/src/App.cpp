@@ -13,22 +13,21 @@ namespace app_management
 {
 App::~App() = default;
 
-App::App(
-    std::shared_ptr<commons::CursorGuard>&& cursorGuard,
-    SetScreenResolution&& _setScreenResolution,
-    const internal_types::ScreenResolution& masterScreenResolution)
-    : commons::IApp(std::move(cursorGuard), std::move(_setScreenResolution), masterScreenResolution)
+App::App(std::shared_ptr<commons::CursorGuard>&& cursorGuard, SetScreenResolution&& _setScreenResolution)
+    : commons::IApp(std::move(cursorGuard), std::move(_setScreenResolution))
     , socket{std::make_unique<connection::Socket>()}
 {
 }
 
-void App::connect(const boost::asio::ip::address& address)
+void App::connect(
+    const boost::asio::ip::address& address,
+    const internal_types::ScreenResolution& masterScreenResolution)
 try
 {
     auto port = std::string("10000");
     socket->connect(address, port);
 
-    initializeVendor();
+    initializeVendor(masterScreenResolution);
     std::thread t(&Vendor::startCatchingEvents, vendor);
     vendor->startReceivingEvents();
     socket->getIoContext().run();
@@ -39,7 +38,7 @@ catch (std::exception e)
     std::clog << e.what() << std::endl;
 }
 
-void App::initializeVendor()
+void App::initializeVendor(const internal_types::ScreenResolution& masterScreenResolution)
 {
     auto stopAppCallback = [this] { socket->close(); };
 
@@ -47,7 +46,7 @@ void App::initializeVendor()
         std::make_shared<connection::Receiver>(socket->value(), std::make_unique<internal_types::Deserializer>());
     auto sender = std::make_shared<connection::Sender>(socket->value());
 
-    exchangeScreenResolution(receiver, sender);
+    exchangeScreenResolution(receiver, sender, masterScreenResolution);
 
     auto keyboard = std::make_shared<event_vendor::KeyboardSender>(sender);
     auto mouse = std::make_shared<event_vendor::MouseSender>(sender, cursorGuard);
@@ -57,7 +56,8 @@ void App::initializeVendor()
 
 void App::exchangeScreenResolution(
     std::shared_ptr<connection::Receiver> receiver,
-    std::shared_ptr<connection::Sender> sender)
+    std::shared_ptr<connection::Sender> sender,
+    const internal_types::ScreenResolution& masterScreenResolution)
 {
     sender->send(masterScreenResolution);
     connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
