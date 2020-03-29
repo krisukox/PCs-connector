@@ -85,6 +85,7 @@ void MouseSender::start(std::function<void()>&& _changeKeyboardState)
 {
     This = this;
     changeKeyboardState = std::move(_changeKeyboardState);
+    cursorGuard->initialize();
 
     mouseHook = SetWindowsHookEx(WH_MOUSE_LL, resultCallback, nullptr, NULL);
 }
@@ -163,12 +164,11 @@ void MouseSender::changeMouseState(const std::optional<internal_types::MouseChan
     if (mouseEvent)
     {
         isEventSending = false;
-        SetCursorPos(mouseEvent->x, mouseEvent->y);
     }
     else
     {
         isEventSending = true;
-        SetCursorPos(0, 0);
     }
+    cursorGuard->setPosition(mouseEvent);
 }
 } // namespace event_vendor

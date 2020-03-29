@@ -64,9 +64,8 @@ void MouseReceiver::onEvent(const internal_types::MouseMoveEvent& mouseMoveEvent
     internal_types::Point cursor = getMouseCoordinate(display, window) + mouseMoveEvent;
     if (auto changeMousePositionEvent = cursorGuard->checkIfCursorOutOfScreen(cursor))
     {
-        dispatchState = DispatchState::off;
         sender->send(changeMousePositionEvent.value());
-        setCursorPosition(internal_types::MouseChangePositionEvent{2000, 2000});
+        setCursorPosition(std::nullopt);
     }
     XTestFakeRelativeMotionEvent(display, mouseMoveEvent.deltaX, mouseMoveEvent.deltaY, CurrentTime);
     XFlush(display);
@@ -116,14 +115,19 @@ void MouseReceiver::onEvent(const internal_types::MouseKeyEvent& mouseKeyEvent)
 
 void MouseReceiver::onEvent(const internal_types::MouseChangePositionEvent& event)
 {
-    dispatchState = DispatchState::on;
     setCursorPosition(event);
 }
 
-void MouseReceiver::setCursorPosition(const internal_types::MouseChangePositionEvent& event)
+void MouseReceiver::setCursorPosition(const std::optional<internal_types::MouseChangePositionEvent>& event)
 {
-    XTestFakeRelativeMotionEvent(display, -10000, -10000, CurrentTime);
-    XTestFakeRelativeMotionEvent(display, event.x, event.y, CurrentTime);
-    XFlush(display);
+    if (event)
+    {
+        dispatchState = DispatchState::on;
+    }
+    else
+    {
+        dispatchState = DispatchState::off;
+    }
+    cursorGuard->setPosition(event);
 }
 } // namespace event_consumer

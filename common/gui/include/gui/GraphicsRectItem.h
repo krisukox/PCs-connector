@@ -17,7 +17,7 @@ public:
     GraphicsRectItem(const QRectF& rect, ScreenType screenType);
 
     void setCallback(std::function<void()>&&);
-    QRectF rectPlaced();
+    QRectF rectPlaced() const;
     ScreenType type();
 
 private:

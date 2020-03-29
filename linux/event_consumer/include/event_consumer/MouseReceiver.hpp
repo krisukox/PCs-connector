@@ -38,7 +38,7 @@ private:
     void onEvent(const internal_types::MouseKeyEvent&);
     void onEvent(const internal_types::MouseChangePositionEvent&);
 
-    void setCursorPosition(const internal_types::MouseChangePositionEvent&);
+    void setCursorPosition(const std::optional<internal_types::MouseChangePositionEvent>&);
 
     Display* display;
     Window window;

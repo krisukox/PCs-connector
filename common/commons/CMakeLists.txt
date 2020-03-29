@@ -14,5 +14,6 @@ target_include_directories(commons PUBLIC include PRIVATE src)
 target_link_libraries(commons
     internal_types
     Boost::system
+    gui
 )
 
