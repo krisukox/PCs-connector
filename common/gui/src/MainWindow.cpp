@@ -21,19 +21,6 @@
 
 namespace
 {
-std::list<QRect> getRectSetOfScreens()
-{
-    std::list<QRect> rects;
-    for (auto screen : qApp->screens())
-    {
-        qDebug() << "getRectSetOfScreens 111";
-        rects.push_back(screen->geometry());
-    }
-    return rects;
-}
-
-const auto screens = getRectSetOfScreens();
-
 const unsigned SCREEN_SIZE_MULTIPLIER = 10;
 
 char** convertToArgv(QStringList commandArgs)
@@ -53,11 +40,6 @@ char** convertToArgv(QStringList commandArgs)
     return argv;
 }
 
-short upScale(const qreal& value)
-{
-    return static_cast<short>(value * SCREEN_SIZE_MULTIPLIER);
-}
-
 void upScale(QPointF& value)
 {
     value.setX(value.x() * SCREEN_SIZE_MULTIPLIER);
@@ -72,14 +54,14 @@ void upScale(std::pair<QPointF, QPointF>& value)
     value.second.setY(value.second.y() * SCREEN_SIZE_MULTIPLIER);
 }
 
-internal_types::Point toPoint(const QPointF& point)
-{
-    return {static_cast<short>(point.x()), static_cast<short>(point.y())};
-}
-
 qreal downScale(const int& value)
 {
     return static_cast<qreal>(value) / SCREEN_SIZE_MULTIPLIER;
+}
+
+internal_types::Point toInternalType(const QPointF& point)
+{
+    return {static_cast<short>(point.x()), static_cast<short>(point.y())};
 }
 
 internal_types::ScreenResolution toInternalType(const QSize& resolution)
@@ -127,9 +109,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow{parent}, ui{new Ui::MainWi
         auto diffPointForReceive = screenGeometry.topLeft();
 
         this->app->setContactPoints(
-            {toPoint(contactPoints.first), toPoint(contactPoints.second)},
-            toPoint(diffPointForSend),
-            toPoint(diffPointForReceive));
+            {toInternalType(contactPoints.first), toInternalType(contactPoints.second)},
+            toInternalType(diffPointForSend),
+            toInternalType(diffPointForReceive));
     };
     auto scene = new GraphicsScene(0, 0, 448, 448, std::move(setContactPoints));
     ui->graphicsView->setScene(scene);
