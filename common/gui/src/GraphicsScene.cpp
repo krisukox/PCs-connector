@@ -1,6 +1,5 @@
 #include "gui/GraphicsScene.h"
 #include <QLineF>
-#include <QtDebug>
 #include <optional>
 #include <set>
 #include "gui/GraphicsRectItem.h"
@@ -242,14 +241,4 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
     setContactPoints(contactPoints, diffPoint);
     QGraphicsScene::mouseReleaseEvent(event);
-}
-
-void GraphicsScene::addItem(QGraphicsItem* item)
-{
-    auto rectItem = dynamic_cast<GraphicsRectItem*>(item);
-    if (rectItem)
-    {
-        rectList.push_back(rectItem);
-    }
-    QGraphicsScene::addItem(item);
 }

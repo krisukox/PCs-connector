@@ -1,10 +1,8 @@
 #include "gui/CursorManagement.h"
 #include <QApplication>
 #include <QCursor>
-#include <QLine>
+#include <QLineF>
 #include <QScreen>
-#include <QtDebug>
-#include <set>
 
 namespace
 {

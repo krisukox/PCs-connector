@@ -2,7 +2,6 @@
 
 #include <QComboBox>
 #include <QCoreApplication>
-#include <QCursor>
 #include <QDebug>
 #include <QGuiApplication>
 #include <QLabel>
@@ -87,9 +86,18 @@ internal_types::ScreenResolution toInternalType(const QSize& resolution)
 {
     return {static_cast<uint16_t>(resolution.width()), static_cast<uint16_t>(resolution.height())};
 }
-} // namespace
 
-unsigned MyIndex = 0;
+void alignContactPoints(std::pair<QPointF, QPointF>& contactPoints, const QRect& screenRect)
+{
+    contactPoints.first += screenRect.topLeft();
+    contactPoints.second += screenRect.topLeft();
+}
+
+QPointF getDiffPointForSend(const QPointF& diffPoint, const QRect& screenGeometry)
+{
+    return diffPoint - screenGeometry.topLeft();
+}
+} // namespace
 
 std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
 {
@@ -138,18 +146,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow{parent}, ui{new Ui::MainWi
     connect(ui->startButton, SIGNAL(released()), this, SLOT(handleStartButton()));
     connect(ui->identifyScreens, SIGNAL(released()), this, SLOT(handleIdetifyScreensButton()));
     connect(ui->availableMonitors, SIGNAL(currentIndexChanged(int)), this, SLOT(borderScreenChanged(int)));
-}
-
-void MainWindow::alignContactPoints(std::pair<QPointF, QPointF>& contactPoints, const QRect& screenRect)
-{
-    //    qDebug() << screenRect.topLeft();
-    contactPoints.first += screenRect.topLeft();
-    contactPoints.second += screenRect.topLeft();
-}
-
-QPointF MainWindow::getDiffPointForSend(const QPointF& diffPoint, const QRect& screenGeometry)
-{
-    return diffPoint - screenGeometry.topLeft();
 }
 
 void MainWindow::fillAvailableMonitors()
