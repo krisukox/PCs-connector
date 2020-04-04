@@ -5,12 +5,18 @@ namespace connection
 {
 Socket::Socket() : ioContext{} {}
 
-void Socket::connect(const boost::asio::ip::address& address, const std::string& port)
+void Socket::connect(
+    const boost::asio::ip::address& address,
+    const std::string& port,
+    std::function<void()> successfulConnection)
 {
     socket = boost::asio::ip::tcp::socket{ioContext};
-    auto resolver = boost::asio::ip::tcp::resolver{ioContext};
+    //    auto resolver = boost::asio::ip::tcp::resolver{ioContext};
     boost::asio::ip::tcp::endpoint endpoint(address, std::stoi(port));
-    socket.value().connect(endpoint);
+    socket.value().async_connect(
+        endpoint, [successfulConnection](const boost::system::error_code&) { successfulConnection(); });
+    ioContext.run();
+    //    socket.value().connect(endpoint);
 }
 
 void Socket::listen(const std::string& port, std::function<void(boost::asio::ip::tcp::socket&)> successfulConnection)

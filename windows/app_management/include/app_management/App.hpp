@@ -39,5 +39,7 @@ private:
     std::shared_ptr<Vendor> vendor;
 
     app_management::Console _;
+
+    std::thread vendorThread;
 };
 } // namespace app_management

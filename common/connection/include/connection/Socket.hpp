@@ -12,7 +12,7 @@ class Socket
 public:
     Socket();
 
-    void connect(const boost::asio::ip::address&, const std::string& port);
+    void connect(const boost::asio::ip::address&, const std::string& port, std::function<void()>);
     void listen(const std::string& port, std::function<void(boost::asio::ip::tcp::socket&)>);
     boost::asio::ip::tcp::socket& value();
     boost::asio::io_context& getIoContext();

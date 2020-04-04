@@ -25,13 +25,19 @@ void App::connect(
 try
 {
     auto port = std::string("10000");
-    socket->connect(address, port);
+    socket->connect(address, port, [this, masterScreenResolution]() {
+        initializeVendor(masterScreenResolution);
+        vendorThread = std::thread(&Vendor::startCatchingEvents, vendor);
+        vendor->startReceivingEvents();
+        //        socket->getIoContext().run();
+        //        t.join();
+    });
 
-    initializeVendor(masterScreenResolution);
-    std::thread t(&Vendor::startCatchingEvents, vendor);
-    vendor->startReceivingEvents();
-    socket->getIoContext().run();
-    t.join();
+    //    initializeVendor(masterScreenResolution);
+    //    std::thread t(&Vendor::startCatchingEvents, vendor);
+    //    vendor->startReceivingEvents();
+    //    socket->getIoContext().run();
+    //    t.join();
 }
 catch (std::exception e)
 {
