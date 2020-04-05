@@ -1,9 +1,28 @@
 #include "connection/Socket.hpp"
 #include <iostream>
 
+class A
+{
+};
+
+class B : public A
+{
+};
+
 namespace connection
 {
-Socket::Socket() : deserializer{}, serializer{}, ioContext{}, socket{ioContext} {}
+Socket::Socket() : deserializer{}, serializer{}, ioContext{}, socket{ioContext}
+{
+    //    A* a = new A;
+    //    B* b = new B;
+    //    A* c = b;
+    //    //    const auto& type = typeid(internal_types::ScreenResolution);
+    //    std::function<void(B*)> func = [](A*) {};
+    //    //    std::function<void(A*)> func1 = func;
+    //    //        dynamic_cast<std::function<void(internal_types::DecodedType)>&>(func);
+
+    //    //    handlers.insert(typeid(internal_types::ScreenResolution), [](internal_types::ScreenResolution) {});
+}
 
 Socket::Socket(const boost::asio::ip::address& address, const std::string& port) : Socket()
 {
@@ -31,7 +50,41 @@ Socket::Socket(const std::string& port) : Socket()
 
 void Socket::start()
 {
+    startReceiving();
     ioContext.run();
+}
+
+void Socket::startReceiving()
+{
+    socket.async_receive(boost::asio::buffer(buffer, 5), [this](boost::system::error_code errorCode, std::size_t size) {
+        if (size > 0 && !errorCode)
+        {
+            startReceiving();
+            handleReceivedData();
+        }
+        else
+        {
+            //            unsuccessfulCallback(errorCode);
+        }
+    });
+}
+
+void Socket::handleReceivedData()
+{
+    auto decoded = deserializer.decode(buffer);
+
+    if (decoded)
+    {
+        std::visit(
+            internal_types::Visitor{
+                [this](const auto& value) { handleReceivedData(value); },
+            },
+            decoded.value());
+    }
+    else
+    {
+        //        unsuccessfulCallback(boost::system::error_code());
+    }
 }
 
 void Socket::close()
