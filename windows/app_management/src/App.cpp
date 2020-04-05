@@ -13,25 +13,59 @@ namespace app_management
 {
 App::~App() = default;
 
-App::App(std::shared_ptr<commons::CursorGuard>&& cursorGuard, SetScreenResolution&& _setScreenResolution)
-    : commons::IApp(std::move(cursorGuard), std::move(_setScreenResolution))
-    , socket{std::make_unique<connection::Socket>()}
-{
-}
+App::App() {}
 
 void App::connect(
     const boost::asio::ip::address& address,
-    const internal_types::ScreenResolution& masterScreenResolution)
+    const internal_types::ScreenResolution& masterScreenResolution,
+    SetScreenResolution setScreenResolution)
 try
 {
+    auto keyboard = std::make_unique<event_vendor::KeyboardSender>();
+    auto mouse = std::make_unique<event_vendor::MouseSender>(std::make_unique<commons::CursorGuard>());
+
     auto port = std::string("10000");
-    socket->connect(address, port, [this, masterScreenResolution]() {
-        initializeVendor(masterScreenResolution);
-        vendorThread = std::thread(&Vendor::startCatchingEvents, vendor);
-        vendor->startReceivingEvents();
-        //        socket->getIoContext().run();
-        //        t.join();
-    });
+    /*auto */ socket = std::make_unique<connection::Socket>(address, port);
+
+    socket->send(masterScreenResolution);
+    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+        [this](internal_types::ScreenResolution screenResolution) {
+            std::cout << "RECEIVE SYNCHRONISED" << std::endl;
+            //            setScreenResolution(screenResolution);
+        };
+    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
+
+    socket->synchronizedReceive(successfulCallback, unsuccessfulCallback);
+
+    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback1 =
+        [this](const internal_types::ScreenResolution& event) {
+            std::cout << "Vendor::receiveEvent RECEIVE ASYNC" << std::endl;
+            //            socket->send(internal_types::ScreenResolution{1080, 1920});
+            //            keyboard->changeState();
+            //            mouse->changeMouseState(
+            //                std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));
+            //            receiveEvent();
+        };
+    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback1 = [this](boost::system::error_code) {
+        std::cerr << "Unsuccessful event receive" << std::endl;
+        //        stopApp();
+    };
+    socket->receive(successfulCallback1, unsuccessfulCallback1);
+    socket->start();
+
+    //    vendor = std::make_unique<app_management::Vendor>(
+    //        std::move(keyboard), std::move(mouse), std::move(socket), setScreenResolution, masterScreenResolution);
+    //    vendor->start(masterScreenResolution);
+
+    //    vendorThread = std::thread(&Vendor::startCatchingEvents, vendor);
+    //    vendor->startReceivingEvents();
+    //    socket->connect(address, port, [this, masterScreenResolution]() {
+    //        initializeVendor(masterScreenResolution);
+    //        vendorThread = std::thread(&Vendor::startCatchingEvents, vendor);
+    //        vendor->startReceivingEvents();
+    //        //        socket->getIoContext().run();
+    //        //        t.join();
+    //    });
 
     //    initializeVendor(masterScreenResolution);
     //    std::thread t(&Vendor::startCatchingEvents, vendor);
@@ -44,32 +78,37 @@ catch (std::exception e)
     std::clog << e.what() << std::endl;
 }
 
-void App::initializeVendor(const internal_types::ScreenResolution& masterScreenResolution)
+void App::setContactPoints(
+    const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
+    const internal_types::Point& diffPointForSend,
+    const internal_types::Point& diffPointForReceive)
 {
-    auto stopAppCallback = [this] { socket->close(); };
-
-    auto receiver =
-        std::make_shared<connection::Receiver>(socket->value(), std::make_unique<internal_types::Deserializer>());
-    auto sender = std::make_shared<connection::Sender>(socket->value());
-
-    exchangeScreenResolution(receiver, sender, masterScreenResolution);
-
-    auto keyboard = std::make_shared<event_vendor::KeyboardSender>(sender);
-    auto mouse = std::make_shared<event_vendor::MouseSender>(sender, cursorGuard);
-
-    vendor = std::make_shared<app_management::Vendor>(keyboard, mouse, receiver, stopAppCallback);
+    vendor->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
 }
 
-void App::exchangeScreenResolution(
-    std::shared_ptr<connection::Receiver> receiver,
-    std::shared_ptr<connection::Sender> sender,
-    const internal_types::ScreenResolution& masterScreenResolution)
+void App::initializeVendor(const internal_types::ScreenResolution& masterScreenResolution)
 {
-    sender->send(masterScreenResolution);
-    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
-        [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
-    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
+    //    auto stopAppCallback = [this] { socket->close(); };
 
-    receiver->synchronizedReceive(successfulCallback, unsuccessfulCallback);
+    //    auto receiver =
+    //        std::make_shared<connection::Receiver>(socket->value(), std::make_unique<internal_types::Deserializer>());
+    //    auto sender = std::make_shared<connection::Sender>(socket->value());
+
+    exchangeScreenResolution(masterScreenResolution);
+
+    //    auto keyboard = std::make_shared<event_vendor::KeyboardSender>(sender);
+    //    auto mouse = std::make_shared<event_vendor::MouseSender>(sender, cursorGuard);
+
+    //    vendor = std::make_shared<app_management::Vendor>(keyboard, mouse, receiver, stopAppCallback);
+}
+
+void App::exchangeScreenResolution(const internal_types::ScreenResolution& masterScreenResolution)
+{
+    //    sender->send(masterScreenResolution);
+    //    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+    //        [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
+    //    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
+
+    //    receiver->synchronizedReceive(successfulCallback, unsuccessfulCallback);
 }
 } // namespace app_management

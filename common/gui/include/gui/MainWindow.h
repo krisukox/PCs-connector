@@ -39,7 +39,7 @@ signals:
     void messageSent(const ScreenResolutionMsg&);
 
 private:
-    std::unique_ptr<commons::IApp> createAppPtr();
+    //    std::unique_ptr<commons::IApp> createAppPtr();
     void fillAvailableMonitors();
     void showIndicators();
     void addScreensToScene(const QSize&);

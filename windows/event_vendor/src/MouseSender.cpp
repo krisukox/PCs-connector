@@ -74,19 +74,32 @@ bool isCursorOutOfContactArea(const internal_types::Point& cursor)
 }
 } // namespace
 
-MouseSender::MouseSender(
-    std::shared_ptr<connection::Sender> _sender,
-    std::shared_ptr<commons::CursorGuard> _cursorGuard)
-    : sender{_sender}, isEventSending{false}, cursorGuard{_cursorGuard}
+MouseSender::MouseSender(std::unique_ptr<commons::CursorGuard> _cursorGuard)
+    : isEventSending{false}, cursorGuard{std::move(_cursorGuard)}
 {
 }
 
-void MouseSender::start(std::function<void()>&& _changeKeyboardState)
+void MouseSender::start(std::function<void()>&& _changeKeyboardState, EventReceived _eventReceived)
 {
     This = this;
-    changeKeyboardState = std::move(_changeKeyboardState);
     cursorGuard->initialize();
 
+    changeKeyboardState = std::move(_changeKeyboardState);
+    eventReceived = _eventReceived;
+
+    start();
+}
+
+void MouseSender::setContactPoints(
+    const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
+    const internal_types::Point& diffPointForSend,
+    const internal_types::Point& diffPointForReceive)
+{
+    cursorGuard->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
+}
+
+void MouseSender::start()
+{
     mouseHook = SetWindowsHookEx(WH_MOUSE_LL, resultCallback, nullptr, NULL);
 }
 
@@ -155,7 +168,7 @@ LRESULT MouseSender::forwardEvent(int nCode, WPARAM wParam, LPARAM lParam)
 
 LRESULT MouseSender::sendEvent(internal_types::MouseEvent&& mouseEvent)
 {
-    sender->send(mouseEvent);
+    eventReceived(mouseEvent);
     return eventSent;
 }
 

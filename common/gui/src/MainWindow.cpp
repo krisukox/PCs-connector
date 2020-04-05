@@ -81,14 +81,14 @@ QPointF getDiffPointForSend(const QPointF& diffPoint, const QRect& screenGeometr
 }
 } // namespace
 
-std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
-{
-    return std::make_unique<app_management::App>(
-        std::make_shared<commons::CursorGuard>(),
-        [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); });
-}
+// std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
+//{
+//    return std::make_unique<app_management::App>(
+//        [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); });
+//}
 
-MainWindow::MainWindow(QWidget* parent) : QMainWindow{parent}, ui{new Ui::MainWindow}, app{createAppPtr()}
+MainWindow::MainWindow(QWidget* parent)
+    : QMainWindow{parent}, ui{new Ui::MainWindow}, app{std::make_unique<app_management::App>()}
 {
     connect(this, SIGNAL(messageSent(ScreenResolutionMsg)), this, SLOT(handleScreenResolutionSet(ScreenResolutionMsg)));
 
@@ -224,7 +224,8 @@ void MainWindow::handleConnectButton()
             &commons::IApp::connect,
             app.get(),
             address,
-            toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()));
+            toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()),
+            [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); });
         ui->infoLabel->setText("");
     }
     else

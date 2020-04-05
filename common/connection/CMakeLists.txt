@@ -3,12 +3,16 @@ set(HEADERS
     include/connection/Receiver.hpp
     include/connection/Socket.hpp
     include/connection/Sender.hpp
+    include/connection/Server.hpp
+    include/connection/Client.hpp
 )
 
 set(SOURCE_FILES
     src/Receiver.cpp
     src/Socket.cpp
     src/Sender.cpp
+    src/Server.cpp
+    src/Client.cpp
 )
 
 add_library(connection ${HEADERS} ${SOURCE_FILES})

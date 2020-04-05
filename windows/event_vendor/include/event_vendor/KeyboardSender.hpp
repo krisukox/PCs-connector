@@ -10,16 +10,18 @@ namespace event_vendor
 class KeyboardSender
 {
 public:
-    KeyboardSender(std::shared_ptr<connection::Sender>);
-    KeyboardSender() = delete;
+    using EventReceived = std::function<void(const internal_types::KeyEvent&)>;
 
-    void start(std::function<void()>&&);
+    KeyboardSender();
+
+    void start(EventReceived);
     void changeState();
 
 private:
     void start();
+
     bool checkForStopApp(const internal_types::KeyEvent&);
-    void stopApp();
+    //    void stopApp();
     bool checkForIgnoreCtrl(const internal_types::KeyEvent&);
     void changeKeyMod(const internal_types::KeyEvent&);
     bool checkForRAltPress(const internal_types::KeyEvent&);
@@ -32,10 +34,9 @@ private:
     bool isLWinPressed = false;
     bool isRAltPressed = false;
 
-    std::shared_ptr<connection::Sender> sender;
-    std::function<void()> stopAppCallback;
     bool isEventSending;
 
+    EventReceived eventReceived;
     HHOOK keyboardHook;
 };
 } // namespace event_vendor
