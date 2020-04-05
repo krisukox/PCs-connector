@@ -45,5 +45,6 @@ private:
 
     std::thread vendorThread;
     std::unique_ptr<connection::Socket> socket;
+    internal_types::Buffer buffer;
 };
 } // namespace app_management

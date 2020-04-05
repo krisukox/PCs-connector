@@ -66,7 +66,7 @@ public:
             unsuccessfulCallback(boost::system::error_code());
         }
         handleReceivedData(successfulCallback, unsuccessfulCallback);
-        ioContext.stop();
+        //        ioContext.stop();
     }
 
     template <class T>
@@ -86,6 +86,13 @@ public:
                 }
             });
     }
+
+    internal_types::Deserializer deserializer;
+    internal_types::Serializer serializer;
+    boost::asio::io_context ioContext;
+    boost::asio::ip::tcp::socket socket;
+
+    internal_types::Buffer buffer;
 
 private:
     template <class T>
@@ -111,11 +118,11 @@ private:
         }
     }
 
-    internal_types::Deserializer deserializer;
-    internal_types::Serializer serializer;
-    boost::asio::io_context ioContext;
-    boost::asio::ip::tcp::socket socket;
+    //    internal_types::Deserializer deserializer;
+    //    internal_types::Serializer serializer;
+    //    boost::asio::io_context ioContext;
+    //    boost::asio::ip::tcp::socket socket;
 
-    internal_types::Buffer buffer;
+    //    internal_types::Buffer buffer;
 };
 } // namespace connection

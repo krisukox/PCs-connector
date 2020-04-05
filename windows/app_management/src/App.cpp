@@ -27,12 +27,13 @@ try
     auto port = std::string("10000");
     /*auto */ socket = std::make_unique<connection::Socket>(address, port);
 
-    socket->send(masterScreenResolution);
+    internal_types::Serializer serializer;
+    boost::asio::async_write(
+        socket->socket,
+        boost::asio::buffer(serializer.encode<>(masterScreenResolution), 5),
+        [this](boost::system::error_code ec, std::size_t) {});
     connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
-        [this](internal_types::ScreenResolution screenResolution) {
-            std::cout << "RECEIVE SYNCHRONISED" << std::endl;
-            //            setScreenResolution(screenResolution);
-        };
+        [this](internal_types::ScreenResolution screenResolution) { std::cout << "RECEIVE SYNCHRONISED" << std::endl; };
     connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
 
     socket->synchronizedReceive(successfulCallback, unsuccessfulCallback);
@@ -40,21 +41,16 @@ try
     connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback1 =
         [this](const internal_types::ScreenResolution& event) {
             std::cout << "Vendor::receiveEvent RECEIVE ASYNC" << std::endl;
-            //            socket->send(internal_types::ScreenResolution{1080, 1920});
-            //            keyboard->changeState();
-            //            mouse->changeMouseState(
-            //                std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));
-            //            receiveEvent();
         };
     connection::Receiver::UnsuccessfulCallback unsuccessfulCallback1 = [this](boost::system::error_code) {
         std::cerr << "Unsuccessful event receive" << std::endl;
-        //        stopApp();
     };
     socket->receive(successfulCallback1, unsuccessfulCallback1);
     socket->start();
 
     //    vendor = std::make_unique<app_management::Vendor>(
-    //        std::move(keyboard), std::move(mouse), std::move(socket), setScreenResolution, masterScreenResolution);
+    //        std::move(keyboard), std::move(mouse), std::move(socket), setScreenResolution,
+    //        masterScreenResolution);
     //    vendor->start(masterScreenResolution);
 
     //    vendorThread = std::thread(&Vendor::startCatchingEvents, vendor);
@@ -72,6 +68,61 @@ try
     //    vendor->startReceivingEvents();
     //    socket->getIoContext().run();
     //    t.join();
+
+    //    internal_types::Serializer serializer;
+
+    //    boost::asio::async_write(
+    //        socket->socket,
+    //        boost::asio::buffer(serializer.encode<>(masterScreenResolution), 5),
+    //        [this](boost::system::error_code ec, std::size_t) {
+    //            if (!ec)
+    //            {
+    //                // LATER CHECK IF VECTOR OF MSGS HAS ANY MSGS LEFT
+    //            }
+    //            else
+    //            {
+    //                //                socket.close();
+    //            }
+    //        });
+    //    //    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+    //    //        [this](internal_types::ScreenResolution screenResolution) {
+    //    setScreenResolution(screenResolution); };
+    //    //    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec)
+    //    {};
+
+    //    if (socket->socket.receive(boost::asio::buffer(buffer, 5)) == 5)
+    //    {
+    //        std::cout << "RECEIVED SYNCHRONISED" << std::endl;
+    //    }
+
+    //    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+    //        [this](const internal_types::ScreenResolution& event) {
+    //            std::cout << "Vendor::receiveEvent ASYNC" << std::endl;
+    //            //            keyboard->changeState();
+    //            //            mouse->changeMouseState(
+    //            //
+    //            std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));
+    //            //            startReceivingEvents();
+    //        };
+    //    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [this](boost::system::error_code) {
+    //        std::cerr << "Unsuccessful event receive" << std::endl;
+    //        //        stopApp();
+    //    };
+    //    socket->socket.async_receive(
+    //        boost::asio::buffer(buffer, 5),
+    //        [this, successfulCallback, unsuccessfulCallback](boost::system::error_code errorCode, std::size_t
+    //        size) {
+    //            if (size > 0 && !errorCode)
+    //            {
+    //                std::cout << "Vendor::receiveEvent ASYNC" << std::endl;
+    //                //                handleReceivedData(successfulCallback, unsuccessfulCallback);
+    //            }
+    //            else
+    //            {
+    //                //                unsuccessfulCallback(errorCode);
+    //            }
+    //        });
+    //    socket->start();
 }
 catch (std::exception e)
 {
