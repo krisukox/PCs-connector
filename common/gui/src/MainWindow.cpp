@@ -98,6 +98,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     GraphicsScene::SetContactPoints setContactPoints =
         [this](std::pair<QPointF, QPointF>& contactPoints, QPointF& diffPoint) {
+            qDebug() << "GraphicsScene::SetContactPoints 11";
             upScale(contactPoints);
             upScale(diffPoint);
 
@@ -108,11 +109,12 @@ MainWindow::MainWindow(QWidget* parent)
 
             alignContactPoints(contactPoints, screenGeometry);
             auto diffPointForReceive = screenGeometry.topLeft();
-
+            qDebug() << "GraphicsScene::SetContactPoints 22";
             this->app->setContactPoints(
                 {toInternalType(contactPoints.first), toInternalType(contactPoints.second)},
                 toInternalType(diffPointForSend),
                 toInternalType(diffPointForReceive));
+            qDebug() << "GraphicsScene::SetContactPoints 33";
         };
     auto scene = new GraphicsScene(0, 0, 448, 448, std::move(setContactPoints));
     ui->graphicsView->setScene(scene);
@@ -187,20 +189,22 @@ void MainWindow::addScreensToScene(const QSize& slaveSize)
     item->setCallback([item2]() { item2->setZValue(0); });
     item2->setCallback([item]() { item->setZValue(0); });
 
-    item->setX(100);
-    item->setY(100);
+    item->setX(400);
+    item->setY(400);
     item2->setZValue(1);
     item2->setY(160);
     item->setZValue(0);
-
+    qDebug() << "MainWindow::addScreensToScene 33";
     GraphicsScene* scene = dynamic_cast<GraphicsScene*>(ui->graphicsView->scene());
     if (scene)
     {
+        qDebug() << "MainWindow::addScreensToScene 44";
         scene->addItem(item);
         scene->addItem(item2);
-
+        qDebug() << "MainWindow::addScreensToScene 55";
         QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
         QCoreApplication::sendEvent(scene, &event);
+        qDebug() << "MainWindow::addScreensToScene 66";
     }
 }
 
@@ -225,8 +229,7 @@ void MainWindow::handleConnectButton()
             app.get(),
             address,
             toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()),
-            [this](
-                const internal_types::ScreenResolution& screenResolution) { /*emit messageSent(screenResolution);*/ });
+            [this](const internal_types::ScreenResolution screenResolution) { emit messageSent(screenResolution); });
         ui->infoLabel->setText("");
     }
     else
@@ -249,6 +252,7 @@ void MainWindow::handleStartButton()
 
 void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenResolutionMsg)
 {
+    qDebug() << "MainWindow::handleScreenResolutionSet";
     addScreensToScene(QSize(screenResolutionMsg.width, screenResolutionMsg.height));
 }
 

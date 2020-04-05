@@ -18,7 +18,16 @@ Vendor::Vendor(
     , socket{std::move(_socket)}
     , setScreenResolution{_setScreenResolution}
 {
-    std::cout << "Vendor::Vendor" << std::endl;
+    std::cout << "Vendor::Vendor11" << std::endl;
+    if (mouse)
+    {
+        std::cout << "MOUSE exist" << std::endl;
+    }
+    else
+    {
+        std::cout << "MOUSE NOT EXIST" << std::endl;
+    }
+    std::cout << "Vendor::Vendor22" << std::endl;
 
     //    socket->send(masterScreenResolution);
 
@@ -45,21 +54,24 @@ Vendor::Vendor(
     //    };
     //    socket->receive(successfulCallback1, unsuccessfulCallback1);
     //    socket->start();
+    //
+    //
+    //
+    //
+    //    socket->send(masterScreenResolution);
+    //    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+    //        [this](internal_types::ScreenResolution screenResolution) {
+    //            /*std::cout << "RECEIVE SYNCHRONISED" << std::endl;*/ /*setScreenResolution(screenResolution);*/
+    //        };
+    //    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
 
-    socket->send(masterScreenResolution);
-    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
-        [this](internal_types::ScreenResolution screenResolution) {
-            std::cout << "RECEIVE SYNCHRONISED" << std::endl; /* setScreenResolution(screenResolution);*/
-        };
-    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
+    //    socket->synchronizedReceive(successfulCallback, unsuccessfulCallback);
     //    setScreenResolution(internal_types::ScreenResolution{1080, 1920});
 
-    socket->synchronizedReceive(successfulCallback, unsuccessfulCallback);
-
-    //    eventCatchingThread = std::thread(&Vendor::startCatchingEvents, this);
-    receiveEvent();
-    socket->start();
-    std::cout << "Vendor::Vendor" << std::endl;
+    //    //    eventCatchingThread = std::thread(&Vendor::startCatchingEvents, this);
+    //    receiveEvent();
+    //    socket->start();
+    //    std::cout << "Vendor::Vendor" << std::endl;
 }
 
 void Vendor::start(const internal_types::ScreenResolution& masterScreenResolution)
@@ -67,13 +79,12 @@ void Vendor::start(const internal_types::ScreenResolution& masterScreenResolutio
     socket->send(masterScreenResolution);
     connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
         [this](internal_types::ScreenResolution screenResolution) {
-            std::cout << "RECEIVE SYNCHRONISED" << std::endl;
-            setScreenResolution(screenResolution);
+            /*std::cout << "RECEIVE SYNCHRONISED" << std::endl;*/ /*setScreenResolution(screenResolution);*/
         };
     connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
 
     socket->synchronizedReceive(successfulCallback, unsuccessfulCallback);
-    //    socket->synchronizedReceive(successfulCallback, unsuccessfulCallback);
+    setScreenResolution(internal_types::ScreenResolution{1080, 1920});
 
     //    eventCatchingThread = std::thread(&Vendor::startCatchingEvents, this);
     receiveEvent();
@@ -91,6 +102,15 @@ void Vendor::setContactPoints(
     const internal_types::Point& diffPointForSend,
     const internal_types::Point& diffPointForReceive)
 {
+    std::cout << "Vendor::setContactPoints" << std::endl;
+    if (mouse)
+    {
+        std::cout << "MOUSE exist" << std::endl;
+    }
+    else
+    {
+        std::cout << "MOUSE NOT EXIST" << std::endl;
+    }
     mouse->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
 }
 

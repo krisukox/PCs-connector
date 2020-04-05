@@ -22,7 +22,7 @@ void App::connect(
 try
 {
     std::cout << "App::connect 11" << std::endl;
-    setScreenResolution(internal_types::ScreenResolution{1080, 1920});
+    //    setScreenResolution(internal_types::ScreenResolution{1080, 1920});
     auto keyboard = std::make_unique<event_vendor::KeyboardSender>();
     std::cout << "App::connect 22" << std::endl;
     auto mouse = std::make_unique<event_vendor::MouseSender>(std::make_unique<commons::CursorGuard>());
@@ -56,7 +56,7 @@ try
 
     vendor = std::make_unique<app_management::Vendor>(
         std::move(keyboard), std::move(mouse), std::move(socket), setScreenResolution, masterScreenResolution);
-    //    vendor->start(masterScreenResolution);
+    vendor->start(masterScreenResolution);
 
     //    vendorThread = std::thread(&Vendor::startCatchingEvents, vendor);
     //    vendor->startReceivingEvents();
@@ -139,7 +139,9 @@ void App::setContactPoints(
     const internal_types::Point& diffPointForSend,
     const internal_types::Point& diffPointForReceive)
 {
+    std::cout << "App::setContactPoints11" << std::endl;
     vendor->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
+    std::cout << "App::setContactPoints22" << std::endl;
 }
 
 void App::initializeVendor(const internal_types::ScreenResolution& masterScreenResolution)
