@@ -201,10 +201,8 @@ void MainWindow::addScreensToScene(const QSize& slaveSize)
         qDebug() << "MainWindow::addScreensToScene 44";
         scene->addItem(item);
         scene->addItem(item2);
-        qDebug() << "MainWindow::addScreensToScene 55";
         QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
         QCoreApplication::sendEvent(scene, &event);
-        qDebug() << "MainWindow::addScreensToScene 66";
     }
 }
 

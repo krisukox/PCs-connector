@@ -87,13 +87,6 @@ public:
             });
     }
 
-    internal_types::Deserializer deserializer;
-    internal_types::Serializer serializer;
-    boost::asio::io_context ioContext;
-    boost::asio::ip::tcp::socket socket;
-
-    internal_types::Buffer buffer;
-
 private:
     template <class T>
     void handleReceivedData(SuccessfulCallback<T> successfulCallback, UnsuccessfulCallback unsuccessfulCallback)
@@ -118,11 +111,11 @@ private:
         }
     }
 
-    //    internal_types::Deserializer deserializer;
-    //    internal_types::Serializer serializer;
-    //    boost::asio::io_context ioContext;
-    //    boost::asio::ip::tcp::socket socket;
+    internal_types::Deserializer deserializer;
+    internal_types::Serializer serializer;
+    boost::asio::io_context ioContext;
+    boost::asio::ip::tcp::socket socket;
 
-    //    internal_types::Buffer buffer;
+    internal_types::Buffer buffer;
 };
 } // namespace connection

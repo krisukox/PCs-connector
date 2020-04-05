@@ -8,10 +8,7 @@ Socket::Socket() : deserializer{}, serializer{}, ioContext{}, socket{ioContext} 
 Socket::Socket(const boost::asio::ip::address& address, const std::string& port) : Socket()
 {
     boost::asio::ip::tcp::endpoint endpoint(address, std::stoi(port));
-    std::cout << "Socket::connect 11" << std::endl;
-    socket.connect(endpoint /*, [successfulConnection](const boost::system::error_code&) { successfulConnection(); }*/);
-    std::cout << "Socket::connect 22" << std::endl;
-    //    ioContext.run();
+    socket.connect(endpoint);
 }
 
 Socket::Socket(const std::string& port) : Socket()

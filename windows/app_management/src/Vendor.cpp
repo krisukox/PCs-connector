@@ -62,8 +62,6 @@ void Vendor::receiveEvent()
 {
     connection::Receiver::SuccessfulCallback<internal_types::Event> successfulCallback =
         [this](const internal_types::Event& event) {
-            std::cout << "Vendor::receiveEvent RECEIVE ASYNC" << std::endl;
-            //            socket->send(internal_types::ScreenResolution{1080, 1920});
             keyboard->changeState();
             mouse->changeMouseState(
                 std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));
