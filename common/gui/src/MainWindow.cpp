@@ -225,7 +225,8 @@ void MainWindow::handleConnectButton()
             app.get(),
             address,
             toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()),
-            [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); });
+            [this](
+                const internal_types::ScreenResolution& screenResolution) { /*emit messageSent(screenResolution);*/ });
         ui->infoLabel->setText("");
     }
     else

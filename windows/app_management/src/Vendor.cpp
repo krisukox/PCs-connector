@@ -18,17 +18,48 @@ Vendor::Vendor(
     , socket{std::move(_socket)}
     , setScreenResolution{_setScreenResolution}
 {
+    std::cout << "Vendor::Vendor" << std::endl;
+
     //    socket->send(masterScreenResolution);
+
     //    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
-    //        [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
+    //        [this](internal_types::ScreenResolution screenResolution) { std::cout << "RECEIVE SYNCHRONISED" <<
+    //        std::endl; };
     //    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
 
     //    socket->synchronizedReceive(successfulCallback, unsuccessfulCallback);
 
-    //    //    eventCatchingThread = std::thread(&Vendor::startCatchingEvents, this);
-    //    receiveEvent();
+    //    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+    //        [this](internal_types::ScreenResolution screenResolution) { std::cout << "RECEIVE SYNCHRONISED" <<
+    //        std::endl; };
+    //    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
+
+    //    socket->synchronizedReceive(successfulCallback, unsuccessfulCallback);
+
+    //    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback1 =
+    //        [this](const internal_types::ScreenResolution& event) {
+    //            std::cout << "Vendor::receiveEvent RECEIVE ASYNC" << std::endl;
+    //        };
+    //    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback1 = [this](boost::system::error_code) {
+    //        std::cerr << "Unsuccessful event receive" << std::endl;
+    //    };
+    //    socket->receive(successfulCallback1, unsuccessfulCallback1);
     //    socket->start();
-    //    std::cout << "Vendor::Vendor" << std::endl;
+
+    socket->send(masterScreenResolution);
+    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+        [this](internal_types::ScreenResolution screenResolution) {
+            std::cout << "RECEIVE SYNCHRONISED" << std::endl; /* setScreenResolution(screenResolution);*/
+        };
+    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
+    //    setScreenResolution(internal_types::ScreenResolution{1080, 1920});
+
+    socket->synchronizedReceive(successfulCallback, unsuccessfulCallback);
+
+    //    eventCatchingThread = std::thread(&Vendor::startCatchingEvents, this);
+    receiveEvent();
+    socket->start();
+    std::cout << "Vendor::Vendor" << std::endl;
 }
 
 void Vendor::start(const internal_types::ScreenResolution& masterScreenResolution)

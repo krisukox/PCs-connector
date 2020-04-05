@@ -21,36 +21,41 @@ void App::connect(
     SetScreenResolution setScreenResolution)
 try
 {
+    std::cout << "App::connect 11" << std::endl;
+    setScreenResolution(internal_types::ScreenResolution{1080, 1920});
     auto keyboard = std::make_unique<event_vendor::KeyboardSender>();
+    std::cout << "App::connect 22" << std::endl;
     auto mouse = std::make_unique<event_vendor::MouseSender>(std::make_unique<commons::CursorGuard>());
-
     auto port = std::string("10000");
+    std::cout << "App::connect 33" << std::endl;
     /*auto */ socket = std::make_unique<connection::Socket>(address, port);
+    std::cout << "App::connect 44" << std::endl;
+    //    setScreenResolution(internal_types::ScreenResolution{1080, 1920});
+    std::cout << "App::connect 55" << std::endl;
+    //    internal_types::Serializer serializer;
+    //    boost::asio::async_write(
+    //        socket->socket,
+    //        boost::asio::buffer(serializer.encode<>(masterScreenResolution), 5),
+    //        [this](boost::system::error_code ec, std::size_t) {});
+    //    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+    //        [this](internal_types::ScreenResolution screenResolution) { std::cout << "RECEIVE SYNCHRONISED" <<
+    //        std::endl; };
+    //    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
 
-    internal_types::Serializer serializer;
-    boost::asio::async_write(
-        socket->socket,
-        boost::asio::buffer(serializer.encode<>(masterScreenResolution), 5),
-        [this](boost::system::error_code ec, std::size_t) {});
-    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
-        [this](internal_types::ScreenResolution screenResolution) { std::cout << "RECEIVE SYNCHRONISED" << std::endl; };
-    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code ec) {};
+    //    socket->synchronizedReceive(successfulCallback, unsuccessfulCallback);
 
-    socket->synchronizedReceive(successfulCallback, unsuccessfulCallback);
+    //    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback1 =
+    //        [this](const internal_types::ScreenResolution& event) {
+    //            std::cout << "Vendor::receiveEvent RECEIVE ASYNC" << std::endl;
+    //        };
+    //    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback1 = [this](boost::system::error_code) {
+    //        std::cerr << "Unsuccessful event receive" << std::endl;
+    //    };
+    //    socket->receive(successfulCallback1, unsuccessfulCallback1);
+    //    socket->start();
 
-    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback1 =
-        [this](const internal_types::ScreenResolution& event) {
-            std::cout << "Vendor::receiveEvent RECEIVE ASYNC" << std::endl;
-        };
-    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback1 = [this](boost::system::error_code) {
-        std::cerr << "Unsuccessful event receive" << std::endl;
-    };
-    socket->receive(successfulCallback1, unsuccessfulCallback1);
-    socket->start();
-
-    //    vendor = std::make_unique<app_management::Vendor>(
-    //        std::move(keyboard), std::move(mouse), std::move(socket), setScreenResolution,
-    //        masterScreenResolution);
+    vendor = std::make_unique<app_management::Vendor>(
+        std::move(keyboard), std::move(mouse), std::move(socket), setScreenResolution, masterScreenResolution);
     //    vendor->start(masterScreenResolution);
 
     //    vendorThread = std::thread(&Vendor::startCatchingEvents, vendor);
