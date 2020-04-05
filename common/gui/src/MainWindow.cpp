@@ -189,8 +189,8 @@ void MainWindow::addScreensToScene(const QSize& slaveSize)
     item->setCallback([item2]() { item2->setZValue(0); });
     item2->setCallback([item]() { item->setZValue(0); });
 
-    item->setX(400);
-    item->setY(400);
+    item->setX(100);
+    item->setY(100);
     item2->setZValue(1);
     item2->setY(160);
     item->setZValue(0);

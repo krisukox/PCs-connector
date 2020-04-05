@@ -34,19 +34,7 @@ Socket::Socket(const std::string& port) : Socket()
 
 void Socket::start()
 {
-    std::cout << "Socket::start11" << std::endl;
-    //    if(ioContext)
     ioContext.run();
-    //    try
-    //    {
-    //        //        ioContext.run();
-    //    }
-    //    catch (...)
-    //    {
-    //        std::cout << "EXCEPTION" << std::endl;
-    //    }
-
-    std::cout << "Socket::start22" << std::endl;
 }
 
 void Socket::close()

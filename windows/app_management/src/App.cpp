@@ -22,10 +22,10 @@ void App::connect(
 try
 {
     std::cout << "App::connect 11" << std::endl;
-    //    setScreenResolution(internal_types::ScreenResolution{1080, 1920});
+    //    setScreenResolution(internal_types::ScreenResolution{1920, 1080});
     auto keyboard = std::make_unique<event_vendor::KeyboardSender>();
     std::cout << "App::connect 22" << std::endl;
-    auto mouse = std::make_unique<event_vendor::MouseSender>(std::make_unique<commons::CursorGuard>());
+    //    auto mouse = std::make_unique<event_vendor::MouseSender>(std::make_unique<commons::CursorGuard>());
     auto port = std::string("10000");
     std::cout << "App::connect 33" << std::endl;
     /*auto */ socket = std::make_unique<connection::Socket>(address, port);
@@ -53,9 +53,9 @@ try
     //    };
     //    socket->receive(successfulCallback1, unsuccessfulCallback1);
     //    socket->start();
-
+    auto mouse = new event_vendor::MouseSender(std::make_unique<commons::CursorGuard>());
     vendor = std::make_unique<app_management::Vendor>(
-        std::move(keyboard), std::move(mouse), std::move(socket), setScreenResolution, masterScreenResolution);
+        std::move(keyboard), mouse, std::move(socket), setScreenResolution, masterScreenResolution);
     vendor->start(masterScreenResolution);
 
     //    vendorThread = std::thread(&Vendor::startCatchingEvents, vendor);
@@ -139,9 +139,14 @@ void App::setContactPoints(
     const internal_types::Point& diffPointForSend,
     const internal_types::Point& diffPointForReceive)
 {
-    std::cout << "App::setContactPoints11" << std::endl;
-    vendor->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
-    std::cout << "App::setContactPoints22" << std::endl;
+    if (vendor)
+    {
+        vendor->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
+    }
+    else
+    {
+        std::cerr << "Vendor doesn't exist" << std::endl;
+    }
 }
 
 void App::initializeVendor(const internal_types::ScreenResolution& masterScreenResolution)
