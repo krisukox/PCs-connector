@@ -3,6 +3,7 @@
 #include <boost/asio.hpp>
 #include <functional>
 #include <iostream>
+#include <mutex>
 #include <optional>
 #include <unordered_map>
 #include "Deserializer.hpp"
@@ -20,7 +21,9 @@ enum class HandlerType
 class BaseHandler
 {
 public:
+    BaseHandler(const HandlerType& _handlerType) : handlerType{_handlerType} {}
     virtual ~BaseHandler() {}
+    const HandlerType handlerType;
 };
 
 template <class T, typename = std::enable_if_t<std::is_convertible<T, internal_types::DecodedType>::value>>
@@ -31,7 +34,7 @@ class Handler : public BaseHandler
 public:
     Handler() {}
     Handler(FunctionType _functionType, HandlerType _handlerType)
-        : functionType{_functionType}, handlerType{_handlerType}
+        : BaseHandler(_handlerType), functionType{_functionType}
     {
     }
     void run(T event) const
@@ -41,15 +44,6 @@ public:
             functionType(event);
         }
     }
-    void operator()(T event)
-    {
-        if (functionType)
-        {
-            functionType(event);
-        }
-    }
-
-    const HandlerType handlerType;
 
 private:
     FunctionType functionType;
@@ -130,51 +124,77 @@ private:
     //    template <class T, typename = std::enable_if_t<std::is_convertible<T, internal_types::DecodedType>::value>>
     //    Handler<T>* getHandler(const T& data)
     //    {
-
+    //        auto it = handlers.find(typeid(T).hash_code());
+    //        if (it != handlers.end())
+    //        {
+    //            Handler<T>* handler;
+    //            if (it->second->handlerType == HandlerType::once)
+    //            {
+    //                handler = dynamic_cast<Handler<T>*>(it->second.release());
+    //                handlers.erase(it);
+    //            }
+    //            else
+    //            {
+    //                handler = dynamic_cast<Handler<T>*>(it->second.get());
+    //            }
+    //            if (handler)
+    //            {
+    //                if (handler->handlerType == HandlerType::once)
+    //                {
+    //                    handler->run(data);
+    //                    handlers.erase(it);
+    //                }
+    //                else
+    //                {
+    //                    handler->run(data);
+    //                }
+    //            }
+    //            else
+    //            {
+    //                //        unsuccessfulCallback(boost::system::error_code());
+    //            }
+    //        }
+    //        else
+    //        {
+    //            //        unsuccessfulCallback(boost::system::error_code());
+    //        }
     //    }
 
     template <class T, typename = std::enable_if_t<std::is_convertible<T, internal_types::DecodedType>::value>>
     void handleReceivedType(const T& data)
     {
         std::cout << "void handleReceivedData(const T& _data)" << std::endl;
+        std::unique_lock<std::mutex> uniqueLock(mutex);
         auto it = handlers.find(typeid(T).hash_code());
         if (it != handlers.end())
         {
-            auto* handler = dynamic_cast<Handler<T>*>(it->second.get());
-            std::cout << "PTR1 " << it->second.get() << " PTR2 " << handler;
-            if (handler)
+            Handler<T>* handler;
+            if (it->second->handlerType == HandlerType::once)
             {
-                if (handler->handlerType == HandlerType::once)
+                handler = dynamic_cast<Handler<T>*>(it->second.release());
+                handlers.erase(it);
+                uniqueLock.unlock();
+                if (handler)
                 {
                     handler->run(data);
-                    handlers.erase(it);
-                    //                    Handler<T> handler1 = *handler;
-                    //                    handlerThreads.push_back(std::thread([=, data = std::move(_data)]() {
-                    //                        std::cout << "RUN !!!!!!" << std::endl;
-                    //                        handler1.run(data);
-                    //                    }));
-                    //                    handlers.erase(it);
-                }
-                else
-                {
-                    handler->run(data);
-                    //                    auto executor = boost::asio::bind_executor(
-                    //                        ioContextHandlers, [handler, data = std::move(_data)]() {
-                    //                        handler->run(data); });
-                    //                    boost::asio::post(executor);
-                    //                    ioContextHandlers.run();
-                    //                    handlerThreads.push_back(std::thread([handler, data = std::move(_data)]() {
-                    //                    handler->run(data); }));
+                    delete handler;
+                    return;
                 }
             }
             else
             {
-                //        unsuccessfulCallback(boost::system::error_code());
+                handler = dynamic_cast<Handler<T>*>(it->second.get());
+                uniqueLock.unlock();
+                if (handler)
+                {
+                    handler->run(data);
+                    return;
+                }
             }
         }
         else
         {
-            //        unsuccessfulCallback(boost::system::error_code());
+            std::cerr << "Cannot find handler for " << typeid(T).name() << " type" << std::endl;
         }
     }
     void handleReceivedData(const internal_types::Buffer&);
@@ -194,5 +214,7 @@ private:
 
     boost::asio::io_context ioContextHandlers;
     std::thread handlerIoContextThread;
+
+    std::mutex mutex;
 };
 } // namespace connection
