@@ -41,7 +41,7 @@ void Socket::startReceiving()
     });
 }
 
-void Socket::close()
+void Socket::stop()
 {
     ioContext.stop();
     socket.close();

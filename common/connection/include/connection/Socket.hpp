@@ -22,7 +22,7 @@ public:
     Socket(const std::string& port);
 
     void start();
-    void close();
+    void stop();
 
     template <class T>
     void receive(SuccessfulCallback<T> successfulCallback)

@@ -27,8 +27,7 @@ public:
         std::unique_ptr<event_vendor::KeyboardSender>,
         event_vendor::MouseSender*,
         std::unique_ptr<connection::Socket>,
-        std::function<void(internal_types::ScreenResolution)>,
-        const internal_types::ScreenResolution&);
+        std::function<void(internal_types::ScreenResolution)>);
     ~Vendor();
 
     void setContactPoints(
@@ -36,13 +35,13 @@ public:
         const internal_types::Point&,
         const internal_types::Point&);
 
-    void startReceivingEvents();
     void startCatchingEvents();
 
     void start(const internal_types::ScreenResolution&);
+    void stop();
 
 private:
-    void receiveEvent();
+    void registerForMouseChangePositionEvent();
     void stopApp();
     void changeKeyboardState();
 

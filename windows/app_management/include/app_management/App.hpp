@@ -35,10 +35,6 @@ public:
         const internal_types::Point&) override;
 
 private:
-    void initializeVendor(const internal_types::ScreenResolution&);
-    void exchangeScreenResolution(const internal_types::ScreenResolution&);
-
-    //    std::unique_ptr<connection::Socket> socket;
     std::unique_ptr<Vendor> vendor;
 
     app_management::Console _;
