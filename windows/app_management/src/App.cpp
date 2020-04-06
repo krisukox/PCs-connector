@@ -48,9 +48,4 @@ void App::setContactPoints(
         std::cerr << "Vendor doesn't exist" << std::endl;
     }
 }
-
-void App::stop()
-{
-    vendor->stop();
-}
 } // namespace app_management

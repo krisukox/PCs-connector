@@ -170,7 +170,6 @@ GraphicsScene::GraphicsScene(qreal x, qreal y, qreal width, qreal height, SetCon
 
 void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-    qDebug() << "GraphicsScene::mouseReleaseEvent 11";
     if (items().size() != 2) return;
 
     auto rect1_ = dynamic_cast<GraphicsRectItem*>(items().at(0));
@@ -182,10 +181,8 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     auto rect2 = rect2_->rectPlaced();
 
     auto lineBetweenCenters = QLineF(rect1.center(), rect2.center());
-    qDebug() << "GraphicsScene::mouseReleaseEvent 22";
     if (rect1.intersects(rect2))
     {
-        qDebug() << "GraphicsScene::mouseReleaseEvent 33";
         auto intersectedRect = rect1.intersected(rect2);
         auto normalLine = normalizeLine(lineBetweenCenters);
 
@@ -206,7 +203,6 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     }
     else
     {
-        qDebug() << "GraphicsScene::mouseReleaseEvent 44";
         auto point1 = intersectPoint(rect1, lineBetweenCenters);
         auto point2 = intersectPoint(rect2, lineBetweenCenters);
         if (point1 && point2)
@@ -214,7 +210,6 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
             QLineF diffLine(point1.value(), point2.value());
             items().at(0)->moveBy(diffLine.dx(), diffLine.dy());
         }
-        qDebug() << "GraphicsScene::mouseReleaseEvent 55";
     }
     rect1 = rect1_->rectPlaced();
     rect2 = rect2_->rectPlaced();
@@ -230,21 +225,14 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
     if (rect1_->type() == GraphicsRectItem::ScreenType::master)
     {
-        qDebug() << "GraphicsScene::mouseReleaseEvent 66";
         alignPointsToScreen(contactPoints, rect1_);
         diffPoint = diffPointAlignedToScreen(rect1_, rect2_);
     }
     else
     {
-        qDebug() << "GraphicsScene::mouseReleaseEvent 771";
         alignPointsToScreen(contactPoints, rect2_);
-        qDebug() << "GraphicsScene::mouseReleaseEvent 772";
         diffPoint = diffPointAlignedToScreen(rect2_, rect1_);
-        qDebug() << "GraphicsScene::mouseReleaseEvent 773";
     }
-    qDebug() << "GraphicsScene::mouseReleaseEvent 811";
     setContactPoints(contactPoints, diffPoint);
-    qDebug() << "GraphicsScene::mouseReleaseEvent 822";
     QGraphicsScene::mouseReleaseEvent(event);
-    qDebug() << "GraphicsScene::mouseReleaseEvent 99";
 }

@@ -92,7 +92,6 @@ MainWindow::MainWindow(QWidget* parent)
 
     GraphicsScene::SetContactPoints setContactPoints =
         [this](std::pair<QPointF, QPointF>& contactPoints, QPointF& diffPoint) {
-            qDebug() << "GraphicsScene::SetContactPoints 11";
             upScale(contactPoints);
             upScale(diffPoint);
 
@@ -103,12 +102,10 @@ MainWindow::MainWindow(QWidget* parent)
 
             alignContactPoints(contactPoints, screenGeometry);
             auto diffPointForReceive = screenGeometry.topLeft();
-            qDebug() << "GraphicsScene::SetContactPoints 22";
             this->app->setContactPoints(
                 {toInternalType(contactPoints.first), toInternalType(contactPoints.second)},
                 toInternalType(diffPointForSend),
                 toInternalType(diffPointForReceive));
-            qDebug() << "GraphicsScene::SetContactPoints 33";
         };
     auto scene = new GraphicsScene(0, 0, 448, 448, std::move(setContactPoints));
     ui->graphicsView->setScene(scene);
@@ -188,11 +185,9 @@ void MainWindow::addScreensToScene(const QSize& slaveSize)
     item2->setZValue(1);
     item2->setY(160);
     item->setZValue(0);
-    qDebug() << "MainWindow::addScreensToScene 33";
     GraphicsScene* scene = dynamic_cast<GraphicsScene*>(ui->graphicsView->scene());
     if (scene)
     {
-        qDebug() << "MainWindow::addScreensToScene 44";
         scene->addItem(item);
         scene->addItem(item2);
         QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
@@ -244,7 +239,6 @@ void MainWindow::handleStartButton()
 
 void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenResolutionMsg)
 {
-    qDebug() << "MainWindow::handleScreenResolutionSet";
     addScreensToScene(QSize(screenResolutionMsg.width, screenResolutionMsg.height));
 }
 
@@ -265,7 +259,6 @@ void MainWindow::borderScreenChanged(const int&)
 
 MainWindow::~MainWindow()
 {
-    app->stop();
     appThread.join();
     delete ui;
 }

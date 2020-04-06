@@ -38,7 +38,6 @@ public:
     void startCatchingEvents();
 
     void start(const internal_types::ScreenResolution&);
-    void stop();
 
 private:
     void registerForMouseChangePositionEvent();

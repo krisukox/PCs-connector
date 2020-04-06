@@ -19,6 +19,13 @@ Socket::Socket(const std::string& port) : Socket()
     acceptor.accept(socket, endpoint);
 }
 
+Socket::~Socket()
+{
+    ioContext.stop();
+    socket.close();
+    socketThread.join();
+}
+
 void Socket::start()
 {
     startReceiving();
@@ -39,11 +46,5 @@ void Socket::startReceiving()
             //            unsuccessfulCallback(errorCode);
         }
     });
-}
-
-void Socket::stop()
-{
-    ioContext.stop();
-    socket.close();
 }
 } // namespace connection

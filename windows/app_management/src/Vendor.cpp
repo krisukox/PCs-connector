@@ -22,7 +22,8 @@ Vendor::Vendor(
 
 Vendor::~Vendor()
 {
-    //    eventCatchingThread.join();
+    PostThreadMessage(eventCatchingThreadId, WM_QUIT, 0, 0);
+    eventCatchingThread.join();
 }
 
 void Vendor::start(const internal_types::ScreenResolution& masterScreenResolution)
@@ -36,13 +37,6 @@ void Vendor::start(const internal_types::ScreenResolution& masterScreenResolutio
 
     socket->receiveOnce(successfulCallback);
     socket->send(masterScreenResolution);
-}
-
-void Vendor::stop()
-{
-    PostThreadMessage(eventCatchingThreadId, WM_QUIT, 0, 0);
-    eventCatchingThread.join();
-    socket->stop();
 }
 
 void Vendor::setContactPoints(

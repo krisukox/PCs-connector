@@ -34,8 +34,6 @@ public:
         const internal_types::Point&,
         const internal_types::Point&) override;
 
-    void stop() override;
-
 private:
     std::unique_ptr<Vendor> vendor;
     app_management::Console _;

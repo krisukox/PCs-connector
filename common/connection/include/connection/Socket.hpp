@@ -3,10 +3,7 @@
 #include <boost/asio.hpp>
 #include <connection/MsgDispatcher.hpp>
 #include <functional>
-#include <unordered_map>
-#include "Deserializer.hpp"
 #include "internal_types/Serializer.hpp"
-#include "internal_types/Visitor.hpp"
 
 namespace connection
 {
@@ -21,8 +18,9 @@ public:
     Socket(const boost::asio::ip::address&, const std::string& port);
     Socket(const std::string& port);
 
+    ~Socket();
+
     void start();
-    void stop();
 
     template <class T>
     void receive(SuccessfulCallback<T> successfulCallback)
