@@ -42,7 +42,6 @@ public:
 
 private:
     void registerForMouseChangePositionEvent();
-    void stopApp();
     void changeKeyboardState();
 
     std::unique_ptr<event_vendor::KeyboardSender> keyboard;
@@ -51,5 +50,6 @@ private:
     std::function<void(internal_types::ScreenResolution)> setScreenResolution;
 
     std::thread eventCatchingThread;
+    DWORD eventCatchingThreadId;
 };
 } // namespace app_management

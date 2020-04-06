@@ -34,12 +34,10 @@ public:
         const internal_types::Point&,
         const internal_types::Point&) override;
 
+    void stop() override;
+
 private:
     std::unique_ptr<Vendor> vendor;
-
     app_management::Console _;
-
-    std::thread vendorThread;
-    internal_types::Buffer buffer;
 };
 } // namespace app_management

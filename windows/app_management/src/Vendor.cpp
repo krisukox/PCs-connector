@@ -22,7 +22,7 @@ Vendor::Vendor(
 
 Vendor::~Vendor()
 {
-    eventCatchingThread.join();
+    //    eventCatchingThread.join();
 }
 
 void Vendor::start(const internal_types::ScreenResolution& masterScreenResolution)
@@ -40,6 +40,8 @@ void Vendor::start(const internal_types::ScreenResolution& masterScreenResolutio
 
 void Vendor::stop()
 {
+    PostThreadMessage(eventCatchingThreadId, WM_QUIT, 0, 0);
+    eventCatchingThread.join();
     socket->stop();
 }
 
@@ -71,6 +73,7 @@ void Vendor::registerForMouseChangePositionEvent()
 
 void Vendor::startCatchingEvents()
 {
+    eventCatchingThreadId = GetCurrentThreadId();
     keyboard->start([this](const internal_types::KeyEvent& keyEvent) { socket->send(keyEvent); });
     mouse->start(std::bind(&Vendor::changeKeyboardState, this), [this](const internal_types::MouseEvent& mouseEvent) {
         socket->send(mouseEvent);
@@ -85,12 +88,6 @@ void Vendor::startCatchingEvents()
             //            stopAppCallback();
         }
     }
-}
-
-void Vendor::stopApp()
-{
-    PostMessage(nullptr, WM_QUIT, 0, 0);
-    //    stopAppCallback();
 }
 
 void Vendor::changeKeyboardState()

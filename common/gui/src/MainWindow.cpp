@@ -81,12 +81,6 @@ QPointF getDiffPointForSend(const QPointF& diffPoint, const QRect& screenGeometr
 }
 } // namespace
 
-// std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
-//{
-//    return std::make_unique<app_management::App>(
-//        [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); });
-//}
-
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow{parent}, ui{new Ui::MainWindow}, app{std::make_unique<app_management::App>()}
 {
@@ -271,6 +265,7 @@ void MainWindow::borderScreenChanged(const int&)
 
 MainWindow::~MainWindow()
 {
+    app->stop();
     appThread.join();
     delete ui;
 }

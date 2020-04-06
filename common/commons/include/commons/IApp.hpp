@@ -23,6 +23,7 @@ public:
         const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
         const internal_types::Point& diffPointForSend,
         const internal_types::Point& diffPointForReceive) = 0;
+    virtual void stop() = 0;
 
 protected:
     //    std::shared_ptr<CursorGuard> cursorGuard;
