@@ -4,13 +4,19 @@
 #include <functional>
 #include <iostream>
 #include <optional>
-#include <unordered_map>>
+#include <unordered_map>
 #include "Deserializer.hpp"
 #include "internal_types/Serializer.hpp"
 #include "internal_types/Visitor.hpp"
 
 namespace connection
 {
+enum class HandlerType
+{
+    once,
+    multiple
+};
+
 class BaseHandler
 {
 public:
@@ -24,8 +30,11 @@ class Handler : public BaseHandler
 
 public:
     Handler() {}
-    Handler(FunctionType f) : functionType(f) {}
-    void run(T event)
+    Handler(FunctionType _functionType, HandlerType _handlerType)
+        : functionType{_functionType}, handlerType{_handlerType}
+    {
+    }
+    void run(T event) const
     {
         if (functionType)
         {
@@ -39,6 +48,8 @@ public:
             functionType(event);
         }
     }
+
+    const HandlerType handlerType;
 
 private:
     FunctionType functionType;
@@ -60,12 +71,13 @@ public:
     void close();
 
     template <class T>
-    void receive(SuccessfulCallback<T> successfulCallback, UnsuccessfulCallback unsuccessfulCallback)
+    void receive(SuccessfulCallback<T> successfulCallback)
     {
         //        std::unique_ptr<BaseHandler> handler = std::make_unique<Handler<T>>(successfulCallback);
         //        handlers.insert(std::make_pair(typeid(T).hash_code(), handler));//DLACZEGO TO DZIAŁA(NIE TRZEBA MOVE)
 
-        handlers.insert({typeid(T).hash_code(), std::make_unique<Handler<T>>(successfulCallback)});
+        handlers.insert(
+            {typeid(T).hash_code(), std::make_unique<Handler<T>>(successfulCallback, HandlerType::multiple)});
 
         //        my_map.insert({s_t, std::move(handler)});
 
@@ -85,12 +97,13 @@ public:
     }
 
     template <class T>
-    void synchronizedReceive(SuccessfulCallback<T> successfulCallback, UnsuccessfulCallback unsuccessfulCallback)
+    void receiveOnce(SuccessfulCallback<T> successfulCallback)
     {
-        if (socket.receive(boost::asio::buffer(buffer, 5)) != 5)
-        {
-            unsuccessfulCallback(boost::system::error_code());
-        }
+        handlers.insert({typeid(T).hash_code(), std::make_unique<Handler<T>>(successfulCallback, HandlerType::once)});
+        //        if (socket.receive(boost::asio::buffer(buffer, 5)) != 5)
+        //        {
+        //            unsuccessfulCallback(boost::system::error_code());
+        //        }
         //        handleReceivedData(successfulCallback, unsuccessfulCallback);
         //        ioContext.stop();
     }
@@ -114,16 +127,45 @@ public:
     }
 
 private:
+    //    template <class T, typename = std::enable_if_t<std::is_convertible<T, internal_types::DecodedType>::value>>
+    //    Handler<T>* getHandler(const T& data)
+    //    {
+
+    //    }
+
     template <class T, typename = std::enable_if_t<std::is_convertible<T, internal_types::DecodedType>::value>>
-    void handleReceivedData(const T& data)
+    void handleReceivedType(const T& data)
     {
+        std::cout << "void handleReceivedData(const T& _data)" << std::endl;
         auto it = handlers.find(typeid(T).hash_code());
         if (it != handlers.end())
         {
-            Handler<T>* handler = dynamic_cast<Handler<T>*>(it->second.get());
+            auto* handler = dynamic_cast<Handler<T>*>(it->second.get());
+            std::cout << "PTR1 " << it->second.get() << " PTR2 " << handler;
             if (handler)
             {
-                handler->run(data);
+                if (handler->handlerType == HandlerType::once)
+                {
+                    handler->run(data);
+                    handlers.erase(it);
+                    //                    Handler<T> handler1 = *handler;
+                    //                    handlerThreads.push_back(std::thread([=, data = std::move(_data)]() {
+                    //                        std::cout << "RUN !!!!!!" << std::endl;
+                    //                        handler1.run(data);
+                    //                    }));
+                    //                    handlers.erase(it);
+                }
+                else
+                {
+                    handler->run(data);
+                    //                    auto executor = boost::asio::bind_executor(
+                    //                        ioContextHandlers, [handler, data = std::move(_data)]() {
+                    //                        handler->run(data); });
+                    //                    boost::asio::post(executor);
+                    //                    ioContextHandlers.run();
+                    //                    handlerThreads.push_back(std::thread([handler, data = std::move(_data)]() {
+                    //                    handler->run(data); }));
+                }
             }
             else
             {
@@ -135,9 +177,9 @@ private:
             //        unsuccessfulCallback(boost::system::error_code());
         }
     }
+    void handleReceivedData(const internal_types::Buffer&);
 
     void startReceiving();
-    void handleReceivedData();
 
     internal_types::Deserializer deserializer;
     internal_types::Serializer serializer;
@@ -147,5 +189,10 @@ private:
     internal_types::Buffer buffer;
 
     std::unordered_map<std::size_t, std::unique_ptr<BaseHandler>> handlers;
+    std::vector<std::thread> handlerThreads;
+    std::thread socketThread;
+
+    boost::asio::io_context ioContextHandlers;
+    std::thread handlerIoContextThread;
 };
 } // namespace connection

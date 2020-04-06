@@ -18,19 +18,27 @@ Vendor::Vendor(
     , socket{std::move(_socket)}
     , setScreenResolution{_setScreenResolution}
 {
-    socket->send(masterScreenResolution);
-    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
-        [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
-    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code) {};
-
-    socket->synchronizedReceive(successfulCallback, unsuccessfulCallback);
-    receiveEvent();
+    std::cout << "Vendor::Vendor1" << std::endl;
+    socket->start();
+    std::cout << "Vendor::Vendor2" << std::endl;
 }
 
-void Vendor::start(const internal_types::ScreenResolution&)
+void Vendor::start(const internal_types::ScreenResolution& masterScreenResolution)
 {
-    eventCatchingThread = std::thread(&Vendor::startCatchingEvents, this);
-    socket->start();
+    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+        [this](internal_types::ScreenResolution screenResolution) {
+            std::cout << "Vendor::start connection::Receiver::SuccessfulCallback" << std::endl;
+            setScreenResolution(screenResolution);
+            receiveEvent();
+            eventCatchingThread = std::thread(&Vendor::startCatchingEvents, this);
+        };
+    //    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [](boost::system::error_code) {};
+
+    socket->receiveOnce(successfulCallback);
+    socket->send(masterScreenResolution);
+    //    receiveEvent();
+    //    eventCatchingThread = std::thread(&Vendor::startCatchingEvents, this);
+    //    socket->start();
 }
 
 Vendor::~Vendor()
@@ -65,13 +73,13 @@ void Vendor::receiveEvent()
             keyboard->changeState();
             mouse->changeMouseState(
                 std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));
-            receiveEvent();
+            //            receiveEvent();
         };
     connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [this](boost::system::error_code) {
         std::cerr << "Unsuccessful event receive" << std::endl;
-        stopApp();
+        //        stopApp();
     };
-    socket->receive(successfulCallback, unsuccessfulCallback);
+    socket->receive(successfulCallback);
 }
 
 void Vendor::startCatchingEvents()

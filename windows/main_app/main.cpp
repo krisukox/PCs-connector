@@ -9,6 +9,33 @@ int main(int argc, char* argv[])
     return a.exec();
 }
 
+//#include <chrono>
+//#include <iostream>
+//#include <thread>
+
+// void independentThread()
+//{
+//    std::cout << "Starting concurrent thread.\n";
+//    std::this_thread::sleep_for(std::chrono::seconds(2));
+//    std::cout << "Exiting concurrent thread.\n";
+//}
+
+// void threadCaller()
+//{
+//    std::cout << "Starting thread caller.\n";
+//    std::thread t(independentThread);
+//    t.detach();
+//    std::this_thread::sleep_for(std::chrono::seconds(1));
+//    std::cout << "Exiting thread caller.\n";
+//}
+
+// int main()
+//{
+//    threadCaller();
+//    std::cout << "main1\n";
+//    std::this_thread::sleep_for(std::chrono::seconds(5));
+//    std::cout << "main2\n";
+//}
 //#include <functional>
 //#include <internal_types/CommonTypes.hpp>
 //#include <iostream>

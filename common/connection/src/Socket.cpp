@@ -1,28 +1,10 @@
 #include "connection/Socket.hpp"
 #include <iostream>
-
-class A
-{
-};
-
-class B : public A
-{
-};
+#include <thread>
 
 namespace connection
 {
-Socket::Socket() : deserializer{}, serializer{}, ioContext{}, socket{ioContext}
-{
-    //    A* a = new A;
-    //    B* b = new B;
-    //    A* c = b;
-    //    //    const auto& type = typeid(internal_types::ScreenResolution);
-    //    std::function<void(B*)> func = [](A*) {};
-    //    //    std::function<void(A*)> func1 = func;
-    //    //        dynamic_cast<std::function<void(internal_types::DecodedType)>&>(func);
-
-    //    //    handlers.insert(typeid(internal_types::ScreenResolution), [](internal_types::ScreenResolution) {});
-}
+Socket::Socket() : deserializer{}, serializer{}, ioContext{}, socket{ioContext} {}
 
 Socket::Socket(const boost::asio::ip::address& address, const std::string& port) : Socket()
 {
@@ -51,35 +33,40 @@ Socket::Socket(const std::string& port) : Socket()
 void Socket::start()
 {
     startReceiving();
-    ioContext.run();
+    socketThread = std::thread([this]() {
+        std::cout << "std thread io context START" << std::endl;
+        ioContext.run();
+        std::cout << "std thread io context END" << std::endl;
+    });
+    //    handlerIoContextThread = std::thread([this]() { ioContextHandlers.run(); });
 }
 
 void Socket::startReceiving()
 {
+    std::cout << "socket.async_receive START" << std::endl;
     socket.async_receive(boost::asio::buffer(buffer, 5), [this](boost::system::error_code errorCode, std::size_t size) {
         if (size > 0 && !errorCode)
         {
             startReceiving();
-            handleReceivedData();
+            std::thread t(&Socket::handleReceivedData, this, buffer);
+            t.detach();
         }
         else
         {
             //            unsuccessfulCallback(errorCode);
         }
     });
+    std::cout << "socket.async_receive END" << std::endl;
 }
 
-void Socket::handleReceivedData()
+void Socket::handleReceivedData(const internal_types::Buffer& _buffer)
 {
-    auto decoded = deserializer.decode(buffer);
+    auto decoded = deserializer.decode(_buffer);
 
     if (decoded)
     {
-        std::visit(
-            internal_types::Visitor{
-                [this](const auto& value) { handleReceivedData(value); },
-            },
-            decoded.value());
+        std::cout << "Socket::handleReceivedData decoded true" << std::endl;
+        std::visit([this](const auto& value) { handleReceivedType(value); }, decoded.value());
     }
     else
     {
