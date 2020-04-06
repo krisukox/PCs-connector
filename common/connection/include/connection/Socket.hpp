@@ -3,9 +3,6 @@
 #include <boost/asio.hpp>
 #include <connection/MsgDispatcher.hpp>
 #include <functional>
-#include <iostream>
-#include <mutex>
-#include <optional>
 #include <unordered_map>
 #include "Deserializer.hpp"
 #include "internal_types/Serializer.hpp"
@@ -21,7 +18,6 @@ public:
     using UnsuccessfulCallback = std::function<void(boost::system::error_code)>;
 
     Socket();
-
     Socket(const boost::asio::ip::address&, const std::string& port);
     Socket(const std::string& port);
 
@@ -61,21 +57,13 @@ public:
 private:
     void startReceiving();
 
-    internal_types::Deserializer deserializer;
     internal_types::Serializer serializer;
     boost::asio::io_context ioContext;
     boost::asio::ip::tcp::socket socket;
+    MsgDispatcher msgDispatcher;
 
     internal_types::Buffer buffer;
 
-    std::unordered_map<std::size_t, std::unique_ptr<BaseHandler>> handlers;
-    std::vector<std::thread> handlerThreads;
     std::thread socketThread;
-
-    boost::asio::io_context ioContextHandlers;
-    std::thread handlerIoContextThread;
-
-    std::mutex mutex;
-    MsgDispatcher msgDispatcher;
 };
 } // namespace connection

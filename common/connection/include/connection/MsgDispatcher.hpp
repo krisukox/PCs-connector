@@ -109,8 +109,8 @@ private:
         }
     }
 
-    std::unordered_map<std::size_t, std::unique_ptr<BaseHandler>> handlers;
     internal_types::Deserializer deserializer;
+    std::unordered_map<std::size_t, std::unique_ptr<BaseHandler>> handlers;
     std::mutex mutex;
 };
 } // namespace connection

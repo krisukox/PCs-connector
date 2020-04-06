@@ -4,7 +4,7 @@
 
 namespace connection
 {
-Socket::Socket() : deserializer{}, serializer{}, ioContext{}, socket{ioContext}, msgDispatcher{} {}
+Socket::Socket() : serializer{}, ioContext{}, socket{ioContext}, msgDispatcher{} {}
 
 Socket::Socket(const boost::asio::ip::address& address, const std::string& port) : Socket()
 {
