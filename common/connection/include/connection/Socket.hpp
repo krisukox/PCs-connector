@@ -14,9 +14,9 @@ public:
     using SuccessfulCallback = std::function<void(T)>;
     using UnsuccessfulCallback = std::function<void(boost::system::error_code)>;
 
-    Socket();
-    Socket(const boost::asio::ip::address&, const std::string& port);
-    Socket(const std::string& port);
+    Socket(std::unique_ptr<internal_types::Deserializer>);
+    Socket(const boost::asio::ip::address&, const std::string& port, std::unique_ptr<internal_types::Deserializer>);
+    Socket(const std::string& port, std::unique_ptr<internal_types::Deserializer>);
 
     ~Socket();
 

@@ -234,7 +234,8 @@ void MainWindow::handleStartButton()
         app.get(),
         qApp->arguments().size(),
         convertToArgv(qApp->arguments()),
-        toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()));
+        toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()),
+        [this](const internal_types::ScreenResolution screenResolution) { emit messageSent(screenResolution); });
 }
 
 void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenResolutionMsg)

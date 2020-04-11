@@ -3,7 +3,7 @@
 
 namespace commons
 {
-void IApp::listen(int, char*[], const internal_types::ScreenResolution&)
+void IApp::listen(int, char* [], const internal_types::ScreenResolution&, SetScreenResolution&&)
 {
     throw std::runtime_error("IApp::listen method not implemented");
 }

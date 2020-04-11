@@ -5,16 +5,6 @@
 #include "commons/IApp.hpp"
 #include "internal_types/Point.hpp"
 
-namespace commons
-{
-class CursorGuard;
-}
-
-namespace connection
-{
-class Socket;
-}
-
 namespace event_consumer
 {
 class IKeyboardReceiver;
@@ -27,14 +17,18 @@ class Consumer;
 class App : public commons::IApp
 {
 public:
-    App(std::shared_ptr<commons::CursorGuard>&&, SetScreenResolution&&);
+    App();
     ~App() override;
-    void listen(int, char* [], const internal_types::ScreenResolution&) override;
+    void listen(int, char* [], const internal_types::ScreenResolution&, SetScreenResolution&&) override;
+    void setContactPoints(
+        const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
+        const internal_types::Point& diffPointForSend,
+        const internal_types::Point& diffPointForReceive) override;
 
 private:
-    std::shared_ptr<event_consumer::IKeyboardReceiver> keyboardReceiverSelector(int, char* []);
+    std::unique_ptr<event_consumer::IKeyboardReceiver> selectKeyboardReceiver(int, char* []);
 
     Display* display;
-    std::unique_ptr<connection::Socket> socket;
+    std::unique_ptr<Consumer> consumer;
 };
 } // namespace app_management

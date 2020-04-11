@@ -17,7 +17,7 @@ public:
     virtual ~IApp() = default;
 
     virtual void connect(const boost::asio::ip::address&, const internal_types::ScreenResolution&, SetScreenResolution);
-    virtual void listen(int, char*[], const internal_types::ScreenResolution&);
+    virtual void listen(int, char* [], const internal_types::ScreenResolution&, SetScreenResolution&&);
     virtual void setContactPoints(
         const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
         const internal_types::Point& diffPointForSend,
