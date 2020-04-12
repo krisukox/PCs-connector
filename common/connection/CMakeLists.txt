@@ -20,6 +20,7 @@ target_link_libraries(connection
     Boost::system
     internal_types
     pthread
+    atomic
 )
 
 add_subdirectory(tests)
