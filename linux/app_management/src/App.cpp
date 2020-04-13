@@ -23,16 +23,24 @@ void App::listen(
     const internal_types::ScreenResolution& masterScreenResolution,
     internal_types::SetScreenResolution&& setScreenResolution)
 {
-    auto keyboardReceiver = selectKeyboardReceiver(argc, argv);
-    auto mouseReceiver =
-        std::make_unique<event_consumer::MouseReceiver>(display, std::make_unique<commons::CursorGuard>());
+    std::thread consumerThread(
+        [this, argc, argv, masterScreenResolution, setScreenResolution = std::move(setScreenResolution)]() {
+            auto keyboardReceiver = selectKeyboardReceiver(argc, argv);
+            auto mouseReceiver =
+                std::make_unique<event_consumer::MouseReceiver>(display, std::make_unique<commons::CursorGuard>());
 
-    auto port = std::string("10000");
-    auto socket = std::make_unique<connection::Socket>(port, std::make_unique<internal_types::Deserializer>(display));
+            auto port = std::string("10000");
+            auto socket =
+                std::make_unique<connection::Socket>(port, std::make_unique<internal_types::Deserializer>(display));
 
-    consumer = std::make_unique<Consumer>(
-        std::move(keyboardReceiver), std::move(mouseReceiver), std::move(socket), std::move(setScreenResolution));
-    consumer->start(masterScreenResolution);
+            consumer = std::make_unique<Consumer>(
+                std::move(keyboardReceiver),
+                std::move(mouseReceiver),
+                std::move(socket),
+                std::move(setScreenResolution));
+            consumer->start(masterScreenResolution);
+        });
+    consumerThread.detach();
 }
 
 std::unique_ptr<event_consumer::IKeyboardReceiver> App::selectKeyboardReceiver(int argc, char* argv[])
