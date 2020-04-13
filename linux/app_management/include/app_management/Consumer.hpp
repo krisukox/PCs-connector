@@ -19,14 +19,14 @@ class IMouseReceiver;
 
 namespace app_management
 {
-class Consumer : public std::enable_shared_from_this<Consumer>
+class Consumer
 {
 public:
     Consumer(
         std::unique_ptr<event_consumer::IKeyboardReceiver>,
         std::unique_ptr<event_consumer::IMouseReceiver>,
         std::unique_ptr<connection::Socket>,
-        std::function<void(internal_types::ScreenResolution)>);
+        internal_types::SetScreenResolution);
     void start(const internal_types::ScreenResolution&);
     void setContactPoints(
         const std::pair<internal_types::Point, internal_types::Point>&,
@@ -40,6 +40,6 @@ private:
     std::unique_ptr<event_consumer::IKeyboardReceiver> keyReceiver;
     std::unique_ptr<event_consumer::IMouseReceiver> mouseReceiver;
     std::unique_ptr<connection::Socket> socket;
-    std::function<void(internal_types::ScreenResolution)> setScreenResolution;
+    internal_types::SetScreenResolution setScreenResolution;
 };
 } // namespace app_management

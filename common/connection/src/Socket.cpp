@@ -29,8 +29,8 @@ Socket::Socket(const std::string& port, std::unique_ptr<internal_types::Deserial
 Socket::~Socket()
 {
     ioContext.stop();
-    socket.close();
     socket.shutdown(boost::asio::socket_base::shutdown_both);
+    socket.close();
     socketThread.join();
 }
 

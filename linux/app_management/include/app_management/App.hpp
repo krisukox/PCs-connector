@@ -19,7 +19,7 @@ class App : public commons::IApp
 public:
     App();
     ~App() override;
-    void listen(int, char* [], const internal_types::ScreenResolution&, SetScreenResolution&&) override;
+    void listen(int, char* [], const internal_types::ScreenResolution&, internal_types::SetScreenResolution&&) override;
     void setContactPoints(
         const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
         const internal_types::Point& diffPointForSend,

@@ -23,7 +23,7 @@ void App::listen(
     int argc,
     char* argv[],
     const internal_types::ScreenResolution& masterScreenResolution,
-    SetScreenResolution&& setScreenResolution)
+    internal_types::SetScreenResolution&& setScreenResolution)
 {
     auto keyboardReceiver = selectKeyboardReceiver(argc, argv);
     auto mouseReceiver =
@@ -31,7 +31,7 @@ void App::listen(
     auto port = std::string("10000");
     auto socket = std::make_unique<connection::Socket>(port, std::make_unique<internal_types::Deserializer>(display));
     consumer = std::make_unique<Consumer>(
-        std::move(keyboardReceiver), std::move(mouseReceiver), std::move(socket), setScreenResolution);
+        std::move(keyboardReceiver), std::move(mouseReceiver), std::move(socket), std::move(setScreenResolution));
     consumer->start(masterScreenResolution);
 }
 
