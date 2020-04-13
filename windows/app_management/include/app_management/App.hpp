@@ -26,8 +26,10 @@ public:
     App();
     ~App() override;
 
-    void connect(const boost::asio::ip::address&, const internal_types::ScreenResolution&, SetScreenResolution)
-        override;
+    void connect(
+        const boost::asio::ip::address&,
+        const internal_types::ScreenResolution&,
+        internal_types::SetScreenResolution&&) override;
 
     void setContactPoints(
         const std::pair<internal_types::Point, internal_types::Point>&,

@@ -18,7 +18,7 @@ App::App() {}
 void App::connect(
     const boost::asio::ip::address& address,
     const internal_types::ScreenResolution& masterScreenResolution,
-    SetScreenResolution setScreenResolution)
+    internal_types::SetScreenResolution&& setScreenResolution)
 try
 {
     auto keyboard = std::make_unique<event_vendor::KeyboardSender>();
@@ -28,7 +28,7 @@ try
     auto deserializer = std::make_unique<internal_types::Deserializer>();
     auto socket = std::make_unique<connection::Socket>(address, port, std::move(deserializer));
     vendor = std::make_unique<app_management::Vendor>(
-        std::move(keyboard), std::move(mouse), std::move(socket), setScreenResolution);
+        std::move(keyboard), std::move(mouse), std::move(socket), std::move(setScreenResolution));
     vendor->start(masterScreenResolution);
 }
 catch (std::exception e)

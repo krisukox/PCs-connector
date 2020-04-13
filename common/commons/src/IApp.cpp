@@ -3,7 +3,7 @@
 
 namespace commons
 {
-void IApp::listen(int, char* [], const internal_types::ScreenResolution&, internal_types::SetScreenResolution&&)
+void IApp::listen(int, char*[], const internal_types::ScreenResolution&, internal_types::SetScreenResolution&&)
 {
     throw std::runtime_error("IApp::listen method not implemented");
 }
@@ -11,7 +11,7 @@ void IApp::listen(int, char* [], const internal_types::ScreenResolution&, intern
 void IApp::connect(
     const boost::asio::ip::address&,
     const internal_types::ScreenResolution&,
-    internal_types::SetScreenResolution)
+    internal_types::SetScreenResolution&&)
 {
     throw std::runtime_error("IApp::connect method not implemented");
 }
