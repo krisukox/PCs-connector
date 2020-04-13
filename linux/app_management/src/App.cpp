@@ -2,8 +2,6 @@
 #include <iostream>
 #include "Deserializer.hpp"
 #include "app_management/Consumer.hpp"
-#include "connection/Receiver.hpp"
-#include "connection/Sender.hpp"
 #include "connection/Socket.hpp"
 #include "event_consumer/KeyboardReceiver.hpp"
 #include "event_consumer/MouseReceiver.hpp"
@@ -28,8 +26,10 @@ void App::listen(
     auto keyboardReceiver = selectKeyboardReceiver(argc, argv);
     auto mouseReceiver =
         std::make_unique<event_consumer::MouseReceiver>(display, std::make_unique<commons::CursorGuard>());
+
     auto port = std::string("10000");
     auto socket = std::make_unique<connection::Socket>(port, std::make_unique<internal_types::Deserializer>(display));
+
     consumer = std::make_unique<Consumer>(
         std::move(keyboardReceiver), std::move(mouseReceiver), std::move(socket), std::move(setScreenResolution));
     consumer->start(masterScreenResolution);

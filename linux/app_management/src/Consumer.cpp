@@ -1,7 +1,5 @@
 #include "app_management/Consumer.hpp"
 #include <iostream>
-#include <stdexcept>
-#include "connection/Receiver.hpp"
 #include "connection/Socket.hpp"
 #include "event_consumer/KeyboardReceiver.hpp"
 #include "event_consumer/MouseReceiver.hpp"
@@ -14,18 +12,18 @@ Consumer::Consumer(
     std::unique_ptr<event_consumer::IKeyboardReceiver> _keyReceiver,
     std::unique_ptr<event_consumer::IMouseReceiver> _mouseReceiver,
     std::unique_ptr<connection::Socket> _socket,
-    std::function<void(internal_types::ScreenResolution)> _setScreenResolution)
+    internal_types::SetScreenResolution _setScreenResolution)
     : keyReceiver{std::move(_keyReceiver)}
     , mouseReceiver{std::move(_mouseReceiver)}
     , socket{std::move(_socket)}
-    , setScreenResolution{_setScreenResolution}
+    , setScreenResolution{std::move(_setScreenResolution)}
 {
     mouseReceiver->start([this](const internal_types::MouseChangePositionEvent& event) { socket->send(event); });
 }
 
 void Consumer::start(const internal_types::ScreenResolution& masterScreenResolution)
 {
-    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+    connection::Socket::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
         [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
     socket->receiveOnce(successfulCallback);
     startReceiving();
@@ -34,7 +32,7 @@ void Consumer::start(const internal_types::ScreenResolution& masterScreenResolut
 
 void Consumer::startReceiving()
 {
-    connection::Receiver::SuccessfulCallback<internal_types::DecodedType> successfullCallback =
+    connection::Socket::SuccessfulCallback<internal_types::DecodedType> successfullCallback =
         [this](const internal_types::DecodedType& decoded) {
             std::visit(
                 internal_types::Visitor{

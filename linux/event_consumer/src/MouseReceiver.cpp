@@ -3,7 +3,6 @@
 #include <iostream>
 #include <stdexcept>
 #include "commons/CursorGuard.hpp"
-#include "connection/Sender.hpp"
 #include "gui/CursorManagement.h"
 #include "internal_types/Visitor.hpp"
 
