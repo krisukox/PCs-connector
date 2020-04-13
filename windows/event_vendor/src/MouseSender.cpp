@@ -79,13 +79,13 @@ MouseSender::MouseSender(std::unique_ptr<commons::CursorGuard> _cursorGuard)
 {
 }
 
-void MouseSender::start(std::function<void()>&& _changeKeyboardState, EventReceived _eventReceived)
+void MouseSender::start(ChangeKeyboardState&& _changeKeyboardState, FrowardEvent&& _frowardEvent)
 {
     This = this;
     cursorGuard->initialize();
 
     changeKeyboardState = std::move(_changeKeyboardState);
-    eventReceived = _eventReceived;
+    frowardEvent = std::move(_frowardEvent);
 
     start();
 }
@@ -168,7 +168,7 @@ LRESULT MouseSender::forwardEvent(int nCode, WPARAM wParam, LPARAM lParam)
 
 LRESULT MouseSender::sendEvent(internal_types::MouseEvent&& mouseEvent)
 {
-    eventReceived(mouseEvent);
+    frowardEvent(mouseEvent);
     return eventSent;
 }
 

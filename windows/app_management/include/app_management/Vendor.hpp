@@ -27,7 +27,7 @@ public:
         std::unique_ptr<event_vendor::KeyboardSender>,
         std::unique_ptr<event_vendor::MouseSender>,
         std::unique_ptr<connection::Socket>,
-        std::function<void(internal_types::ScreenResolution)>);
+        internal_types::SetScreenResolution);
     ~Vendor();
 
     void setContactPoints(
@@ -47,7 +47,7 @@ private:
     std::unique_ptr<event_vendor::KeyboardSender> keyboard;
     std::unique_ptr<event_vendor::MouseSender> mouse;
     std::unique_ptr<connection::Socket> socket;
-    std::function<void(internal_types::ScreenResolution)> setScreenResolution;
+    internal_types::SetScreenResolution setScreenResolution;
 
     std::thread eventCatchingThread;
     DWORD eventCatchingThreadId;

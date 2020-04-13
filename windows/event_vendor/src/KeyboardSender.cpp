@@ -48,9 +48,9 @@ namespace event_vendor
 {
 KeyboardSender::KeyboardSender() : isEventSending{false} {}
 
-void KeyboardSender::start(EventReceived _eventReceived)
+void KeyboardSender::start(ForwardEvent&& _eventReceived)
 {
-    eventReceived = _eventReceived;
+    forwardEvent = std::move(_eventReceived);
 
     start();
 }
@@ -72,9 +72,9 @@ void KeyboardSender::start()
             }
             else if (checkForRAltPress(keyEvent))
             {
-                eventReceived(internal_types::KeyEvent{VK_LCONTROL, false});
+                forwardEvent(internal_types::KeyEvent{VK_LCONTROL, false});
             }
-            eventReceived(keyEvent);
+            forwardEvent(keyEvent);
         }
 
         return isEventSending;
@@ -132,9 +132,9 @@ bool KeyboardSender::checkForLockComputer(const internal_types::KeyEvent& keyEve
 
 void KeyboardSender::lockComputer()
 {
-    eventReceived(internal_types::KeyEvent{VK_LWIN, true});
-    eventReceived(internal_types::KeyEvent{VK_L, true});
-    eventReceived(internal_types::KeyEvent{VK_L, false});
-    eventReceived(internal_types::KeyEvent{VK_LWIN, false});
+    forwardEvent(internal_types::KeyEvent{VK_LWIN, true});
+    forwardEvent(internal_types::KeyEvent{VK_L, true});
+    forwardEvent(internal_types::KeyEvent{VK_L, false});
+    forwardEvent(internal_types::KeyEvent{VK_LWIN, false});
 }
 } // namespace event_vendor

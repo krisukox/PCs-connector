@@ -17,11 +17,12 @@ namespace event_vendor
 class MouseSender
 {
 public:
-    using EventReceived = std::function<void(const internal_types::MouseEvent&)>;
+    using FrowardEvent = std::function<void(const internal_types::MouseEvent&)>;
+    using ChangeKeyboardState = std::function<void()>;
 
     MouseSender(std::unique_ptr<commons::CursorGuard>);
 
-    void start(std::function<void()>&&, EventReceived);
+    void start(ChangeKeyboardState&&, FrowardEvent&&);
     void changeMouseState(const std::optional<internal_types::MouseChangePositionEvent>&);
 
     LRESULT forwardEvent(int nCode, WPARAM, LPARAM);
@@ -38,8 +39,8 @@ private:
     bool isEventSending;
     std::unique_ptr<commons::CursorGuard> cursorGuard;
 
-    std::function<void()> changeKeyboardState;
-    EventReceived eventReceived;
+    ChangeKeyboardState changeKeyboardState;
+    FrowardEvent frowardEvent;
     HHOOK mouseHook;
 };
 } // namespace event_vendor

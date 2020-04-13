@@ -11,11 +11,11 @@ Vendor::Vendor(
     std::unique_ptr<event_vendor::KeyboardSender> keyboardSender,
     std::unique_ptr<event_vendor::MouseSender> mouseSender,
     std::unique_ptr<connection::Socket> _socket,
-    std::function<void(internal_types::ScreenResolution)> _setScreenResolution)
+    internal_types::SetScreenResolution _setScreenResolution)
     : keyboard{std::move(keyboardSender)}
     , mouse{std::move(mouseSender)}
     , socket{std::move(_socket)}
-    , setScreenResolution{_setScreenResolution}
+    , setScreenResolution{std::move(_setScreenResolution)}
 {
 }
 

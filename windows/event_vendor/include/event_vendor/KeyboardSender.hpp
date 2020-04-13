@@ -10,11 +10,11 @@ namespace event_vendor
 class KeyboardSender
 {
 public:
-    using EventReceived = std::function<void(const internal_types::KeyEvent&)>;
+    using ForwardEvent = std::function<void(const internal_types::KeyEvent&)>;
 
     KeyboardSender();
 
-    void start(EventReceived);
+    void start(ForwardEvent&&);
     void changeState();
 
 private:
@@ -34,7 +34,7 @@ private:
 
     bool isEventSending;
 
-    EventReceived eventReceived;
+    ForwardEvent forwardEvent;
     HHOOK keyboardHook;
 };
 } // namespace event_vendor
