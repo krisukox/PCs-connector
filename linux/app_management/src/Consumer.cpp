@@ -39,16 +39,7 @@ void Consumer::startReceiving()
         [this](const internal_types::DecodedType& decoded) {
             std::visit(
                 internal_types::Visitor{
-                    [this](const internal_types::Event& event) {
-                        std::visit(
-                            internal_types::Visitor{
-                                [this](const internal_types::KeyEvent& keyEvent) { keyReceiver->onEvent(keyEvent); },
-                                [this](const internal_types::MouseEvent& mouseEvent) {
-                                    mouseReceiver->onEvent(mouseEvent);
-                                },
-                            },
-                            event);
-                    },
+                    [this](const internal_types::Event& event) { handleReceivedEvent(event); },
                     [](const internal_types::ScreenResolution&) {},
                 },
                 decoded);

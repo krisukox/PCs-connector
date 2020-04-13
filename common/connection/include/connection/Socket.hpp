@@ -22,12 +22,7 @@ public:
 
     ~Socket();
 
-    void start();
-
     void receive(SuccessfulCallback<internal_types::DecodedType> successfulCallback);
-    //    {
-    //        msgDispatcher.registerMultiple(successfulCallback);
-    //    }
 
     template <class T, typename = std::enable_if<std::is_convertible<T, internal_types::DecodedType>::value>>
     bool receiveOnce(const SuccessfulCallback<T>& successfulCallback)
@@ -76,7 +71,6 @@ public:
     }
 
 private:
-    void startReceiving();
     bool receive_(const SuccessfulCallback<internal_types::DecodedType>&);
 
     internal_types::Serializer serializer;
