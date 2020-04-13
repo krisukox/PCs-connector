@@ -1,8 +1,8 @@
 #pragma once
 
 #include <boost/asio.hpp>
-#include <connection/MsgDispatcher.hpp>
 #include <functional>
+#include "Deserializer.hpp"
 #include "internal_types/CommonTypes.hpp"
 #include "internal_types/Serializer.hpp"
 #include "internal_types/Visitor.hpp"

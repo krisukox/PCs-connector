@@ -3,6 +3,7 @@
 #include <boost/asio.hpp>
 #include <functional>
 #include <memory>
+#include "internal_types/CommonTypes.hpp"
 #include "internal_types/Point.hpp"
 #include "internal_types/ScreenResolution.hpp"
 
@@ -42,6 +43,7 @@ public:
 private:
     void registerForMouseChangePositionEvent();
     void changeKeyboardState();
+    void handleReceivedEvent(const internal_types::Event&);
 
     std::unique_ptr<event_vendor::KeyboardSender> keyboard;
     event_vendor::MouseSender* mouse;

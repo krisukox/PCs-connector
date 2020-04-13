@@ -17,7 +17,6 @@ Vendor::Vendor(
     , socket{std::move(_socket)}
     , setScreenResolution{_setScreenResolution}
 {
-    socket->start();
 }
 
 Vendor::~Vendor()
@@ -29,14 +28,12 @@ Vendor::~Vendor()
 void Vendor::start(const internal_types::ScreenResolution& masterScreenResolution)
 {
     connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
-        [this](internal_types::ScreenResolution screenResolution) {
-            setScreenResolution(screenResolution);
-            registerForMouseChangePositionEvent();
-            eventCatchingThread = std::thread(&Vendor::startCatchingEvents, this);
-        };
+        [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
 
-    socket->receiveOnce(successfulCallback);
     socket->send(masterScreenResolution);
+    socket->receiveOnce(successfulCallback);
+    registerForMouseChangePositionEvent();
+    eventCatchingThread = std::thread(&Vendor::startCatchingEvents, this);
 }
 
 void Vendor::setContactPoints(
@@ -56,13 +53,24 @@ void Vendor::setContactPoints(
 
 void Vendor::registerForMouseChangePositionEvent()
 {
-    connection::Receiver::SuccessfulCallback<internal_types::Event> successfulCallback =
-        [this](const internal_types::Event& event) {
-            keyboard->changeState();
-            mouse->changeMouseState(
-                std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));
+    connection::Receiver::SuccessfulCallback<internal_types::DecodedType> successfullCallback =
+        [this](const internal_types::DecodedType& decoded) {
+            std::visit(
+                internal_types::Visitor{
+                    [this](const internal_types::Event& event) { handleReceivedEvent(event); },
+                    [](const internal_types::ScreenResolution&) {},
+                },
+                decoded);
         };
-    socket->receive(successfulCallback);
+
+    socket->receive(std::move(successfullCallback));
+}
+
+void Vendor::handleReceivedEvent(const internal_types::Event& event)
+{
+    keyboard->changeState();
+    mouse->changeMouseState(
+        std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));
 }
 
 void Vendor::startCatchingEvents()
