@@ -4,14 +4,8 @@
 #include "app_management/Console.hpp"
 #include "commons/IApp.hpp"
 
-namespace commons
-{
-class CursorGuard;
-}
-
 namespace connection
 {
-class Socket;
 } // namespace connection
 
 namespace app_management
