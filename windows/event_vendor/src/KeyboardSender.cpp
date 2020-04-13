@@ -58,12 +58,6 @@ void KeyboardSender::start(EventReceived _eventReceived)
 void KeyboardSender::start()
 {
     keyboard_callback::dispatchEvent = [this](const internal_types::KeyEvent& keyEvent) -> LRESULT {
-        if (checkForStopApp(keyEvent))
-        {
-            //            stopApp();
-            return ignoreEvent;
-        }
-
         changeKeyMod(keyEvent);
 
         if (checkForLockComputer(keyEvent))
@@ -87,11 +81,6 @@ void KeyboardSender::start()
     };
 
     keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, keyboard_callback::resultCallback, nullptr, NULL);
-}
-
-bool KeyboardSender::checkForStopApp(const internal_types::KeyEvent& keyEvent)
-{
-    return (isCtrlPressed && isShiftPressed && keyEvent.keyCode == VK_Q && keyEvent.isPressed);
 }
 
 bool KeyboardSender::checkForIgnoreCtrl(const internal_types::KeyEvent& keyEvent)
@@ -143,9 +132,9 @@ bool KeyboardSender::checkForLockComputer(const internal_types::KeyEvent& keyEve
 
 void KeyboardSender::lockComputer()
 {
-    //    sender->send(internal_types::KeyEvent{VK_LWIN, true});
-    //    sender->send(internal_types::KeyEvent{VK_L, true});
-    //    sender->send(internal_types::KeyEvent{VK_L, false});
-    //    sender->send(internal_types::KeyEvent{VK_LWIN, false});
+    eventReceived(internal_types::KeyEvent{VK_LWIN, true});
+    eventReceived(internal_types::KeyEvent{VK_L, true});
+    eventReceived(internal_types::KeyEvent{VK_L, false});
+    eventReceived(internal_types::KeyEvent{VK_LWIN, false});
 }
 } // namespace event_vendor

@@ -1,7 +1,6 @@
 #include "gui/CursorManagement.h"
 #include <QApplication>
 #include <QCursor>
-#include <QDebug>
 #include <QLineF>
 #include <QScreen>
 

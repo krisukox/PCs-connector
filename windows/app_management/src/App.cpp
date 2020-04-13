@@ -22,13 +22,13 @@ void App::connect(
 try
 {
     auto keyboard = std::make_unique<event_vendor::KeyboardSender>();
-    auto mouse = new event_vendor::MouseSender(std::make_unique<commons::CursorGuard>());
+    auto mouse = std::make_unique<event_vendor::MouseSender>(std::make_unique<commons::CursorGuard>());
     auto port = std::string("10000");
 
     auto deserializer = std::make_unique<internal_types::Deserializer>();
     auto socket = std::make_unique<connection::Socket>(address, port, std::move(deserializer));
-    vendor =
-        std::make_unique<app_management::Vendor>(std::move(keyboard), mouse, std::move(socket), setScreenResolution);
+    vendor = std::make_unique<app_management::Vendor>(
+        std::move(keyboard), std::move(mouse), std::move(socket), setScreenResolution);
     vendor->start(masterScreenResolution);
 }
 catch (std::exception e)

@@ -14,7 +14,6 @@ class Socket
 public:
     template <class T>
     using SuccessfulCallback = std::function<void(T)>;
-    using UnsuccessfulCallback = std::function<void(boost::system::error_code)>;
 
     Socket(std::unique_ptr<internal_types::Deserializer>);
     Socket(const boost::asio::ip::address&, const std::string& port, std::unique_ptr<internal_types::Deserializer>);
@@ -83,12 +82,11 @@ private:
     }
 
     internal_types::Serializer serializer;
+    std::unique_ptr<internal_types::Deserializer> deserializer;
     boost::asio::io_context ioContext;
     boost::asio::ip::tcp::socket socket;
 
     internal_types::Buffer buffer;
-
     std::thread socketThread;
-    std::unique_ptr<internal_types::Deserializer> deserializer;
 };
 } // namespace connection

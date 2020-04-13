@@ -9,11 +9,11 @@ namespace app_management
 {
 Vendor::Vendor(
     std::unique_ptr<event_vendor::KeyboardSender> keyboardSender,
-    event_vendor::MouseSender* mouseSender,
+    std::unique_ptr<event_vendor::MouseSender> mouseSender,
     std::unique_ptr<connection::Socket> _socket,
     std::function<void(internal_types::ScreenResolution)> _setScreenResolution)
     : keyboard{std::move(keyboardSender)}
-    , mouse{mouseSender}
+    , mouse{std::move(mouseSender)}
     , socket{std::move(_socket)}
     , setScreenResolution{_setScreenResolution}
 {
@@ -21,8 +21,11 @@ Vendor::Vendor(
 
 Vendor::~Vendor()
 {
+    std::cout << "Vendor::~Vendor11" << std::endl;
     PostThreadMessage(eventCatchingThreadId, WM_QUIT, 0, 0);
+    std::cout << "Vendor::~Vendor22" << std::endl;
     eventCatchingThread.join();
+    std::cout << "Vendor::~Vendor33" << std::endl;
 }
 
 void Vendor::start(const internal_types::ScreenResolution& masterScreenResolution)
@@ -87,7 +90,7 @@ void Vendor::startCatchingEvents()
     {
         if (retVal == -1)
         {
-            //            stopAppCallback();
+            // stop
         }
     }
 }

@@ -1,5 +1,4 @@
 #include "gui/GraphicsScene.h"
-#include <QDebug>
 #include <QLineF>
 #include <optional>
 #include <set>

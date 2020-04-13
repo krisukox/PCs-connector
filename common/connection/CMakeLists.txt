@@ -17,7 +17,6 @@ target_include_directories(connection PUBLIC include PRIVATE src)
 target_link_libraries(connection
     Boost::system
     internal_types
-#    pthread
 )
 
 add_subdirectory(tests)

@@ -95,7 +95,6 @@ void MouseSender::setContactPoints(
     const internal_types::Point& diffPointForSend,
     const internal_types::Point& diffPointForReceive)
 {
-    std::cout << "MouseSender::setContactPoints" << std::endl;
     cursorGuard->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
 }
 

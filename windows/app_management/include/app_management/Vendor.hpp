@@ -9,7 +9,6 @@
 
 namespace connection
 {
-class Receiver;
 class Socket;
 } // namespace connection
 
@@ -26,7 +25,7 @@ class Vendor : public std::enable_shared_from_this<Vendor>
 public:
     Vendor(
         std::unique_ptr<event_vendor::KeyboardSender>,
-        event_vendor::MouseSender*,
+        std::unique_ptr<event_vendor::MouseSender>,
         std::unique_ptr<connection::Socket>,
         std::function<void(internal_types::ScreenResolution)>);
     ~Vendor();
@@ -46,7 +45,7 @@ private:
     void handleReceivedEvent(const internal_types::Event&);
 
     std::unique_ptr<event_vendor::KeyboardSender> keyboard;
-    event_vendor::MouseSender* mouse;
+    std::unique_ptr<event_vendor::MouseSender> mouse;
     std::unique_ptr<connection::Socket> socket;
     std::function<void(internal_types::ScreenResolution)> setScreenResolution;
 

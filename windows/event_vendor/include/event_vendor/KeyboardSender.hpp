@@ -20,8 +20,6 @@ public:
 private:
     void start();
 
-    bool checkForStopApp(const internal_types::KeyEvent&);
-    //    void stopApp();
     bool checkForIgnoreCtrl(const internal_types::KeyEvent&);
     void changeKeyMod(const internal_types::KeyEvent&);
     bool checkForRAltPress(const internal_types::KeyEvent&);

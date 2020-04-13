@@ -211,9 +211,7 @@ void MainWindow::handleConnectButton()
     if (!errorCode.failed())
     {
         QComboBox* availableMonitors = ui->availableMonitors;
-        appThread = std::thread(
-            &commons::IApp::connect,
-            app.get(),
+        app->connect(
             address,
             toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()),
             [this](const internal_types::ScreenResolution screenResolution) { emit messageSent(screenResolution); });
@@ -227,7 +225,6 @@ void MainWindow::handleConnectButton()
 
 void MainWindow::handleStartButton()
 {
-    qDebug() << "MainWindow::handleStartButton 11";
     QComboBox* availableMonitors = ui->availableMonitors;
     CursorManagement::initialize();
     app->listen(
@@ -235,7 +232,6 @@ void MainWindow::handleStartButton()
         convertToArgv(qApp->arguments()),
         toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()),
         [this](const internal_types::ScreenResolution screenResolution) { emit messageSent(screenResolution); });
-    qDebug() << "MainWindow::handleStartButton 22";
 }
 
 void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenResolutionMsg)
@@ -260,8 +256,5 @@ void MainWindow::borderScreenChanged(const int&)
 
 MainWindow::~MainWindow()
 {
-    qDebug() << "MainWindow::~MainWindow 11";
-    //    appThread.join();
-    qDebug() << "MainWindow::~MainWindow 22";
     delete ui;
 }
