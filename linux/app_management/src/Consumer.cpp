@@ -20,7 +20,6 @@ Consumer::Consumer(
     , socket{std::move(_socket)}
     , setScreenResolution{_setScreenResolution}
 {
-    //    socket->start();
     mouseReceiver->start([this](const internal_types::MouseChangePositionEvent& event) { socket->send(event); });
 }
 

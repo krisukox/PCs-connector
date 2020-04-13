@@ -27,15 +27,7 @@ public:
     template <class T, typename = std::enable_if<std::is_convertible<T, internal_types::DecodedType>::value>>
     bool receiveOnce(const SuccessfulCallback<T>& successfulCallback)
     {
-        boost::system::error_code errorCode;
-        socket.receive(boost::asio::buffer(buffer, 5), 0, errorCode);
-        if (errorCode.failed())
-        {
-            return false;
-        }
-        auto decoded = deserializer->decode(buffer);
-        if (decoded)
-        {
+        auto successfulCallbackInternal = [successfulCallback](const internal_types::DecodedType& decoded) {
             return std::visit(
                 internal_types::Visitor{
                     [successfulCallback](const T& value) {
@@ -44,12 +36,9 @@ public:
                     },
                     [](const auto&) { return false; },
                 },
-                decoded.value());
-        }
-        else
-        {
-            return false;
-        }
+                decoded);
+        };
+        return receive_(successfulCallbackInternal);
     }
 
     template <class T>
@@ -71,7 +60,27 @@ public:
     }
 
 private:
-    bool receive_(const SuccessfulCallback<internal_types::DecodedType>&);
+    using SuccessfulCallbackInternal = std::function<bool(const internal_types::DecodedType&)>;
+
+    bool receive_(const SuccessfulCallbackInternal& successfulCallback)
+    {
+        boost::system::error_code errorCode;
+        socket.receive(boost::asio::buffer(buffer, 5), 0, errorCode);
+        if (errorCode.failed())
+        {
+            return false;
+        }
+        auto decoded = deserializer->decode(buffer);
+        if (decoded)
+        {
+            successfulCallback(decoded.value());
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     internal_types::Serializer serializer;
     boost::asio::io_context ioContext;

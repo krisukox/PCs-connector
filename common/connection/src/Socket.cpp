@@ -30,35 +30,19 @@ Socket::Socket(const std::string& port, std::unique_ptr<internal_types::Deserial
 Socket::~Socket()
 {
     ioContext.stop();
-    socket.close();
+    socket.shutdown(boost::asio::socket_base::shutdown_both);
     socketThread.join();
 }
 
 void Socket::receive(SuccessfulCallback<internal_types::DecodedType> _successfulCallback)
 {
     socketThread = std::thread([this, successfulCallback = std::move(_successfulCallback)]() {
-        while (receive_(successfulCallback))
+        auto successfulCallbackInternal = [successfulCallback](const internal_types::DecodedType& decoded) {
+            successfulCallback(decoded);
+            return true;
+        };
+        while (receive_(successfulCallbackInternal))
             ;
     });
-}
-
-bool Socket::receive_(const SuccessfulCallback<internal_types::DecodedType>& successfulCallback)
-{
-    boost::system::error_code errorCode;
-    socket.receive(boost::asio::buffer(buffer, 5), 0, errorCode);
-    if (errorCode.failed())
-    {
-        return false;
-    }
-    auto decoded = deserializer->decode(buffer);
-    if (decoded)
-    {
-        successfulCallback(decoded.value());
-        return true;
-    }
-    else
-    {
-        return false;
-    }
 }
 } // namespace connection
