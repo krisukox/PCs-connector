@@ -1,6 +1,7 @@
 #pragma once
 
 #include <X11/Xlib.h>
+#include <functional>
 #include <memory>
 #include <optional>
 #include "IMouseReceiver.hpp"
@@ -27,10 +28,18 @@ enum class DispatchState
 class MouseReceiver : public IMouseReceiver
 {
 public:
-    MouseReceiver(Display*, std::shared_ptr<connection::Sender>, std::shared_ptr<commons::CursorGuard>);
+    using ForwardEvent = std::function<void(const internal_types::MouseChangePositionEvent&)>;
+
+    MouseReceiver(Display*, std::unique_ptr<commons::CursorGuard>);
     ~MouseReceiver() override;
 
+    void start(ForwardEvent) override;
     void onEvent(const internal_types::MouseEvent&) override;
+
+    void setContactPoints(
+        const std::pair<internal_types::Point, internal_types::Point>&,
+        const internal_types::Point&,
+        const internal_types::Point&) override;
 
 private:
     void onEvent(const internal_types::MouseMoveEvent&);
@@ -42,9 +51,10 @@ private:
 
     Display* display;
     Window window;
-    std::shared_ptr<connection::Sender> sender;
-    std::shared_ptr<commons::CursorGuard> cursorGuard;
+    std::unique_ptr<commons::CursorGuard> cursorGuard;
 
     DispatchState dispatchState;
+
+    ForwardEvent forwardEvent;
 };
 } // namespace event_consumer

@@ -46,23 +46,18 @@ LRESULT resultCallback(int nCode, WPARAM wParam, LPARAM lParam)
 
 namespace event_vendor
 {
-KeyboardSender::KeyboardSender(std::shared_ptr<connection::Sender> _sender) : sender{_sender}, isEventSending{false} {}
-// checkModKey
-void KeyboardSender::start(std::function<void()>&& _stopAppCallback)
+KeyboardSender::KeyboardSender() : isEventSending{false} {}
+
+void KeyboardSender::start(ForwardEvent&& _eventReceived)
 {
-    stopAppCallback = std::move(_stopAppCallback);
+    forwardEvent = std::move(_eventReceived);
+
     start();
 }
 
 void KeyboardSender::start()
 {
     keyboard_callback::dispatchEvent = [this](const internal_types::KeyEvent& keyEvent) -> LRESULT {
-        if (checkForStopApp(keyEvent))
-        {
-            stopApp();
-            return ignoreEvent;
-        }
-
         changeKeyMod(keyEvent);
 
         if (checkForLockComputer(keyEvent))
@@ -77,28 +72,15 @@ void KeyboardSender::start()
             }
             else if (checkForRAltPress(keyEvent))
             {
-                sender->send(internal_types::KeyEvent{VK_LCONTROL, false});
+                forwardEvent(internal_types::KeyEvent{VK_LCONTROL, false});
             }
-            sender->send(keyEvent);
+            forwardEvent(keyEvent);
         }
 
         return isEventSending;
     };
 
     keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, keyboard_callback::resultCallback, nullptr, NULL);
-}
-
-bool KeyboardSender::checkForStopApp(const internal_types::KeyEvent& keyEvent)
-{
-    return (isCtrlPressed && isShiftPressed && keyEvent.keyCode == VK_Q && keyEvent.isPressed);
-}
-
-void KeyboardSender::stopApp()
-{
-    sender->send(internal_types::KeyEvent{VK_LCONTROL, false});
-    sender->send(internal_types::KeyEvent{VK_LSHIFT, false});
-    sender->send(internal_types::KeyEvent{VK_Q, false});
-    stopAppCallback();
 }
 
 bool KeyboardSender::checkForIgnoreCtrl(const internal_types::KeyEvent& keyEvent)
@@ -130,8 +112,6 @@ void KeyboardSender::changeState()
 {
     if (isEventSending)
     {
-        sender->send(internal_types::KeyEvent{VK_LCONTROL, false});
-        sender->send(internal_types::KeyEvent{VK_LSHIFT, false});
         isEventSending = false;
     }
     else
@@ -152,9 +132,9 @@ bool KeyboardSender::checkForLockComputer(const internal_types::KeyEvent& keyEve
 
 void KeyboardSender::lockComputer()
 {
-    sender->send(internal_types::KeyEvent{VK_LWIN, true});
-    sender->send(internal_types::KeyEvent{VK_L, true});
-    sender->send(internal_types::KeyEvent{VK_L, false});
-    sender->send(internal_types::KeyEvent{VK_LWIN, false});
+    forwardEvent(internal_types::KeyEvent{VK_LWIN, true});
+    forwardEvent(internal_types::KeyEvent{VK_L, true});
+    forwardEvent(internal_types::KeyEvent{VK_L, false});
+    forwardEvent(internal_types::KeyEvent{VK_LWIN, false});
 }
 } // namespace event_vendor

@@ -1,9 +1,11 @@
 #pragma once
 
+#include <Windows.h>
 #include <functional>
 #include <optional>
-#include "connection/Sender.hpp"
+#include "commons/CursorGuard.hpp"
 #include "internal_types/MouseEvent.hpp"
+#include "internal_types/Point.hpp"
 
 namespace commons
 {
@@ -15,22 +17,30 @@ namespace event_vendor
 class MouseSender
 {
 public:
-    MouseSender(std::shared_ptr<connection::Sender>, std::shared_ptr<commons::CursorGuard>);
-    MouseSender() = delete;
+    using FrowardEvent = std::function<void(const internal_types::MouseEvent&)>;
+    using ChangeKeyboardState = std::function<void()>;
 
-    void start(std::function<void()>&&);
+    MouseSender(std::unique_ptr<commons::CursorGuard>);
+
+    void start(ChangeKeyboardState&&, FrowardEvent&&);
     void changeMouseState(const std::optional<internal_types::MouseChangePositionEvent>&);
 
     LRESULT forwardEvent(int nCode, WPARAM, LPARAM);
 
+    void setContactPoints(
+        const std::pair<internal_types::Point, internal_types::Point>&,
+        const internal_types::Point&,
+        const internal_types::Point&);
+
 private:
+    void start();
     LRESULT sendEvent(internal_types::MouseEvent&&);
 
-    std::shared_ptr<connection::Sender> sender;
     bool isEventSending;
-    std::shared_ptr<commons::CursorGuard> cursorGuard;
+    std::unique_ptr<commons::CursorGuard> cursorGuard;
 
+    ChangeKeyboardState changeKeyboardState;
+    FrowardEvent frowardEvent;
     HHOOK mouseHook;
-    std::function<void()> changeKeyboardState;
 };
 } // namespace event_vendor

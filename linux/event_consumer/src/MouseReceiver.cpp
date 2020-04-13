@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 #include "commons/CursorGuard.hpp"
-#include "connection/Sender.hpp"
+#include "gui/CursorManagement.h"
 #include "internal_types/Visitor.hpp"
 
 namespace
@@ -32,16 +32,17 @@ internal_types::Point getMouseCoordinate(Display* display, Window& window)
 
 namespace event_consumer
 {
-MouseReceiver::MouseReceiver(
-    Display* _display,
-    std::shared_ptr<connection::Sender> _sender,
-    std::shared_ptr<commons::CursorGuard> _cursorGuard)
+MouseReceiver::MouseReceiver(Display* _display, std::unique_ptr<commons::CursorGuard> _cursorGuard)
     : display{_display}
     , window{XRootWindow(display, 0)}
-    , sender{std::move(_sender)}
-    , cursorGuard{_cursorGuard}
+    , cursorGuard{std::move(_cursorGuard)}
     , dispatchState{DispatchState::off}
 {
+}
+
+void MouseReceiver::start(ForwardEvent _forwardEvent)
+{
+    forwardEvent = _forwardEvent;
 }
 
 MouseReceiver::~MouseReceiver() = default;
@@ -61,10 +62,10 @@ void MouseReceiver::onEvent(const internal_types::MouseEvent& mouseEvent)
 
 void MouseReceiver::onEvent(const internal_types::MouseMoveEvent& mouseMoveEvent)
 {
-    internal_types::Point cursor = getMouseCoordinate(display, window) + mouseMoveEvent;
+    internal_types::Point cursor = CursorManagement::getPosition() + mouseMoveEvent;
     if (auto changeMousePositionEvent = cursorGuard->checkIfCursorOutOfScreen(cursor))
     {
-        sender->send(changeMousePositionEvent.value());
+        forwardEvent(changeMousePositionEvent.value());
         setCursorPosition(std::nullopt);
     }
     XTestFakeRelativeMotionEvent(display, mouseMoveEvent.deltaX, mouseMoveEvent.deltaY, CurrentTime);
@@ -129,5 +130,20 @@ void MouseReceiver::setCursorPosition(const std::optional<internal_types::MouseC
         dispatchState = DispatchState::off;
     }
     cursorGuard->setPosition(event);
+}
+
+void MouseReceiver::setContactPoints(
+    const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
+    const internal_types::Point& diffPointForSend,
+    const internal_types::Point& diffPointForReceive)
+{
+    if (cursorGuard)
+    {
+        cursorGuard->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
+    }
+    else
+    {
+        std::cerr << "MouseReceiver doesn't exist" << std::endl;
+    }
 }
 } // namespace event_consumer

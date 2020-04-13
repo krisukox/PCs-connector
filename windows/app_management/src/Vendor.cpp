@@ -1,45 +1,84 @@
 #include "app_management/Vendor.hpp"
 #include <iostream>
-#include "connection/Receiver.hpp"
+#include "connection/Socket.hpp"
 #include "event_vendor/KeyboardSender.hpp"
 #include "event_vendor/MouseSender.hpp"
 
 namespace app_management
 {
 Vendor::Vendor(
-    std::shared_ptr<event_vendor::KeyboardSender> keyboardSender,
-    std::shared_ptr<event_vendor::MouseSender> mouseSender,
-    std::shared_ptr<connection::Receiver> receiver_,
-    std::function<void()> stopAppCallback_)
-    : keyboard{keyboardSender}, mouse{mouseSender}, receiver{receiver_}, stopAppCallback{stopAppCallback_}
+    std::unique_ptr<event_vendor::KeyboardSender> keyboardSender,
+    std::unique_ptr<event_vendor::MouseSender> mouseSender,
+    std::unique_ptr<connection::Socket> _socket,
+    internal_types::SetScreenResolution _setScreenResolution)
+    : keyboard{std::move(keyboardSender)}
+    , mouse{std::move(mouseSender)}
+    , socket{std::move(_socket)}
+    , setScreenResolution{std::move(_setScreenResolution)}
 {
 }
 
-void Vendor::startReceivingEvents()
+Vendor::~Vendor()
 {
-    receiveEvent();
+    PostThreadMessage(eventCatchingThreadId, WM_QUIT, 0, 0);
+    eventCatchingThread.join();
 }
 
-void Vendor::receiveEvent()
+void Vendor::start(const internal_types::ScreenResolution& masterScreenResolution)
 {
-    connection::Receiver::SuccessfulCallback<internal_types::Event> successfulCallback =
-        [this](const internal_types::Event& event) {
-            keyboard->changeState();
-            mouse->changeMouseState(
-                std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));
-            startReceivingEvents();
+    connection::Socket::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+        [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
+
+    socket->send(masterScreenResolution);
+    socket->receiveOnce(successfulCallback);
+    registerForMouseChangePositionEvent();
+    eventCatchingThread = std::thread(&Vendor::startCatchingEvents, this);
+}
+
+void Vendor::setContactPoints(
+    const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
+    const internal_types::Point& diffPointForSend,
+    const internal_types::Point& diffPointForReceive)
+{
+    if (mouse)
+    {
+        mouse->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
+    }
+    else
+    {
+        std::cerr << "Mouse doesn't exist" << std::endl;
+    }
+}
+
+void Vendor::registerForMouseChangePositionEvent()
+{
+    connection::Socket::SuccessfulCallback<internal_types::DecodedType> successfullCallback =
+        [this](const internal_types::DecodedType& decoded) {
+            std::visit(
+                internal_types::Visitor{
+                    [this](const internal_types::Event& event) { handleReceivedEvent(event); },
+                    [](const internal_types::ScreenResolution&) {},
+                },
+                decoded);
         };
-    connection::Receiver::UnsuccessfulCallback unsuccessfulCallback = [this](boost::system::error_code) {
-        std::cerr << "Unsuccessful event receive" << std::endl;
-        stopApp();
-    };
-    receiver->receive(successfulCallback, unsuccessfulCallback);
+
+    socket->receive(std::move(successfullCallback));
+}
+
+void Vendor::handleReceivedEvent(const internal_types::Event& event)
+{
+    keyboard->changeState();
+    mouse->changeMouseState(
+        std::get<internal_types::MouseChangePositionEvent>(std::get<internal_types::MouseEvent>(event)));
 }
 
 void Vendor::startCatchingEvents()
 {
-    keyboard->start(std::bind(&Vendor::stopApp, this));
-    mouse->start(std::bind(&Vendor::changeKeyboardState, this));
+    eventCatchingThreadId = GetCurrentThreadId();
+    keyboard->start([this](const internal_types::KeyEvent& keyEvent) { socket->send(keyEvent); });
+    mouse->start(std::bind(&Vendor::changeKeyboardState, this), [this](const internal_types::MouseEvent& mouseEvent) {
+        socket->send(mouseEvent);
+    });
 
     MSG msg;
     BOOL retVal;
@@ -47,15 +86,9 @@ void Vendor::startCatchingEvents()
     {
         if (retVal == -1)
         {
-            stopAppCallback();
+            // stop
         }
     }
-}
-
-void Vendor::stopApp()
-{
-    PostMessage(nullptr, WM_QUIT, 0, 0);
-    stopAppCallback();
 }
 
 void Vendor::changeKeyboardState()

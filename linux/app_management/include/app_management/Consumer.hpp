@@ -1,11 +1,14 @@
 #pragma once
 
-#include <boost/asio.hpp>
-#include <boost/asio/io_context.hpp>
+#include <functional>
+#include <memory>
+#include "internal_types/CommonTypes.hpp"
+#include "internal_types/Point.hpp"
+#include "internal_types/ScreenResolution.hpp"
 
 namespace connection
 {
-class Receiver;
+class Socket;
 }
 
 namespace event_consumer
@@ -16,23 +19,27 @@ class IMouseReceiver;
 
 namespace app_management
 {
-using boost::asio::ip::tcp;
-
-class Consumer : public std::enable_shared_from_this<Consumer>
+class Consumer
 {
 public:
     Consumer(
-        std::shared_ptr<event_consumer::IKeyboardReceiver>,
-        std::shared_ptr<event_consumer::IMouseReceiver>,
-        std::shared_ptr<connection::Receiver>);
-    void start();
+        std::unique_ptr<event_consumer::IKeyboardReceiver>,
+        std::unique_ptr<event_consumer::IMouseReceiver>,
+        std::unique_ptr<connection::Socket>,
+        internal_types::SetScreenResolution);
+    void start(const internal_types::ScreenResolution&);
+    void setContactPoints(
+        const std::pair<internal_types::Point, internal_types::Point>&,
+        const internal_types::Point&,
+        const internal_types::Point&);
 
 private:
-    void onMessage(const boost::system::error_code& ec, const std::size_t size);
-    void readBody();
+    void startReceiving();
+    void handleReceivedEvent(const internal_types::Event&);
 
-    std::shared_ptr<event_consumer::IKeyboardReceiver> keyReceiver;
-    std::shared_ptr<event_consumer::IMouseReceiver> mouseReceiver;
-    std::shared_ptr<connection::Receiver> receiver;
+    std::unique_ptr<event_consumer::IKeyboardReceiver> keyReceiver;
+    std::unique_ptr<event_consumer::IMouseReceiver> mouseReceiver;
+    std::unique_ptr<connection::Socket> socket;
+    internal_types::SetScreenResolution setScreenResolution;
 };
 } // namespace app_management

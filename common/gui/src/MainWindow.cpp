@@ -81,14 +81,8 @@ QPointF getDiffPointForSend(const QPointF& diffPoint, const QRect& screenGeometr
 }
 } // namespace
 
-std::unique_ptr<commons::IApp> MainWindow::createAppPtr()
-{
-    return std::make_unique<app_management::App>(
-        std::make_shared<commons::CursorGuard>(),
-        [this](const internal_types::ScreenResolution& screenResolution) { emit messageSent(screenResolution); });
-}
-
-MainWindow::MainWindow(QWidget* parent) : QMainWindow{parent}, ui{new Ui::MainWindow}, app{createAppPtr()}
+MainWindow::MainWindow(QWidget* parent)
+    : QMainWindow{parent}, ui{new Ui::MainWindow}, app{std::make_unique<app_management::App>()}
 {
     connect(this, SIGNAL(messageSent(ScreenResolutionMsg)), this, SLOT(handleScreenResolutionSet(ScreenResolutionMsg)));
 
@@ -108,7 +102,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow{parent}, ui{new Ui::MainWi
 
             alignContactPoints(contactPoints, screenGeometry);
             auto diffPointForReceive = screenGeometry.topLeft();
-
             this->app->setContactPoints(
                 {toInternalType(contactPoints.first), toInternalType(contactPoints.second)},
                 toInternalType(diffPointForSend),
@@ -192,13 +185,11 @@ void MainWindow::addScreensToScene(const QSize& slaveSize)
     item2->setZValue(1);
     item2->setY(160);
     item->setZValue(0);
-
     GraphicsScene* scene = dynamic_cast<GraphicsScene*>(ui->graphicsView->scene());
     if (scene)
     {
         scene->addItem(item);
         scene->addItem(item2);
-
         QMouseEvent event(QEvent::GraphicsSceneMouseRelease, QPointF(), Qt::MouseButton::LeftButton, 0, 0);
         QCoreApplication::sendEvent(scene, &event);
     }
@@ -220,11 +211,10 @@ void MainWindow::handleConnectButton()
     if (!errorCode.failed())
     {
         QComboBox* availableMonitors = ui->availableMonitors;
-        appThread = std::thread(
-            &commons::IApp::connect,
-            app.get(),
+        app->connect(
             address,
-            toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()));
+            toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()),
+            [this](const internal_types::ScreenResolution screenResolution) { emit messageSent(screenResolution); });
         ui->infoLabel->setText("");
     }
     else
@@ -237,12 +227,11 @@ void MainWindow::handleStartButton()
 {
     QComboBox* availableMonitors = ui->availableMonitors;
     CursorManagement::initialize();
-    appThread = std::thread(
-        &commons::IApp::listen,
-        app.get(),
+    app->listen(
         qApp->arguments().size(),
         convertToArgv(qApp->arguments()),
-        toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()));
+        toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()),
+        [this](const internal_types::ScreenResolution screenResolution) { emit messageSent(screenResolution); });
 }
 
 void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenResolutionMsg)
@@ -267,6 +256,5 @@ void MainWindow::borderScreenChanged(const int&)
 
 MainWindow::~MainWindow()
 {
-    appThread.join();
     delete ui;
 }

@@ -1,45 +1,72 @@
 #include "app_management/Consumer.hpp"
 #include <iostream>
-#include <stdexcept>
-#include "connection/Receiver.hpp"
+#include "connection/Socket.hpp"
 #include "event_consumer/KeyboardReceiver.hpp"
 #include "event_consumer/MouseReceiver.hpp"
+#include "internal_types/MouseEvent.hpp"
 #include "internal_types/Visitor.hpp"
 
 namespace app_management
 {
 Consumer::Consumer(
-    std::shared_ptr<event_consumer::IKeyboardReceiver> _keyReceiver,
-    std::shared_ptr<event_consumer::IMouseReceiver> _mouseReceiver,
-    std::shared_ptr<connection::Receiver> _receiver)
-    : keyReceiver{std::move(_keyReceiver)}, mouseReceiver{std::move(_mouseReceiver)}, receiver{_receiver}
+    std::unique_ptr<event_consumer::IKeyboardReceiver> _keyReceiver,
+    std::unique_ptr<event_consumer::IMouseReceiver> _mouseReceiver,
+    std::unique_ptr<connection::Socket> _socket,
+    internal_types::SetScreenResolution _setScreenResolution)
+    : keyReceiver{std::move(_keyReceiver)}
+    , mouseReceiver{std::move(_mouseReceiver)}
+    , socket{std::move(_socket)}
+    , setScreenResolution{std::move(_setScreenResolution)}
 {
+    mouseReceiver->start([this](const internal_types::MouseChangePositionEvent& event) { socket->send(event); });
 }
 
-void Consumer::start()
+void Consumer::start(const internal_types::ScreenResolution& masterScreenResolution)
 {
-    readBody();
+    connection::Socket::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+        [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
+    socket->receiveOnce(successfulCallback);
+    startReceiving();
+    socket->send(masterScreenResolution);
 }
 
-void Consumer::readBody()
+void Consumer::startReceiving()
 {
-    auto successfullCallback = [self = shared_from_this()](const internal_types::Event& event) {
-        std::visit(
-            internal_types::Visitor{
-                [self](const internal_types::KeyEvent& keyEvent) { self->keyReceiver->onEvent(keyEvent); },
-                [self](const internal_types::MouseEvent& mouseEvent) { self->mouseReceiver->onEvent(mouseEvent); },
-            },
-            event);
-        self->readBody();
-    };
+    connection::Socket::SuccessfulCallback<internal_types::DecodedType> successfullCallback =
+        [this](const internal_types::DecodedType& decoded) {
+            std::visit(
+                internal_types::Visitor{
+                    [this](const internal_types::Event& event) { handleReceivedEvent(event); },
+                    [](const internal_types::ScreenResolution&) {},
+                },
+                decoded);
+        };
 
-    auto unsuccessfullCallback = [self = shared_from_this()](const boost::system::error_code& errorCode) {
-        if (!errorCode)
-        {
-            self->readBody();
-        }
-    };
+    socket->receive(std::move(successfullCallback));
+}
 
-    receiver->receive<internal_types::Event>(std::move(successfullCallback), std::move(unsuccessfullCallback));
+void Consumer::handleReceivedEvent(const internal_types::Event& event)
+{
+    std::visit(
+        internal_types::Visitor{
+            [this](const internal_types::KeyEvent& keyEvent) { keyReceiver->onEvent(keyEvent); },
+            [this](const internal_types::MouseEvent& mouseEvent) { mouseReceiver->onEvent(mouseEvent); },
+        },
+        event);
+}
+
+void Consumer::setContactPoints(
+    const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
+    const internal_types::Point& diffPointForSend,
+    const internal_types::Point& diffPointForReceive)
+{
+    if (mouseReceiver)
+    {
+        mouseReceiver->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
+    }
+    else
+    {
+        std::cerr << "MouseReceiver doesn't exist" << std::endl;
+    }
 }
 } // namespace app_management

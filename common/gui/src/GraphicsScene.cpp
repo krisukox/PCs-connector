@@ -180,7 +180,6 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     auto rect2 = rect2_->rectPlaced();
 
     auto lineBetweenCenters = QLineF(rect1.center(), rect2.center());
-
     if (rect1.intersects(rect2))
     {
         auto intersectedRect = rect1.intersected(rect2);
@@ -233,7 +232,6 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         alignPointsToScreen(contactPoints, rect2_);
         diffPoint = diffPointAlignedToScreen(rect2_, rect1_);
     }
-
     setContactPoints(contactPoints, diffPoint);
     QGraphicsScene::mouseReleaseEvent(event);
 }

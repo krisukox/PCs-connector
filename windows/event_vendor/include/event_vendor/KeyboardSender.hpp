@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Windows.h>
 #include <functional>
 #include <memory>
-#include "connection/Sender.hpp"
 #include "internal_types/KeyEvent.hpp"
 
 namespace event_vendor
@@ -10,16 +10,16 @@ namespace event_vendor
 class KeyboardSender
 {
 public:
-    KeyboardSender(std::shared_ptr<connection::Sender>);
-    KeyboardSender() = delete;
+    using ForwardEvent = std::function<void(const internal_types::KeyEvent&)>;
 
-    void start(std::function<void()>&&);
+    KeyboardSender();
+
+    void start(ForwardEvent&&);
     void changeState();
 
 private:
     void start();
-    bool checkForStopApp(const internal_types::KeyEvent&);
-    void stopApp();
+
     bool checkForIgnoreCtrl(const internal_types::KeyEvent&);
     void changeKeyMod(const internal_types::KeyEvent&);
     bool checkForRAltPress(const internal_types::KeyEvent&);
@@ -32,10 +32,9 @@ private:
     bool isLWinPressed = false;
     bool isRAltPressed = false;
 
-    std::shared_ptr<connection::Sender> sender;
-    std::function<void()> stopAppCallback;
     bool isEventSending;
 
+    ForwardEvent forwardEvent;
     HHOOK keyboardHook;
 };
 } // namespace event_vendor

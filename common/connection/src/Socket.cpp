@@ -3,48 +3,46 @@
 
 namespace connection
 {
-Socket::Socket() : ioContext{} {}
-
-void Socket::connect(const boost::asio::ip::address& address, const std::string& port)
+Socket::Socket(std::unique_ptr<internal_types::Deserializer> _deserializer)
+    : serializer{}, deserializer{std::move(_deserializer)}, ioContext{}, socket{ioContext}
 {
-    socket = boost::asio::ip::tcp::socket{ioContext};
-    auto resolver = boost::asio::ip::tcp::resolver{ioContext};
+}
+
+Socket::Socket(
+    const boost::asio::ip::address& address,
+    const std::string& port,
+    std::unique_ptr<internal_types::Deserializer> deserializer)
+    : Socket{std::move(deserializer)}
+{
     boost::asio::ip::tcp::endpoint endpoint(address, std::stoi(port));
-    socket.value().connect(endpoint);
+    socket.connect(endpoint);
 }
 
-void Socket::listen(const std::string& port, std::function<void(boost::asio::ip::tcp::socket&)> successfulConnection)
+Socket::Socket(const std::string& port, std::unique_ptr<internal_types::Deserializer> deserializer)
+    : Socket{std::move(deserializer)}
 {
-    boost::asio::ip::tcp::endpoint endpoint{boost::asio::ip::tcp::v4(), static_cast<unsigned short>(std::stoi(port))};
-    auto socketAcceptor = boost::asio::ip::tcp::acceptor{ioContext, endpoint};
-    socketAcceptor.async_accept(
-        [this, successfulConnection](boost::system::error_code ec, boost::asio::ip::tcp::socket socket_) mutable {
-            if (!ec)
-            {
-                socket = std::make_optional(std::move(socket_));
-                successfulConnection(socket.value());
-            }
-        });
-    ioContext.run();
+    boost::asio::ip::tcp::acceptor acceptor(
+        ioContext, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), std::stoi(port)));
+    acceptor.accept(socket);
 }
 
-boost::asio::ip::tcp::socket& Socket::value()
-{
-    if (socket)
-    {
-        return socket.value();
-    }
-    throw std::runtime_error("Socket not allocated yet");
-}
-
-boost::asio::io_context& Socket::getIoContext()
-{
-    return ioContext;
-}
-
-void Socket::close()
+Socket::~Socket()
 {
     ioContext.stop();
-    socket->close();
+    socket.shutdown(boost::asio::socket_base::shutdown_both);
+    socket.close();
+    socketThread.join();
+}
+
+void Socket::receive(SuccessfulCallback<internal_types::DecodedType> _successfulCallback)
+{
+    socketThread = std::thread([this, successfulCallback = std::move(_successfulCallback)]() {
+        auto successfulCallbackInternal = [successfulCallback](const internal_types::DecodedType& decoded) {
+            successfulCallback(decoded);
+            return true;
+        };
+        while (receive_(successfulCallbackInternal))
+            ;
+    });
 }
 } // namespace connection
