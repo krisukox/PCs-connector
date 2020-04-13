@@ -4,8 +4,8 @@
 
 namespace connection
 {
-Socket::Socket(std::unique_ptr<internal_types::Deserializer> deserializer)
-    : serializer{}, ioContext{}, socket{ioContext}, msgDispatcher{std::move(deserializer)}
+Socket::Socket(std::unique_ptr<internal_types::Deserializer> _deserializer)
+    : serializer{}, ioContext{}, socket{ioContext}, deserializer{std::move(_deserializer)}
 {
 }
 
@@ -70,24 +70,53 @@ void Socket::start()
 
 void Socket::startReceiving()
 {
-    std::cout << "startReceiving1" << std::endl;
+    //    std::cout << "startReceiving1" << std::endl;
+    //    boost::system::error_code errorCode;
+    //    socket.receive(boost::asio::buffer(buffer, 5), 0, errorCode);
+    //    //    socket.async_receive(boost::asio::buffer(buffer, 5), [this](boost::system::error_code errorCode,
+    //    std::size_t
+    //    //    size) {
+    //    //        if (size > 0 && !errorCode)
+    //    //        {
+    //    std::cout << "startReceiving2" << std::endl;
+    //    msgDispatcher.handleReceivedData(buffer);
+    //    //    startReceiving();
+    //    std::cout << "startReceiving3" << std::endl;
+    //    //            std::thread t(&MsgDispatcher::handleReceivedData, &msgDispatcher, buffer);
+    //    //            t.detach();
+    //    //        }
+    //    //        else
+    //    //        {
+    //    //            //            unsuccessfulCallback(errorCode);
+    //    //        }
+    //    //    });
+}
+
+void Socket::receive(SuccessfulCallback<internal_types::DecodedType> _successfulCallback)
+{
+    socketThread = std::thread([this, successfulCallback = std::move(_successfulCallback)]() {
+        while (receive_(successfulCallback))
+            ;
+    });
+}
+
+bool Socket::receive_(const SuccessfulCallback<internal_types::DecodedType>& successfulCallback)
+{
     boost::system::error_code errorCode;
     socket.receive(boost::asio::buffer(buffer, 5), 0, errorCode);
-    //    socket.async_receive(boost::asio::buffer(buffer, 5), [this](boost::system::error_code errorCode, std::size_t
-    //    size) {
-    //        if (size > 0 && !errorCode)
-    //        {
-    std::cout << "startReceiving2" << std::endl;
-    msgDispatcher.handleReceivedData(buffer);
-    //    startReceiving();
-    std::cout << "startReceiving3" << std::endl;
-    //            std::thread t(&MsgDispatcher::handleReceivedData, &msgDispatcher, buffer);
-    //            t.detach();
-    //        }
-    //        else
-    //        {
-    //            //            unsuccessfulCallback(errorCode);
-    //        }
-    //    });
+    if (errorCode.failed())
+    {
+        return false;
+    }
+    auto decoded = deserializer->decode(buffer);
+    if (decoded)
+    {
+        successfulCallback(decoded.value());
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 } // namespace connection

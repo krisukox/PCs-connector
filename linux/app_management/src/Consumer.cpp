@@ -20,35 +20,51 @@ Consumer::Consumer(
     , socket{std::move(_socket)}
     , setScreenResolution{_setScreenResolution}
 {
-    socket->start();
+    //    socket->start();
     mouseReceiver->start([this](const internal_types::MouseChangePositionEvent& event) { socket->send(event); });
 }
 
 void Consumer::start(const internal_types::ScreenResolution& masterScreenResolution)
 {
     connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
-        [this, masterScreenResolution](internal_types::ScreenResolution screenResolution) {
-            std::cout << "SCREEN RESOLUTION CALLBACK 1" << std::endl;
-            setScreenResolution(screenResolution);
-            registerForEvent();
-            socket->send(masterScreenResolution);
-        };
+        [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
     socket->receiveOnce(successfulCallback);
+    startReceiving();
+    socket->send(masterScreenResolution);
 }
 
-void Consumer::registerForEvent()
+void Consumer::startReceiving()
 {
-    connection::Receiver::SuccessfulCallback<internal_types::Event> successfullCallback =
-        [this](const internal_types::Event& event) {
+    connection::Receiver::SuccessfulCallback<internal_types::DecodedType> successfullCallback =
+        [this](const internal_types::DecodedType& decoded) {
             std::visit(
                 internal_types::Visitor{
-                    [this](const internal_types::KeyEvent& keyEvent) { keyReceiver->onEvent(keyEvent); },
-                    [this](const internal_types::MouseEvent& mouseEvent) { mouseReceiver->onEvent(mouseEvent); },
+                    [this](const internal_types::Event& event) {
+                        std::visit(
+                            internal_types::Visitor{
+                                [this](const internal_types::KeyEvent& keyEvent) { keyReceiver->onEvent(keyEvent); },
+                                [this](const internal_types::MouseEvent& mouseEvent) {
+                                    mouseReceiver->onEvent(mouseEvent);
+                                },
+                            },
+                            event);
+                    },
+                    [](const internal_types::ScreenResolution&) {},
                 },
-                event);
+                decoded);
         };
 
     socket->receive(std::move(successfullCallback));
+}
+
+void Consumer::handleReceivedEvent(const internal_types::Event& event)
+{
+    std::visit(
+        internal_types::Visitor{
+            [this](const internal_types::KeyEvent& keyEvent) { keyReceiver->onEvent(keyEvent); },
+            [this](const internal_types::MouseEvent& mouseEvent) { mouseReceiver->onEvent(mouseEvent); },
+        },
+        event);
 }
 
 void Consumer::setContactPoints(

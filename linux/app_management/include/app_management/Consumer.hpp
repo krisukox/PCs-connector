@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <memory>
+#include "internal_types/CommonTypes.hpp"
 #include "internal_types/Point.hpp"
 #include "internal_types/ScreenResolution.hpp"
 
@@ -33,7 +34,8 @@ public:
         const internal_types::Point&);
 
 private:
-    void registerForEvent();
+    void startReceiving();
+    void handleReceivedEvent(const internal_types::Event&);
 
     std::unique_ptr<event_consumer::IKeyboardReceiver> keyReceiver;
     std::unique_ptr<event_consumer::IMouseReceiver> mouseReceiver;

@@ -3,7 +3,9 @@
 #include <boost/asio.hpp>
 #include <connection/MsgDispatcher.hpp>
 #include <functional>
+#include "internal_types/CommonTypes.hpp"
 #include "internal_types/Serializer.hpp"
+#include "internal_types/Visitor.hpp"
 
 namespace connection
 {
@@ -22,16 +24,37 @@ public:
 
     void start();
 
-    template <class T>
-    void receive(SuccessfulCallback<T> successfulCallback)
-    {
-        msgDispatcher.registerMultiple(successfulCallback);
-    }
+    void receive(SuccessfulCallback<internal_types::DecodedType> successfulCallback);
+    //    {
+    //        msgDispatcher.registerMultiple(successfulCallback);
+    //    }
 
-    template <class T>
-    void receiveOnce(SuccessfulCallback<T> successfulCallback)
+    template <class T, typename = std::enable_if<std::is_convertible<T, internal_types::DecodedType>::value>>
+    bool receiveOnce(const SuccessfulCallback<T>& successfulCallback)
     {
-        msgDispatcher.registerOnce(successfulCallback);
+        boost::system::error_code errorCode;
+        socket.receive(boost::asio::buffer(buffer, 5), 0, errorCode);
+        if (errorCode.failed())
+        {
+            return false;
+        }
+        auto decoded = deserializer->decode(buffer);
+        if (decoded)
+        {
+            return std::visit(
+                internal_types::Visitor{
+                    [successfulCallback](const T& value) {
+                        successfulCallback(value);
+                        return true;
+                    },
+                    [](const auto&) { return false; },
+                },
+                decoded.value());
+        }
+        else
+        {
+            return false;
+        }
     }
 
     template <class T>
@@ -54,14 +77,15 @@ public:
 
 private:
     void startReceiving();
+    bool receive_(const SuccessfulCallback<internal_types::DecodedType>&);
 
     internal_types::Serializer serializer;
     boost::asio::io_context ioContext;
     boost::asio::ip::tcp::socket socket;
-    MsgDispatcher msgDispatcher;
 
     internal_types::Buffer buffer;
 
     std::thread socketThread;
+    std::unique_ptr<internal_types::Deserializer> deserializer;
 };
 } // namespace connection

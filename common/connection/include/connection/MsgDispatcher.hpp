@@ -97,14 +97,17 @@ public:
     template <class T>
     void registerOnce(SuccessfulCallback<T> successfulCallback)
     {
-        handlers.insert({typeid(T).hash_code(), std::make_unique<Handler<T>>(successfulCallback, HandlerType::once)});
+        firstHandler = std::make_unique<Handler<T>>(successfulCallback, HandlerType::once);
+        //        handlers.insert({typeid(T).hash_code(), std::make_unique<Handler<T>>(successfulCallback,
+        //        HandlerType::once)});
     }
 
     template <class T>
     void registerMultiple(SuccessfulCallback<T> successfulCallback)
     {
-        handlers.insert(
-            {typeid(T).hash_code(), std::make_unique<Handler<T>>(successfulCallback, HandlerType::multiple)});
+        secondHandler = std::make_unique<Handler<T>>(successfulCallback, HandlerType::multiple);
+        //        handlers.insert(
+        //            {typeid(T).hash_code(), std::make_unique<Handler<T>>(successfulCallback, HandlerType::multiple)});
     }
 
 private:
@@ -140,5 +143,8 @@ private:
 
     std::unique_ptr<internal_types::Deserializer> deserializer;
     std::unordered_map<std::size_t, std::unique_ptr<BaseHandler>> handlers;
+
+    std::unique_ptr<BaseHandler> firstHandler;
+    std::unique_ptr<BaseHandler> secondHandler;
 };
 } // namespace connection

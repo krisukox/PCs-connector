@@ -28,26 +28,23 @@ void MsgDispatcher::handleReceivedData(const internal_types::Buffer& _buffer)
     if (decoded)
     {
         std::cout << "handleReceivedData 33 " << gettid() << std::endl;
+        //        std::visit(
+        //            internal_types::Visitor{
+        //                [this](const auto& value) { handleReceivedType(value); },
+        //            },
+        //            decoded.value());
         std::visit(
             internal_types::Visitor{
-                [this](const auto& value) { handleReceivedType(value); },
+                [this](const internal_types::Event& value) {
+                    auto handler = static_cast<Handler<internal_types::Event>*>(secondHandler.get());
+                    handler->run(value);
+                },
+                [this](const internal_types::ScreenResolution& value) {
+                    auto handler = static_cast<Handler<internal_types::ScreenResolution>*>(firstHandler.get());
+                    handler->run(value);
+                },
             },
             decoded.value());
-        //        std::visit(
-        //            internal_types::Visitor{[this](const internal_types::Event& value) {
-        //                                        std::cout << "handleReceivedData 44 " << gettid() << std::endl;
-        //                                        auto handler =
-        //                                            static_cast<Handler<internal_types::Event>*>(secondHandler.get());
-        //                                        handler->run(value); /*handleReceivedType(value);*/
-        //                                    },
-        //                                    [this](const internal_types::ScreenResolution& value) {
-        //                                        std::cout << "handleReceivedData 55 " << gettid() << std::endl;
-        //                                        auto handler =
-        //                                            static_cast<Handler<internal_types::ScreenResolution>*>(firstHandler.get());
-        //                                        handler->run(value); /*handleReceivedType(value);*/
-        //                                        std::cout << "handleReceivedData 66 " << gettid() << std::endl;
-        //                                    }},
-        //            decoded.value());
     }
     else
     {
