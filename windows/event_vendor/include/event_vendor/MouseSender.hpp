@@ -1,9 +1,9 @@
 #pragma once
 
+#include <Windows.h>
 #include <functional>
 #include <optional>
 #include "commons/CursorGuard.hpp"
-#include "connection/Sender.hpp"
 #include "internal_types/MouseEvent.hpp"
 #include "internal_types/Point.hpp"
 

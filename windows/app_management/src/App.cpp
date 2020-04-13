@@ -3,7 +3,6 @@
 #include <iostream>
 #include "Deserializer.hpp"
 #include "app_management/Vendor.hpp"
-#include "connection/Sender.hpp"
 #include "connection/Socket.hpp"
 #include "event_vendor/KeyboardSender.hpp"
 #include "event_vendor/MouseSender.hpp"

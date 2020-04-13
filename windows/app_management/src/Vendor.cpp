@@ -1,6 +1,5 @@
 #include "app_management/Vendor.hpp"
 #include <iostream>
-#include "connection/Receiver.hpp"
 #include "connection/Socket.hpp"
 #include "event_vendor/KeyboardSender.hpp"
 #include "event_vendor/MouseSender.hpp"
@@ -27,7 +26,7 @@ Vendor::~Vendor()
 
 void Vendor::start(const internal_types::ScreenResolution& masterScreenResolution)
 {
-    connection::Receiver::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
+    connection::Socket::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
         [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
 
     socket->send(masterScreenResolution);
@@ -53,7 +52,7 @@ void Vendor::setContactPoints(
 
 void Vendor::registerForMouseChangePositionEvent()
 {
-    connection::Receiver::SuccessfulCallback<internal_types::DecodedType> successfullCallback =
+    connection::Socket::SuccessfulCallback<internal_types::DecodedType> successfullCallback =
         [this](const internal_types::DecodedType& decoded) {
             std::visit(
                 internal_types::Visitor{

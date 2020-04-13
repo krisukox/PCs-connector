@@ -3,7 +3,6 @@
 #include <memory>
 #include "app_management/Console.hpp"
 #include "commons/IApp.hpp"
-#include "connection/Receiver.hpp"
 
 namespace commons
 {
@@ -13,7 +12,6 @@ class CursorGuard;
 namespace connection
 {
 class Socket;
-class Sender;
 } // namespace connection
 
 namespace app_management

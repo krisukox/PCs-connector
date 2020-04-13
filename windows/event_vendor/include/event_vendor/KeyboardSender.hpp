@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Windows.h>
 #include <functional>
 #include <memory>
-#include "connection/Sender.hpp"
 #include "internal_types/KeyEvent.hpp"
 
 namespace event_vendor
