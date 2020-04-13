@@ -110,7 +110,7 @@ MainWindow::MainWindow(QWidget* parent)
     auto scene = new GraphicsScene(0, 0, 448, 448, std::move(setContactPoints));
     ui->graphicsView->setScene(scene);
     ui->infoLabel->setText("");
-
+    ui->labelNotification->setText("");
     fillAvailableMonitors();
 
     timer->callOnTimeout([this]() {
@@ -211,11 +211,21 @@ void MainWindow::handleConnectButton()
     if (!errorCode.failed())
     {
         QComboBox* availableMonitors = ui->availableMonitors;
-        app->connect(
-            address,
-            toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()),
-            [this](const internal_types::ScreenResolution screenResolution) { emit messageSent(screenResolution); });
-        ui->infoLabel->setText("");
+        try
+        {
+            app->connect(
+                address,
+                toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()),
+                [this](const internal_types::ScreenResolution screenResolution) {
+                    emit messageSent(screenResolution);
+                });
+            ui->infoLabel->setText("");
+            ui->labelNotification->setText("");
+        }
+        catch (...)
+        {
+            ui->labelNotification->setText("Client is not implemented yet");
+        }
     }
     else
     {
@@ -227,11 +237,19 @@ void MainWindow::handleStartButton()
 {
     QComboBox* availableMonitors = ui->availableMonitors;
     CursorManagement::initialize();
-    app->listen(
-        qApp->arguments().size(),
-        convertToArgv(qApp->arguments()),
-        toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()),
-        [this](const internal_types::ScreenResolution screenResolution) { emit messageSent(screenResolution); });
+    try
+    {
+        app->listen(
+            qApp->arguments().size(),
+            convertToArgv(qApp->arguments()),
+            toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()),
+            [this](const internal_types::ScreenResolution screenResolution) { emit messageSent(screenResolution); });
+        ui->labelNotification->setText("");
+    }
+    catch (...)
+    {
+        ui->labelNotification->setText("Server is not implemented yet");
+    }
 }
 
 void MainWindow::handleScreenResolutionSet(const ScreenResolutionMsg& screenResolutionMsg)

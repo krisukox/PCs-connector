@@ -23,11 +23,11 @@
       <x>460</x>
       <y>10</y>
       <width>231</width>
-      <height>201</height>
+      <height>131</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="tabsClosable">
      <bool>false</bool>
@@ -65,7 +65,7 @@
      <widget class="QLabel" name="infoLabel">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>10</x>
         <y>70</y>
         <width>211</width>
         <height>21</height>
@@ -109,7 +109,7 @@
     <property name="geometry">
      <rect>
       <x>500</x>
-      <y>250</y>
+      <y>220</y>
       <width>151</width>
       <height>27</height>
      </rect>
@@ -119,7 +119,7 @@
     <property name="geometry">
      <rect>
       <x>470</x>
-      <y>220</y>
+      <y>190</y>
       <width>211</width>
       <height>19</height>
      </rect>
@@ -135,13 +135,31 @@
     <property name="geometry">
      <rect>
       <x>500</x>
-      <y>290</y>
+      <y>260</y>
       <width>151</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
      <string>Identify screens</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelNotification">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>150</y>
+      <width>211</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>labelNotification</string>
     </property>
    </widget>
   </widget>
