@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <property name="tabsClosable">
      <bool>false</bool>
@@ -93,6 +93,19 @@
        <string>Start</string>
       </property>
      </widget>
+     <widget class="QLabel" name="serverIsRunningLabel">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>50</y>
+        <width>121</width>
+        <height>19</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Server is running</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QGraphicsView" name="graphicsView">
@@ -144,7 +157,7 @@
      <string>Identify screens</string>
     </property>
    </widget>
-   <widget class="QLabel" name="labelNotification">
+   <widget class="QLabel" name="notificationLabel">
     <property name="geometry">
      <rect>
       <x>470</x>
@@ -169,7 +182,7 @@
      <x>0</x>
      <y>0</y>
      <width>691</width>
-     <height>21</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>
