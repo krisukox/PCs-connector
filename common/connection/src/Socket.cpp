@@ -29,12 +29,9 @@ Socket::Socket(const std::string& port, std::unique_ptr<internal_types::Deserial
 Socket::~Socket()
 {
     ioContext.stop();
-    std::cout << "Socket::~Socket11" << std::endl;
     socket.close();
     socket.shutdown(boost::asio::socket_base::shutdown_both);
-    std::cout << "Socket::~Socket22" << std::endl;
     socketThread.join();
-    std::cout << "Socket::~Socket33" << std::endl;
 }
 
 void Socket::receive(SuccessfulCallback<internal_types::DecodedType> _successfulCallback)

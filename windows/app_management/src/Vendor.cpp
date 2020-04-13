@@ -21,11 +21,8 @@ Vendor::Vendor(
 
 Vendor::~Vendor()
 {
-    std::cout << "Vendor::~Vendor11" << std::endl;
     PostThreadMessage(eventCatchingThreadId, WM_QUIT, 0, 0);
-    std::cout << "Vendor::~Vendor22" << std::endl;
     eventCatchingThread.join();
-    std::cout << "Vendor::~Vendor33" << std::endl;
 }
 
 void Vendor::start(const internal_types::ScreenResolution& masterScreenResolution)
