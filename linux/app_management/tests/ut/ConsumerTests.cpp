@@ -35,7 +35,7 @@ struct ConsumerTests : public testing::Test
     testing::StrictMock<mocks::MouseReceiverMock>* mouseMockPtrRaw;
 
     std::unique_ptr<testing::StrictMock<mocks::SocketMock>> socketMockPtr;
-    //    testing::StrictMock<mocks::ReceiverMock>* receiverMockPtrRaw;
+    testing::StrictMock<mocks::SocketMock>* socketMockPtrRaw;
 
     //    boost::asio::io_context io_context;
     //    boost::asio::ip::tcp::socket socket;
@@ -46,6 +46,7 @@ struct ConsumerTests : public testing::Test
         , mouseMockPtr{std::make_unique<testing::StrictMock<mocks::MouseReceiverMock>>()}
         , mouseMockPtrRaw{mouseMockPtr.get()}
         , socketMockPtr{std::make_unique<testing::StrictMock<mocks::SocketMock>>()}
+        , socketMockPtrRaw{socketMockPtr.get()}
     //        , receiverMockPtrRaw{receiverMockPtr.get()}
     //        , io_context{}
     //        , socket{io_context}
@@ -54,10 +55,10 @@ struct ConsumerTests : public testing::Test
 
     std::unique_ptr<app_management::Consumer<mocks::SocketMock>> sut;
 
+    MockFunction<void(internal_types::ScreenResolution)> setScreenResolution;
+
     void createConsumerAndStart()
     {
-        MockFunction<void(internal_types::ScreenResolution)> setScreenResolution;
-
         //                     internal_types::SetScreenResolution setScreenResolution =
         //            [](internal_types::ScreenResolution) {};
 
@@ -108,6 +109,10 @@ TEST_F(ConsumerTests, successfulHandleKeyEvent)
     testing::InSequence seq;
 
     createConsumerAndStart();
+
+    EXPECT_CALL(setScreenResolution, Call(screenResolution));
+
+    socketMockPtrRaw->receivedOnce(screenResolution);
 }
 
 // TEST_F(ConsumerTests, successfulHandleMouseEvent)

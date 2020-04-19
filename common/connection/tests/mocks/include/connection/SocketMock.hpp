@@ -18,7 +18,10 @@ struct SocketMock
         receiveOnceHandler = successfulCallback;
     }
 
-    void receive(SuccessfulCallback<internal_types::DecodedType>) {}
+    void receive(SuccessfulCallback<internal_types::DecodedType> successfulCallback)
+    {
+        receiveHandler = successfulCallback;
+    }
 
     template <class T>
     void send(T msgToSend)
@@ -36,7 +39,11 @@ struct SocketMock
             receiveOnceHandler);
     }
 
+    void received(const internal_types::DecodedType& receivedValue) { receiveHandler(receivedValue); }
+
     std::variant<SuccessfulCallback<internal_types::Event>, SuccessfulCallback<internal_types::ScreenResolution>>
         receiveOnceHandler;
+
+    SuccessfulCallback<internal_types::DecodedType> receiveHandler;
 };
 } // namespace mocks
