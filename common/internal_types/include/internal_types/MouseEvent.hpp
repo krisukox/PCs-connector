@@ -38,4 +38,9 @@ inline bool operator==(const MouseMoveEvent& lv, const MouseMoveEvent& rv)
 {
     return (lv.deltaX == rv.deltaX && lv.deltaY == rv.deltaY);
 }
+
+inline bool operator==(const MouseChangePositionEvent& lv, const MouseChangePositionEvent& rv)
+{
+    return (lv.x == rv.x && lv.y == rv.y);
+}
 } // namespace internal_types

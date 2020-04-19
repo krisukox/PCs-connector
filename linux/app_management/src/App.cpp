@@ -33,7 +33,7 @@ void App::listen(
             auto socket =
                 std::make_unique<connection::Socket>(port, std::make_unique<internal_types::Deserializer>(display));
 
-            consumer = std::make_unique<Consumer>(
+            consumer = std::make_unique<Consumer<connection::Socket>>(
                 std::move(keyboardReceiver),
                 std::move(mouseReceiver),
                 std::move(socket),

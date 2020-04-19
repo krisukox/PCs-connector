@@ -36,6 +36,10 @@ Socket::~Socket()
 
 void Socket::receive(SuccessfulCallback<internal_types::DecodedType> _successfulCallback)
 {
+    if (socketThread.joinable())
+    {
+        socketThread.join();
+    }
     socketThread = std::thread([this, successfulCallback = std::move(_successfulCallback)]() {
         auto successfulCallbackInternal = [successfulCallback](const internal_types::DecodedType& decoded) {
             successfulCallback(decoded);

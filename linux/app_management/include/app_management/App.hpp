@@ -2,7 +2,9 @@
 
 #include <X11/Xlib.h>
 #include <memory>
+#include "Consumer.hpp"
 #include "commons/IApp.hpp"
+#include "connection/Socket.hpp"
 #include "internal_types/Point.hpp"
 
 namespace event_consumer
@@ -12,7 +14,7 @@ class IKeyboardReceiver;
 
 namespace app_management
 {
-class Consumer;
+// class Consumer;
 
 class App : public commons::IApp
 {
@@ -29,6 +31,6 @@ private:
     std::unique_ptr<event_consumer::IKeyboardReceiver> selectKeyboardReceiver(int, char* []);
 
     Display* display;
-    std::unique_ptr<Consumer> consumer;
+    std::unique_ptr<Consumer<connection::Socket>> consumer;
 };
 } // namespace app_management

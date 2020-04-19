@@ -1,4 +1,4 @@
-set(HEADERS include/connection/ReceiverMock.hpp)
+set(HEADERS include/connection/SocketMock.hpp)
 
 add_library(connection_mocks ${HEADERS})
 set_target_properties(connection_mocks PROPERTIES LINKER_LANGUAGE CXX)
