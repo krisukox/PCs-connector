@@ -15,17 +15,20 @@ struct SocketMock
     template <class T, typename = std::enable_if<std::is_convertible<T, internal_types::DecodedType>::value>>
     void receiveOnce(const SuccessfulCallback<T>& successfulCallback)
     {
+        receiveOnce();
         receiveOnceHandler = successfulCallback;
     }
 
     void receive(SuccessfulCallback<internal_types::DecodedType> successfulCallback)
     {
+        receive();
         receiveHandler = successfulCallback;
     }
 
     template <class T>
     void send(T msgToSend)
     {
+        send();
     }
 
     template <class T>
@@ -45,5 +48,9 @@ struct SocketMock
         receiveOnceHandler;
 
     SuccessfulCallback<internal_types::DecodedType> receiveHandler;
+
+    MOCK_METHOD(void, receiveOnce, ());
+    MOCK_METHOD(void, receive, ());
+    MOCK_METHOD(void, send, ());
 };
 } // namespace mocks

@@ -74,6 +74,7 @@ struct ConsumerTests : public testing::Test
             setScreenResolution.AsStdFunction());
 
         //        EXPECT_CALL(*receiverMockPtrRaw, startReceive());
+        EXPECT_CALL(*socketMockPtrRaw, receiveOnce());
         sut->start(screenResolution);
     }
 
@@ -111,6 +112,8 @@ TEST_F(ConsumerTests, successfulHandleKeyEvent)
     createConsumerAndStart();
 
     EXPECT_CALL(setScreenResolution, Call(screenResolution));
+    EXPECT_CALL(*socketMockPtrRaw, receive());
+    EXPECT_CALL(*socketMockPtrRaw, send());
 
     socketMockPtrRaw->receivedOnce(screenResolution);
 }
