@@ -18,12 +18,11 @@ using ::testing::MockFunction;
 
 namespace
 {
-// const auto validErrorCode = boost::system::errc::make_error_code(boost::system::errc::success);
-// const auto invalidErrorCode = boost::system::errc::make_error_code(boost::system::errc::bad_message);
 constexpr internal_types::KeyEvent keyEvent{std::uint8_t{2}, false};
-constexpr internal_types::MouseEvent mouseEvent{internal_types::MouseMoveEvent{0, 0}};
+constexpr internal_types::MouseEvent mouseEvent{internal_types::MouseMoveEvent{2, 8}};
 
 constexpr internal_types::ScreenResolution screenResolution{1080, 1920};
+
 } // namespace
 
 struct ConsumerTests : public testing::Test
@@ -59,13 +58,6 @@ struct ConsumerTests : public testing::Test
 
     void createConsumerAndStart()
     {
-        //                     internal_types::SetScreenResolution setScreenResolution =
-        //            [](internal_types::ScreenResolution) {};
-
-        event_consumer::IMouseReceiver::ForwardEvent forwardEvent =
-            [](const internal_types::MouseChangePositionEvent&) { return; };
-
-        //        EXPECT_CALL(*mouseMockPtrRaw, onEvent(mouseEvent));
         EXPECT_CALL(*mouseMockPtrRaw, start(_));
         sut = std::make_unique<app_management::Consumer<mocks::SocketMock>>(
             std::move(keyMockPtr),
@@ -73,7 +65,6 @@ struct ConsumerTests : public testing::Test
             std::move(socketMockPtr),
             setScreenResolution.AsStdFunction());
 
-        //        EXPECT_CALL(*receiverMockPtrRaw, startReceive());
         EXPECT_CALL(*socketMockPtrRaw, receiveOnce());
         sut->start(screenResolution);
     }
@@ -105,7 +96,7 @@ struct ConsumerTests : public testing::Test
     //    }
 };
 
-TEST_F(ConsumerTests, successfulHandleKeyEvent)
+TEST_F(ConsumerTests, successfulScreenResolutionExchange)
 {
     testing::InSequence seq;
 
@@ -118,15 +109,45 @@ TEST_F(ConsumerTests, successfulHandleKeyEvent)
     socketMockPtrRaw->receivedOnce(screenResolution);
 }
 
-// TEST_F(ConsumerTests, successfulHandleMouseEvent)
+TEST_F(ConsumerTests, successfulHandleMouseKeyEvent)
+{
+    testing::InSequence seq;
+
+    createConsumerAndStart();
+
+    EXPECT_CALL(setScreenResolution, Call(screenResolution));
+    EXPECT_CALL(*socketMockPtrRaw, receive());
+    EXPECT_CALL(*socketMockPtrRaw, send());
+
+    socketMockPtrRaw->receivedOnce(screenResolution);
+
+    EXPECT_CALL(*mouseMockPtrRaw, onEvent(mouseEvent));
+    socketMockPtrRaw->received(internal_types::Event{mouseEvent});
+}
+
+TEST_F(ConsumerTests, successfulHandle)
+{
+    testing::InSequence seq;
+
+    createConsumerAndStart();
+
+    EXPECT_CALL(setScreenResolution, Call(screenResolution));
+    EXPECT_CALL(*socketMockPtrRaw, receive());
+    EXPECT_CALL(*socketMockPtrRaw, send());
+
+    socketMockPtrRaw->receivedOnce(screenResolution);
+
+    EXPECT_CALL(*keyMockPtrRaw, onEvent(keyEvent));
+    socketMockPtrRaw->received(internal_types::Event{keyEvent});
+}
+
+// TEST_F(ConsumerTests, successfulHandle)
 //{
 //    testing::InSequence seq;
 
-//    createServerSessionAndStartAsyncRead();
+//    createConsumerAndStart();
 
-//    expectValidHandleMouseEvent(mouseEvent);
-
-//    callSuccessfulEventRecive(mouseEvent);
+//    sut->setContactPoints()
 //}
 
 // TEST_F(ConsumerTests, unsuccessfulEventReceive)

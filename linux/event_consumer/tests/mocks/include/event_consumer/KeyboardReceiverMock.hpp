@@ -6,6 +6,6 @@ namespace mocks
 {
 struct KeyboardReceiverMock : public event_consumer::IKeyboardReceiver
 {
-    MOCK_CONST_METHOD1(onEvent, void(const internal_types::KeyEvent&));
+    MOCK_METHOD(void, onEvent, (const internal_types::KeyEvent&), (const));
 };
 } // namespace mocks
