@@ -10,6 +10,7 @@
 #include "internal_types/MouseEvent.hpp"
 #include "internal_types/Point.hpp"
 #include "internal_types/ScreenResolution.hpp"
+#include "internal_types/TransformationPoints.hpp"
 #include "internal_types/Visitor.hpp"
 
 namespace app_management
@@ -42,14 +43,11 @@ public:
         socket->receiveOnce(std::move(successfulCallback));
     }
 
-    void setContactPoints(
-        const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
-        const internal_types::Point& diffPointForSend,
-        const internal_types::Point& diffPointForReceive)
+    void setTransformationPoints(const internal_types::TransformationPoints& transformationPoints)
     {
         if (mouseReceiver)
         {
-            mouseReceiver->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
+            mouseReceiver->setTransformationPoints(transformationPoints);
         }
         else
         {

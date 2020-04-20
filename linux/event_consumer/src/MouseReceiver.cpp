@@ -132,14 +132,11 @@ void MouseReceiver::setCursorPosition(const std::optional<internal_types::MouseC
     cursorGuard->setPosition(event);
 }
 
-void MouseReceiver::setContactPoints(
-    const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
-    const internal_types::Point& diffPointForSend,
-    const internal_types::Point& diffPointForReceive)
+void MouseReceiver::setTransformationPoints(const internal_types::TransformationPoints& transformationPoints)
 {
     if (cursorGuard)
     {
-        cursorGuard->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
+        cursorGuard->setTransformationPoints(transformationPoints);
     }
     else
     {

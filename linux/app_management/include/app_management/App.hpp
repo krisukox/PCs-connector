@@ -22,10 +22,7 @@ public:
     App();
     ~App() override;
     void listen(int, char* [], const internal_types::ScreenResolution&, internal_types::SetScreenResolution&&) override;
-    void setContactPoints(
-        const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
-        const internal_types::Point& diffPointForSend,
-        const internal_types::Point& diffPointForReceive) override;
+    void setTransformationPoints(const internal_types::TransformationPoints&) override;
 
 private:
     std::unique_ptr<event_consumer::IKeyboardReceiver> selectKeyboardReceiver(int, char* []);

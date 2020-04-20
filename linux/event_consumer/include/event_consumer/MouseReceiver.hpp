@@ -36,10 +36,7 @@ public:
     void start(ForwardEvent) override;
     void onEvent(const internal_types::MouseEvent&) override;
 
-    void setContactPoints(
-        const std::pair<internal_types::Point, internal_types::Point>&,
-        const internal_types::Point&,
-        const internal_types::Point&) override;
+    void setTransformationPoints(const internal_types::TransformationPoints&) override;
 
 private:
     void onEvent(const internal_types::MouseMoveEvent&);

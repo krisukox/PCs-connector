@@ -2,6 +2,7 @@
 
 #include <optional>
 #include "internal_types/Point.hpp"
+#include "internal_types/TransformationPoints.hpp"
 
 namespace commons
 {
@@ -14,10 +15,7 @@ public:
     std::optional<internal_types::MouseChangePositionEvent> checkIfCursorOutOfScreen(const internal_types::Point&);
     void setPosition(const std::optional<internal_types::MouseChangePositionEvent>& mouseEvent);
 
-    void setContactPoints(
-        const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
-        const internal_types::Point& diffPointForSend,
-        const internal_types::Point& diffPointForReceive);
+    void setTransformationPoints(const internal_types::TransformationPoints&);
 
 private:
     bool isCursorOutOfContactArea(const internal_types::Point&);

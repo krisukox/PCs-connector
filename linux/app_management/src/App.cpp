@@ -58,14 +58,11 @@ std::unique_ptr<event_consumer::IKeyboardReceiver> App::selectKeyboardReceiver(i
     throw std::invalid_argument("not valid startup argument");
 }
 
-void App::setContactPoints(
-    const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
-    const internal_types::Point& diffPointForSend,
-    const internal_types::Point& diffPointForReceive)
+void App::setTransformationPoints(const internal_types::TransformationPoints& transformationPoints)
 {
     if (consumer)
     {
-        consumer->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
+        consumer->setTransformationPoints(transformationPoints);
     }
     else
     {

@@ -3,6 +3,7 @@
 #include <functional>
 #include "internal_types/MouseEvent.hpp"
 #include "internal_types/Point.hpp"
+#include "internal_types/TransformationPoints.hpp"
 
 namespace event_consumer
 {
@@ -14,10 +15,7 @@ public:
     virtual void onEvent(const internal_types::MouseEvent&) = 0;
     virtual void start(ForwardEvent) = 0;
 
-    virtual void setContactPoints(
-        const std::pair<internal_types::Point, internal_types::Point>&,
-        const internal_types::Point&,
-        const internal_types::Point&) = 0;
+    virtual void setTransformationPoints(const internal_types::TransformationPoints&) = 0;
 
     virtual ~IMouseReceiver() = default;
 };
