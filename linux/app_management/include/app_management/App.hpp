@@ -22,6 +22,7 @@ public:
     App();
     ~App() override;
     void listen(int, char* [], const internal_types::ScreenResolution&, internal_types::SetScreenResolution&&) override;
+    void test();
     void setTransformationPoints(const internal_types::TransformationPoints&) override;
 
 private:

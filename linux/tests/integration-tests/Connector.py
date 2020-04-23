@@ -4,6 +4,8 @@ from time import sleep
 from fcntl import fcntl, F_GETFL, F_SETFL
 from os import O_NONBLOCK, path
 
+SCREEN_RESOLUTION = chr(32) + chr(1000) + chr(800)
+
 class Connector:
     def __init__(self, tcp_ip='127.0.0.1', tcp_port=10000):
         self.__process = self.__run_process()
@@ -14,7 +16,7 @@ class Connector:
 
     def __run_process(self):
         dirname = path.dirname(__file__)
-        filename = path.join(dirname, '../../../build/linux/main_app/pcs_connector')
+        filename = path.join(dirname, '../../../build-make/linux/main_app/pcs_connector')
         process = Popen([filename, 'test'],
                         stdin=PIPE,
                         stdout=PIPE)
@@ -35,10 +37,24 @@ class Connector:
         out = out[0:1]
         return out.decode("utf-8")
 
+    def __receive(self):
+        out = self.__process.stdout.read()
+        while out is None:
+            out = self.__process.stdout.read()
+        out = out[0:1]
+        return out.decode("utf-8")
+
     def perform_key_press(self, msg, key):
         self.__sender.send(msg)
         out = self.__receive_and_decode()
         assert out == key
+
+    def exchange_screen_resolution(self, screen_resolution_msg):
+        self.__sender.send(screen_resolution_msg)
+        received = self.__sender.recv(5);
+        print(received.hex())
+        # out = self.__receive_and_decode()
+        # assert out == key
 
     def end_connection(self):
         self.__process.kill()

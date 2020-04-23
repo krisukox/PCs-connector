@@ -36,6 +36,7 @@ public:
     {
         connection::Socket::SuccessfulCallback<internal_types::ScreenResolution> successfulCallback =
             [this, masterScreenResolution](internal_types::ScreenResolution screenResolution) {
+                std::cerr << screenResolution.width << " " << screenResolution.height << std::endl;
                 setScreenResolution(screenResolution);
                 startReceiving();
                 socket->send(masterScreenResolution);
