@@ -8,6 +8,11 @@
 #include "event_consumer/TestKeyboardReceiver.hpp"
 #include "internal_types/ScreenResolution.hpp"
 
+namespace
+{
+auto port = std::string("10555");
+}
+
 namespace app_management
 {
 App::App() : display{XOpenDisplay(nullptr)} {}
@@ -18,29 +23,39 @@ App::~App()
 }
 
 void App::listen(
-    int argc,
-    char* argv[],
     const internal_types::ScreenResolution& masterScreenResolution,
     internal_types::SetScreenResolution&& setScreenResolution)
 {
-    std::thread consumerThread(
-        [this, argc, argv, masterScreenResolution, setScreenResolution = std::move(setScreenResolution)]() {
-            auto keyboardReceiver = selectKeyboardReceiver(argc, argv);
-            auto mouseReceiver =
-                std::make_unique<event_consumer::MouseReceiver>(display, std::make_unique<commons::CursorGuard>());
+    std::thread consumerThread([this, masterScreenResolution, setScreenResolution = std::move(setScreenResolution)]() {
+        auto keyboardReceiver = std::make_unique<event_consumer::KeyboardReceiver>(display);
+        auto mouseReceiver =
+            std::make_unique<event_consumer::MouseReceiver>(display, std::make_unique<commons::CursorGuard>());
 
-            auto port = std::string("10000");
-            auto socket =
-                std::make_unique<connection::Socket>(port, std::make_unique<internal_types::Deserializer>(display));
-
-            consumer = std::make_unique<Consumer>(
-                std::move(keyboardReceiver),
-                std::move(mouseReceiver),
-                std::move(socket),
-                std::move(setScreenResolution));
-            consumer->start(masterScreenResolution);
-        });
+        consumer = std::make_unique<Consumer<connection::Socket>>(
+            std::move(keyboardReceiver), std::move(mouseReceiver), createSocket(), std::move(setScreenResolution));
+        consumer->start(masterScreenResolution);
+    });
     consumerThread.detach();
+}
+
+void App::test(const internal_types::ScreenResolution& masterScreenResolution)
+{
+    internal_types::SetScreenResolution setScreenResolution = [](internal_types::ScreenResolution) {};
+
+    auto keyboardReceiver = std::make_unique<event_consumer::TestKeyboardReceiver>();
+    auto mouseReceiver =
+        std::make_unique<event_consumer::MouseReceiver>(display, std::make_unique<commons::CursorGuard>());
+
+    consumer = std::make_unique<Consumer<connection::Socket>>(
+        std::move(keyboardReceiver), std::move(mouseReceiver), createSocket(), std::move(setScreenResolution));
+    consumer->start(masterScreenResolution);
+    for (;;)
+        ;
+}
+
+std::unique_ptr<connection::Socket> App::createSocket()
+{
+    return std::make_unique<connection::Socket>(port, std::make_unique<internal_types::Deserializer>(display));
 }
 
 std::unique_ptr<event_consumer::IKeyboardReceiver> App::selectKeyboardReceiver(int argc, char* argv[])
@@ -58,14 +73,11 @@ std::unique_ptr<event_consumer::IKeyboardReceiver> App::selectKeyboardReceiver(i
     throw std::invalid_argument("not valid startup argument");
 }
 
-void App::setContactPoints(
-    const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
-    const internal_types::Point& diffPointForSend,
-    const internal_types::Point& diffPointForReceive)
+void App::setTransformationPoints(const internal_types::TransformationPoints& transformationPoints)
 {
     if (consumer)
     {
-        consumer->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
+        consumer->setTransformationPoints(transformationPoints);
     }
     else
     {

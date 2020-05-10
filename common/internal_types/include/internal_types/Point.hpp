@@ -27,4 +27,9 @@ inline std::ostream& operator<<(std::ostream& os, const Point& point)
     os << "x: " << point.x << " y: " << point.y;
     return os;
 }
+
+inline bool operator==(const Point& lv, const Point& rv)
+{
+    return lv.x == rv.x && lv.y == rv.y;
+}
 } // namespace internal_types

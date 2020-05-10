@@ -22,7 +22,7 @@ try
 {
     auto keyboard = std::make_unique<event_vendor::KeyboardSender>();
     auto mouse = std::make_unique<event_vendor::MouseSender>(std::make_unique<commons::CursorGuard>());
-    auto port = std::string("10000");
+    auto port = std::string("10555");
 
     auto deserializer = std::make_unique<internal_types::Deserializer>();
     auto socket = std::make_unique<connection::Socket>(address, port, std::move(deserializer));

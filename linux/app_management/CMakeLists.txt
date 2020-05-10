@@ -7,11 +7,10 @@ set(HEADERS
 
 set(SOURCE_FILES
     src/App.cpp
-    src/Consumer.cpp
 )
 
 add_library(app_management ${HEADERS} ${SOURCE_FILES})
-target_include_directories(app_management PUBLIC include PRIVATE src)
+target_include_directories(app_management PUBLIC include src)
 
 target_link_libraries(app_management
     internal_types

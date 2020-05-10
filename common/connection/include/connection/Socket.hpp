@@ -21,23 +21,26 @@ public:
 
     ~Socket();
 
-    void receive(SuccessfulCallback<internal_types::DecodedType> successfulCallback);
+    void receive(SuccessfulCallback<internal_types::DecodedType>);
 
     template <class T, typename = std::enable_if<std::is_convertible<T, internal_types::DecodedType>::value>>
-    bool receiveOnce(const SuccessfulCallback<T>& successfulCallback)
+    void receiveOnce(const SuccessfulCallback<T>&& _successfulCallback)
     {
-        auto successfulCallbackInternal = [successfulCallback](const internal_types::DecodedType& decoded) {
-            return std::visit(
-                internal_types::Visitor{
-                    [successfulCallback](const T& value) {
-                        successfulCallback(value);
-                        return true;
+        std::thread thread([this, successfulCallback = std::move(_successfulCallback)]() {
+            auto successfulCallbackInternal = [successfulCallback](const internal_types::DecodedType& decoded) {
+                return std::visit(
+                    internal_types::Visitor{
+                        [successfulCallback](const T& value) {
+                            successfulCallback(value);
+                            return true;
+                        },
+                        [](const auto&) { return false; },
                     },
-                    [](const auto&) { return false; },
-                },
-                decoded);
-        };
-        return receive_(successfulCallbackInternal);
+                    decoded);
+            };
+            receive_(successfulCallbackInternal);
+        });
+        thread.detach();
     }
 
     template <class T>

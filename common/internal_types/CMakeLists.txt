@@ -11,6 +11,7 @@ if(UNIX)
         include/internal_types/Serializer.hpp
         include/internal_types/Visitor.hpp
         include/internal_types/SerializedValues.hpp
+        include/internal_types/TransformationPoints.hpp
     )
 
     set(SOURCE_FILES
@@ -35,6 +36,7 @@ if(WIN32)
         include/internal_types/Visitor.hpp
         include/internal_types/ScreenResolution.hpp
         include/internal_types/SerializedValues.hpp
+        include/internal_types/TransformationPoints.hpp
     )
 
     set(SOURCE_FILES

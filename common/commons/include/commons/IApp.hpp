@@ -7,6 +7,7 @@
 #include "internal_types/CommonTypes.hpp"
 #include "internal_types/Point.hpp"
 #include "internal_types/ScreenResolution.hpp"
+#include "internal_types/TransformationPoints.hpp"
 
 namespace commons
 {
@@ -15,14 +16,11 @@ class IApp
 public:
     virtual ~IApp() = default;
 
-    virtual void listen(int, char*[], const internal_types::ScreenResolution&, internal_types::SetScreenResolution&&);
+    virtual void listen(const internal_types::ScreenResolution&, internal_types::SetScreenResolution&&);
     virtual void connect(
         const boost::asio::ip::address&,
         const internal_types::ScreenResolution&,
         internal_types::SetScreenResolution&&);
-    virtual void setContactPoints(
-        const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
-        const internal_types::Point& diffPointForSend,
-        const internal_types::Point& diffPointForReceive) = 0;
+    virtual void setTransformationPoints(const internal_types::TransformationPoints&) = 0;
 };
 } // namespace commons

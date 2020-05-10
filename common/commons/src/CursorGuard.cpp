@@ -39,14 +39,11 @@ void CursorGuard::setPosition(const std::optional<internal_types::MouseChangePos
     }
 }
 
-void CursorGuard::setContactPoints(
-    const std::pair<internal_types::Point, internal_types::Point>& contactPoints_,
-    const internal_types::Point& diffPointForSend_,
-    const internal_types::Point& diffPointForReceive_)
+void CursorGuard::setTransformationPoints(const internal_types::TransformationPoints& transformationPoints)
 {
-    contactPoints = contactPoints_;
-    diffPointForSend = diffPointForSend_;
-    diffPointForReceive = diffPointForReceive_;
+    contactPoints = transformationPoints.contactPoints;
+    diffPointForSend = transformationPoints.diffPointForSend;
+    diffPointForReceive = transformationPoints.diffPointForReceive;
 }
 
 bool CursorGuard::isCursorOutOfContactArea(const internal_types::Point& newCursorPosition)
