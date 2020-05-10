@@ -43,6 +43,9 @@ class Connector:
         out = out[0:1]
         return out.decode("utf-8")
 
+    def send_key_press(self, msg):
+        self.__sender.send(msg)
+
     def perform_key_press(self, msg, key):
         self.__sender.send(msg)
         out = self.__receive_and_decode()

@@ -21,7 +21,6 @@ Socket::Socket(
 Socket::Socket(const std::string& port, std::unique_ptr<internal_types::Deserializer> deserializer)
     : Socket{std::move(deserializer)}
 {
-    std::cerr << "SOCKET::SOCKET11" << std::endl;
     boost::asio::ip::tcp::acceptor acceptor(
         ioContext, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), std::stoi(port)));
     acceptor.accept(socket);

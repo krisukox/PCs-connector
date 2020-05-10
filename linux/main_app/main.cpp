@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
     if (argc == 4 && !std::strcmp(argv[1], "test"))
     {
         auto app = std::make_unique<app_management::App>();
-        app->test({std::atoi(argv[2]), std::atoi(argv[3])});
+        app->test({static_cast<uint16_t>(std::atoi(argv[2])), static_cast<uint16_t>(std::atoi(argv[3]))});
         while (true)
             ;
     }
