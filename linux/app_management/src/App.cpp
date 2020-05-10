@@ -8,6 +8,11 @@
 #include "event_consumer/TestKeyboardReceiver.hpp"
 #include "internal_types/ScreenResolution.hpp"
 
+namespace
+{
+auto port = std::string("10000");
+}
+
 namespace app_management
 {
 App::App() : display{XOpenDisplay(nullptr)} {}
@@ -18,8 +23,6 @@ App::~App()
 }
 
 void App::listen(
-    int argc,
-    char* argv[],
     const internal_types::ScreenResolution& masterScreenResolution,
     internal_types::SetScreenResolution&& setScreenResolution)
 {
@@ -28,12 +31,8 @@ void App::listen(
         auto mouseReceiver =
             std::make_unique<event_consumer::MouseReceiver>(display, std::make_unique<commons::CursorGuard>());
 
-        auto port = std::string("10000");
-        auto socket =
-            std::make_unique<connection::Socket>(port, std::make_unique<internal_types::Deserializer>(display));
-
         consumer = std::make_unique<Consumer<connection::Socket>>(
-            std::move(keyboardReceiver), std::move(mouseReceiver), std::move(socket), std::move(setScreenResolution));
+            std::move(keyboardReceiver), std::move(mouseReceiver), createSocket(), std::move(setScreenResolution));
         consumer->start(masterScreenResolution);
     });
     consumerThread.detach();
@@ -48,15 +47,16 @@ void App::test(const internal_types::ScreenResolution& masterScreenResolution)
         auto mouseReceiver =
             std::make_unique<event_consumer::MouseReceiver>(display, std::make_unique<commons::CursorGuard>());
 
-        auto port = std::string("10000");
-        auto socket =
-            std::make_unique<connection::Socket>(port, std::make_unique<internal_types::Deserializer>(display));
-
         consumer = std::make_unique<Consumer<connection::Socket>>(
-            std::move(keyboardReceiver), std::move(mouseReceiver), std::move(socket), std::move(setScreenResolution));
+            std::move(keyboardReceiver), std::move(mouseReceiver), createSocket(), std::move(setScreenResolution));
         consumer->start(masterScreenResolution);
     });
     consumerThread.detach();
+}
+
+std::unique_ptr<connection::Socket> App::createSocket()
+{
+    return std::make_unique<connection::Socket>(port, std::make_unique<internal_types::Deserializer>(display));
 }
 
 std::unique_ptr<event_consumer::IKeyboardReceiver> App::selectKeyboardReceiver(int argc, char* argv[])

@@ -16,7 +16,7 @@ class IApp
 public:
     virtual ~IApp() = default;
 
-    virtual void listen(int, char* [], const internal_types::ScreenResolution&, internal_types::SetScreenResolution&&);
+    virtual void listen(const internal_types::ScreenResolution&, internal_types::SetScreenResolution&&);
     virtual void connect(
         const boost::asio::ip::address&,
         const internal_types::ScreenResolution&,

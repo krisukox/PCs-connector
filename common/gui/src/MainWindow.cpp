@@ -241,8 +241,6 @@ void MainWindow::handleStartButton()
     try
     {
         app->listen(
-            qApp->arguments().size(),
-            convertToArgv(qApp->arguments()),
             toInternalType(qApp->screens().at(availableMonitors->currentIndex())->size()),
             [this](const internal_types::ScreenResolution screenResolution) { emit messageSent(screenResolution); });
         ui->notificationLabel->setText("");
