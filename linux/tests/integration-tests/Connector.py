@@ -5,7 +5,7 @@ from fcntl import fcntl, F_GETFL, F_SETFL
 from os import O_NONBLOCK, path
 
 class Connector:
-    def __init__(self, tcp_ip='127.0.0.1', tcp_port=10000):
+    def __init__(self, tcp_ip='127.0.0.1', tcp_port=10555):
         self.__process = self.__run_process()
         self.__sender = self.__connect(tcp_ip, tcp_port)
         self.__sender.settimeout(15);

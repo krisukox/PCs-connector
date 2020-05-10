@@ -10,7 +10,7 @@
 
 namespace
 {
-auto port = std::string("10000");
+auto port = std::string("10555");
 }
 
 namespace app_management

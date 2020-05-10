@@ -26,8 +26,6 @@ def test_press_three_keys(connection):
     connection.perform_key_press(MSG_F, LINUX_KEY_F)
     connection.perform_key_press(MSG_H, LINUX_KEY_H)
 
-    connection.end_connection()
-
 
 def test_stress_key_perform(connection):
     for x in range(0,100):
@@ -35,13 +33,9 @@ def test_stress_key_perform(connection):
         connection.perform_key_press(MSG_F, LINUX_KEY_F)
         connection.perform_key_press(MSG_H, LINUX_KEY_H)
 
-    connection.end_connection()
-
 
 def test_stress_key_spam(connection):
     for x in range(0,1000):
         connection.send_key_press(MSG_E)
         connection.send_key_press(MSG_F)
         connection.send_key_press(MSG_H)
-
-    connection.end_connection()
