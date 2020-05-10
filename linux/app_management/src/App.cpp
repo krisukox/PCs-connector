@@ -40,18 +40,17 @@ void App::listen(
 
 void App::test(const internal_types::ScreenResolution& masterScreenResolution)
 {
-    std::thread consumerThread([this, masterScreenResolution]() {
-        internal_types::SetScreenResolution setScreenResolution = [](internal_types::ScreenResolution) {};
+    internal_types::SetScreenResolution setScreenResolution = [](internal_types::ScreenResolution) {};
 
-        auto keyboardReceiver = std::make_unique<event_consumer::TestKeyboardReceiver>();
-        auto mouseReceiver =
-            std::make_unique<event_consumer::MouseReceiver>(display, std::make_unique<commons::CursorGuard>());
+    auto keyboardReceiver = std::make_unique<event_consumer::TestKeyboardReceiver>();
+    auto mouseReceiver =
+        std::make_unique<event_consumer::MouseReceiver>(display, std::make_unique<commons::CursorGuard>());
 
-        consumer = std::make_unique<Consumer<connection::Socket>>(
-            std::move(keyboardReceiver), std::move(mouseReceiver), createSocket(), std::move(setScreenResolution));
-        consumer->start(masterScreenResolution);
-    });
-    consumerThread.detach();
+    consumer = std::make_unique<Consumer<connection::Socket>>(
+        std::move(keyboardReceiver), std::move(mouseReceiver), createSocket(), std::move(setScreenResolution));
+    consumer->start(masterScreenResolution);
+    for (;;)
+        ;
 }
 
 std::unique_ptr<connection::Socket> App::createSocket()

@@ -11,8 +11,6 @@ int main(int argc, char* argv[])
     {
         auto app = std::make_unique<app_management::App>();
         app->test({static_cast<uint16_t>(std::atoi(argv[2])), static_cast<uint16_t>(std::atoi(argv[3]))});
-        while (true)
-            ;
     }
     else if (argc == 1)
     {
