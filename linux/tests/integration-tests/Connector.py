@@ -4,12 +4,11 @@ from time import sleep
 from fcntl import fcntl, F_GETFL, F_SETFL
 from os import O_NONBLOCK, path
 
-SCREEN_RESOLUTION = chr(32) + chr(1000) + chr(800)
-
 class Connector:
     def __init__(self, tcp_ip='127.0.0.1', tcp_port=10000):
         self.__process = self.__run_process()
         self.__sender = self.__connect(tcp_ip, tcp_port)
+        self.__sender.settimeout(15);
 
     def __del__(self):
         self.end_connection()
@@ -17,12 +16,12 @@ class Connector:
     def __run_process(self):
         dirname = path.dirname(__file__)
         filename = path.join(dirname, '../../../build-make/linux/main_app/pcs_connector')
-        process = Popen([filename, 'test'],
+        process = Popen([filename, 'test', '1200', '800'],
                         stdin=PIPE,
                         stdout=PIPE)
         flags = fcntl(process.stdout, F_GETFL)
         fcntl(process.stdout, F_SETFL, flags | O_NONBLOCK)
-        sleep(0.1)
+        sleep(5)
         return process
 
     def __connect(self, tcp_ip, tcp_port):
@@ -49,12 +48,10 @@ class Connector:
         out = self.__receive_and_decode()
         assert out == key
 
-    def exchange_screen_resolution(self, screen_resolution_msg):
+    def exchange_screen_resolution(self, screen_resolution_msg, screen_resolution_received):
         self.__sender.send(screen_resolution_msg)
-        received = self.__sender.recv(5);
-        print(received.hex())
-        # out = self.__receive_and_decode()
-        # assert out == key
+        received = self.__sender.recv(5)
+        assert received == screen_resolution_received
 
     def end_connection(self):
         self.__process.kill()

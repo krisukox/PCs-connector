@@ -1,14 +1,16 @@
 #include <QApplication>
 #include "gui/MainWindow.h"
 
+#include <thread>
 #include "app_management/App.hpp"
+#include "internal_types/ScreenResolution.hpp"
 
 int main(int argc, char* argv[])
 {
-    if (argc == 2 && !std::strcmp(argv[1], "test"))
+    if (argc == 4 && !std::strcmp(argv[1], "test"))
     {
-        app_management::App app{};
-        app.test();
+        auto app = std::make_unique<app_management::App>();
+        app->test({std::atoi(argv[2]), std::atoi(argv[3])});
         while (true)
             ;
     }

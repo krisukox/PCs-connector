@@ -39,10 +39,9 @@ void App::listen(
     consumerThread.detach();
 }
 
-void App::test()
+void App::test(const internal_types::ScreenResolution& masterScreenResolution)
 {
-    std::thread consumerThread([this]() {
-        internal_types::ScreenResolution masterScreenResolution{500, 300};
+    std::thread consumerThread([this, masterScreenResolution]() {
         internal_types::SetScreenResolution setScreenResolution = [](internal_types::ScreenResolution) {};
 
         auto keyboardReceiver = std::make_unique<event_consumer::TestKeyboardReceiver>();
