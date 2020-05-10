@@ -26,7 +26,7 @@ public:
     template <class T, typename = std::enable_if<std::is_convertible<T, internal_types::DecodedType>::value>>
     void receiveOnce(const SuccessfulCallback<T>&& _successfulCallback)
     {
-        std::thread th([this, successfulCallback = std::move(_successfulCallback)]() {
+        std::thread thread([this, successfulCallback = std::move(_successfulCallback)]() {
             auto successfulCallbackInternal = [successfulCallback](const internal_types::DecodedType& decoded) {
                 return std::visit(
                     internal_types::Visitor{
@@ -40,7 +40,7 @@ public:
             };
             receive_(successfulCallbackInternal);
         });
-        th.detach();
+        thread.detach();
     }
 
     template <class T>

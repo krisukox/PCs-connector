@@ -5,18 +5,18 @@ from fcntl import fcntl, F_GETFL, F_SETFL
 from os import O_NONBLOCK, path
 
 class Connector:
-    def __init__(self, tcp_ip='127.0.0.1', tcp_port=10555):
-        self.__process = self.__run_process()
+    def __init__(self, screen_resolution_width, screen_resolution_height, tcp_ip='127.0.0.1', tcp_port=10555):
+        self.__process = self.__run_process(screen_resolution_width, screen_resolution_height)
         self.__sender = self.__connect(tcp_ip, tcp_port)
         self.__sender.settimeout(15);
 
     def __del__(self):
         self.end_connection()
 
-    def __run_process(self):
+    def __run_process(self, screen_resolution_width, screen_resolution_height):
         dirname = path.dirname(__file__)
         filename = path.join(dirname, '../../../build-make/linux/main_app/pcs_connector')
-        process = Popen([filename, 'test', '1200', '800'],
+        process = Popen([filename, 'test', str(screen_resolution_width), str(screen_resolution_height)],
                         stdin=PIPE,
                         stdout=PIPE)
         flags = fcntl(process.stdout, F_GETFL)

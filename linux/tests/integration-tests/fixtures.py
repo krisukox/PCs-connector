@@ -11,9 +11,12 @@ def to_screen_resolution_msg(width, height):
 
 @pytest.fixture
 def connection():
-    connector = Connector()
+    received_resolution_width = 1200
+    received_resolution_height = 800
+
+    connector = Connector(received_resolution_width, received_resolution_height)
     dummy_screen_resolution_msg = to_screen_resolution_msg(2570, 2570)
-    received_screen_resolution_msg = to_screen_resolution_msg(1200, 800)
+    received_screen_resolution_msg = to_screen_resolution_msg(received_resolution_width, received_resolution_height)
 
     connector.exchange_screen_resolution(dummy_screen_resolution_msg, received_screen_resolution_msg)
     return connector
