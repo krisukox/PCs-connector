@@ -1,7 +1,5 @@
 enable_testing()
 
-#get_filename_component(PREFIX_DIR "../.." ABSOLUTE)
-
 link_directories(${PREFIX_DIR}/googletest/build/lib)
 
 find_package(Python3 COMPONENTS Interpreter)

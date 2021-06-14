@@ -5,7 +5,7 @@ project(pcs_connector)
 if(DEFINED ENV{PREFIX_DIR})
     set(PREFIX_DIR $ENV{PREFIX_DIR})
 else()
-#    get_filename_component(PREFIX_DIR ".." ABSOLUTE)
+    get_filename_component(PREFIX_DIR ".." ABSOLUTE)
 endif()
 
 set(BOOST_ROOT ${PREFIX_DIR}/boost_1_70_0/)
