@@ -74,9 +74,9 @@ CONNECTOR_BUILD_DIR=$(pwd) ninja integr-tests
 **Optional:**
 - Ninja
 
-**Enviroment variable:**
-Cmake will search for Boost in the directory specified in the environment variable **PREFIX_DIR** or in the parent directory.
-Cmake will search for Qt in the directory specified in the environment variable **PREFIX_DIR**, in the directory specified in the environment variable **QTDIR** or in the parent directory.
+**Enviroment variable:**  
+Cmake will search for Boost in the directory specified in the environment variable **PREFIX_DIR** or in the parent directory.  
+Cmake will search for Qt in the directory specified in the environment variable **PREFIX_DIR**, in the directory specified in the environment variable **QTDIR** or in the parent directory.  
 
 ## IDE:
 
