@@ -35,7 +35,7 @@ Usage:
 **Optional:**
 - Ninja
 
-**Enviroment variable:**
+**Enviroment variable:**  
 Cmake will search for Boost, Qt and Google test in the directory specified in the environment variable **PREFIX_DIR** or in the parent directory. In both cases cmake will search for these three directories **boost_1_70_0**, **googletest**, **Qt**.
 
 Run cmake:
