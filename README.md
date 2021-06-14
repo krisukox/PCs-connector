@@ -1,6 +1,6 @@
 # PCs-connector
 
-PCs-connector is an application that allows to use two computers with Linux and Windows with one mouse and one keyboard. Computers communicate with each other by TCP, so both computers have to be in the same network.
+PCs-connector is an application that allows to use two computers with Linux and Windows with one mouse and one keyboard. Computers communicate with each other over TCP, so both computers have to be in the same network.
 
 Usage:
 
@@ -20,27 +20,29 @@ Usage:
 
 
 ### Linux:
-In order to build Linux application you need some dependencies:
+**Dependencies:**
 - Boost 1.70
 - Qt 5.14.1
+- X11
 
-Unit tests:
+**Unit tests:**
 - Google test
 
-Integration tests:
+**Integration tests:**
 - Python3
 - Pytest
 
-Optional:
+**Optional:**
 - Ninja
 
-Libraries path:  
-Cmake will search for Boost, Qt and Google test in the paren directory or in directory specified in **PREFIX_DIR** environment variable. In both cases cmake will search for these three directories **boost_1_70_0**, **googletest**, **Qt**
+**Libraries path:**  
+Cmake will search for Boost, Qt and Google test in the paren directory or in directory specified in **PREFIX_DIR** environment variable. In both cases cmake will search for these three directories **boost_1_70_0**, **googletest**, **Qt**.
 
 Run cmake:
 ```
+(export PREFIX_DIR=/path/to/libraries)
+
 mkdir build && cd build
-export PREFIX_DIR=/path/to/libraries
 cmake -G Ninja ..
 ```
 
@@ -64,14 +66,13 @@ if python cannot find binary run:
 CONNECTOR_BUILD_DIR=$(pwd) ninja integr-tests
 ```
 
-
 ### Windows:
 
 
-### IDE:
+## IDE:
 
 Prefered IDE in this project is QtCreator because it allows easier gui modification
 
-### Architecture:
-
-[![architecture]architecture.pmg]
+## Architecture:  
+  
+![ar](architecture.png)
