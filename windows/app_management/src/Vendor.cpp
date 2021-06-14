@@ -30,7 +30,7 @@ void Vendor::start(const internal_types::ScreenResolution& masterScreenResolutio
         [this](internal_types::ScreenResolution screenResolution) { setScreenResolution(screenResolution); };
 
     socket->send(masterScreenResolution);
-    socket->receiveOnce(successfulCallback);
+    socket->receiveOnce(std::move(successfulCallback));
     registerForMouseChangePositionEvent();
     eventCatchingThread = std::thread(&Vendor::startCatchingEvents, this);
 }

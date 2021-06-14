@@ -35,8 +35,8 @@ Usage:
 **Optional:**
 - Ninja
 
-**Libraries path:**  
-Cmake will search for Boost, Qt and Google test in the paren directory or in directory specified in **PREFIX_DIR** environment variable. In both cases cmake will search for these three directories **boost_1_70_0**, **googletest**, **Qt**.
+**Enviroment variable:**  
+Cmake will search for Boost, Qt and Google test in the directory specified in the environment variable **PREFIX_DIR** or in the parent directory. In both cases cmake will search for these three directories **boost_1_70_0**, **googletest**, **Qt**.
 
 Run cmake:
 ```
@@ -67,7 +67,16 @@ CONNECTOR_BUILD_DIR=$(pwd) ninja integr-tests
 ```
 
 ### Windows:
+**Dependencies:**
+- Boost 1.70
+- Qt 5.14.1
 
+**Optional:**
+- Ninja
+
+**Enviroment variable:**  
+Cmake will search for Boost in the directory specified in the environment variable **PREFIX_DIR** or in the parent directory.  
+Cmake will search for Qt in the directory specified in the environment variable **PREFIX_DIR**, in the directory specified in the environment variable **QTDIR** or in the parent directory.  
 
 ## IDE:
 

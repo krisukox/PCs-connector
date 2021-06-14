@@ -6,6 +6,7 @@
 #include <utility>
 #include "commons/CursorGuard.hpp"
 #include "internal_types/Point.hpp"
+#include "internal_types/TransformationPoints.hpp"
 
 namespace event_vendor
 {
@@ -95,7 +96,8 @@ void MouseSender::setContactPoints(
     const internal_types::Point& diffPointForSend,
     const internal_types::Point& diffPointForReceive)
 {
-    cursorGuard->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
+    cursorGuard->setTransformationPoints(
+        internal_types::TransformationPoints{contactPoints, diffPointForSend, diffPointForReceive});
 }
 
 void MouseSender::start()

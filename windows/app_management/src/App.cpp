@@ -35,14 +35,14 @@ catch (std::exception e)
     std::clog << e.what() << std::endl;
 }
 
-void App::setContactPoints(
-    const std::pair<internal_types::Point, internal_types::Point>& contactPoints,
-    const internal_types::Point& diffPointForSend,
-    const internal_types::Point& diffPointForReceive)
+void App::setTransformationPoints(const internal_types::TransformationPoints& transformationPoints)
 {
     if (vendor)
     {
-        vendor->setContactPoints(contactPoints, diffPointForSend, diffPointForReceive);
+        vendor->setContactPoints(
+            transformationPoints.contactPoints,
+            transformationPoints.diffPointForSend,
+            transformationPoints.diffPointForReceive);
     }
     else
     {

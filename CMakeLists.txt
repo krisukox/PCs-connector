@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.14.5)
 set (CMAKE_CXX_STANDARD 17)
 project(pcs_connector)
 
+
 if(DEFINED ENV{PREFIX_DIR})
     set(PREFIX_DIR $ENV{PREFIX_DIR})
 else()
