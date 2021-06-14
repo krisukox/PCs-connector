@@ -8,10 +8,10 @@ Usage:
 4. On Windows choose **Client** tab, put IP of computer with Linux and click **Connect**
 5. If both computers are connected properly two rectangles are shown in the application. The red one is the border screen of the computer that runs the application. Blue on is the border screen of the second computer. Change position of the rectangles to adjust border screen position.
 
-Linux:  
+### Linux:  
 <img src="linux.png" width=552 height=425 align=middle>
 
-Windows:  
+### Windows:  
 <img src="windows.png" width=552 height=425 align=middle>
 
 Linux:
