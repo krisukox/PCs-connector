@@ -21,12 +21,12 @@ set(SOURCE_FILES
 )
 
 if(UNIX)
-    set(CMAKE_PREFIX_PATH /home/krisukox/Qt/5.14.1/gcc_64)
-    set(QT_QMAKE_EXECUTABLE /home/krisukox/Qt/5.14.1/gcc_64/bin/qmake)
-    set(Qt5Core_DIR /home/krisukox/Qt/5.14.1/gcc_64/lib/cmake/Qt5Core)
-    set(Qt5Gui_DIR /home/krisukox/Qt/5.14.1/gcc_64/lib/cmake/Qt5Gui)
-    set(Qt5Widgets_DIR /home/krisukox/Qt/5.14.1/gcc_64/lib/cmake/Qt5Widgets)
-    set(Qt5_DIR /home/krisukox/Qt/5.14.1/gcc_64/lib/cmake/Qt5)
+    set(CMAKE_PREFIX_PATH ${PREFIX_DIR}/Qt/5.14.1/gcc_64)
+    set(QT_QMAKE_EXECUTABLE ${PREFIX_DIR}/Qt/5.14.1/gcc_64/bin/qmake)
+    set(Qt5Core_DIR ${PREFIX_DIR}/Qt/5.14.1/gcc_64/lib/cmake/Qt5Core)
+    set(Qt5Gui_DIR ${PREFIX_DIR}/Qt/5.14.1/gcc_64/lib/cmake/Qt5Gui)
+    set(Qt5Widgets_DIR ${PREFIX_DIR}/Qt/5.14.1/gcc_64/lib/cmake/Qt5Widgets)
+    set(Qt5_DIR ${PREFIX_DIR}/Qt/5.14.1/gcc_64/lib/cmake/Qt5)
 endif(UNIX)
 
 
