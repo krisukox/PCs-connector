@@ -2,7 +2,7 @@ from socket import socket, AF_INET, SOCK_STREAM
 from subprocess import Popen, PIPE
 from time import sleep
 from fcntl import fcntl, F_GETFL, F_SETFL
-from os import O_NONBLOCK, path
+from os import O_NONBLOCK, path, getenv
 
 class Connector:
     def __init__(self, screen_resolution_width, screen_resolution_height, tcp_ip='127.0.0.1', tcp_port=10555):
@@ -15,7 +15,11 @@ class Connector:
 
     def __run_process(self, screen_resolution_width, screen_resolution_height):
         dirname = path.dirname(__file__)
-        filename = path.join(dirname, '../../../build-make/linux/main_app/pcs_connector')
+        CONNECTOR_BUILD_DIR = getenv('CONNECTOR_BUILD_DIR')
+        if CONNECTOR_BUILD_DIR:
+            filename = path.join(dirname, CONNECTOR_BUILD_DIR + '/linux/main_app/pcs_connector')
+        else:
+            filename = path.join(dirname, '../../../build/linux/main_app/pcs_connector')
         process = Popen([filename, 'test', str(screen_resolution_width), str(screen_resolution_height)],
                         stdin=PIPE,
                         stdout=PIPE)

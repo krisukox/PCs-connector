@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.14.5)
 set (CMAKE_CXX_STANDARD 17)
 project(pcs_connector)
 
-get_filename_component(PREFIX_DIR ".." ABSOLUTE)
+if(DEFINED ENV{PREFIX_DIR})
+    set(PREFIX_DIR $ENV{PREFIX_DIR})
+else()
+    get_filename_component(PREFIX_DIR ".." ABSOLUTE)
+endif()
+
 set(BOOST_ROOT ${PREFIX_DIR}/boost_1_70_0/)
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.70.0 COMPONENTS system REQUIRED)

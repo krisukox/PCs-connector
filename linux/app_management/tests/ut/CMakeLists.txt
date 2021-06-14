@@ -17,3 +17,8 @@ target_link_libraries(app_management_ut
     gtest_main
 )
 
+add_custom_target(UT
+    DEPENDS app_management_ut
+    COMMAND app_management_ut
+    USES_TERMINAL
+)
